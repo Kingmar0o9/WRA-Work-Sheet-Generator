@@ -1,28 +1,454 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="js-off">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WRA STEM Kits</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<title>WRA STEM Kits · A plant cell you can take apart</title>
+<meta name="description" content="Hands-on, 3D printed science kits for middle school classrooms, with free tools that print the worksheets to go with them. Made by Mark Tang at Western Reserve Academy.">
+<meta name="theme-color" content="#124A2B">
+<meta property="og:title" content="WRA STEM Kits">
+<meta property="og:description" content="A 3D printed plant cell kit for grades 6–7, plus a free worksheet generator.">
+<meta property="og:image" content="https://wrastem.com/assets/img/cell-assembled.webp">
+<link rel="preload" href="assets/fonts/bricolage-wght.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/img/cell-assembled.webp" as="image" fetchpriority="high">
+<script>
+  // Decide early whether this device should run the live 3D model.
+  // Slow or software-only graphics get still pictures of the same model instead.
+  (function () {
+    var d = document.documentElement; d.classList.remove('js-off');
+    var q = location.search, pref = null;
+    try { pref = localStorage.getItem('wra-3d'); } catch (e) {}
+    function capable() {
+      if (/[?&]3d=force/.test(q) || /[?&]poster=/.test(q)) return true;
+      if (/[?&]3d=off/.test(q) || pref === 'off') return false;
+      if (pref === 'on') return true;
+      var n = navigator;
+      if (n.connection && n.connection.saveData) return false;
+      if (n.deviceMemory && n.deviceMemory < 2) return false;
+      if (n.hardwareConcurrency && n.hardwareConcurrency < 3) return false;
+      try {
+        var c = document.createElement('canvas');
+        var gl = c.getContext('webgl2') || c.getContext('webgl');
+        if (!gl) return false;
+        var dbg = gl.getExtension('WEBGL_debug_renderer_info');
+        var r = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '';
+        var lose = gl.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext();
+        if (/swiftshader|llvmpipe|software|basic render/i.test(r)) return false;
+      } catch (e) { return false; }
+      return true;
+    }
+    d.classList.add(capable() ? 'want-3d' : 'no-3d');
+  })();
+</script>
 <style>
-body{margin:0;font-family:'Poppins',Arial,sans-serif;color:#111;background:#fff}
-main{max-width:720px;margin:0 auto;padding:56px 20px}
-h1{font-size:40px;margin:0 0 6px}
-p{font-size:17px;line-height:1.5;color:#333;margin:0 0 28px}
-a.card{display:block;border:3px solid #111;border-radius:14px;padding:20px 22px;text-decoration:none;color:#111;margin-bottom:16px}
-a.card:hover{background:#f3f3f3}
-a.card b{font-size:22px;display:block}
-a.card span{font-size:15px;color:#444}
-footer{font-size:13px;color:#777;margin-top:40px}
+@font-face{font-family:"Bricolage";src:url(assets/fonts/bricolage-wght.woff2) format("woff2");font-weight:200 800;font-display:swap}
+:root{
+  --stock:#F6F7F2; --ink:#13261C; --ink-2:#3E5446; --rule:#13261C;
+  --leaf:#124A2B; --leaf-deep:#0C3520; --on-leaf:#F6F7F2; --on-leaf-2:#D7EDD3;
+  --sun:#F6C343; --plum:#6B3A80; --coral:#E8573A; --sky:#7CC4E8;
+  --sans:"Bricolage",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --gutter:clamp(16px,4vw,56px); --max:1240px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scrollbar-color:var(--leaf) var(--stock);-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--stock);color:var(--ink);font-family:var(--sans);font-size:clamp(17px,1.05vw + 12px,19px);line-height:1.55;font-weight:400;-webkit-font-smoothing:antialiased}
+::selection{background:var(--sun);color:var(--ink)}
+a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:2px}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:6px}
+.on-leaf :focus-visible{outline-color:var(--sun)}
+img{display:block;max-width:100%;height:auto}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--gutter)}
+h1,h2,h3{font-weight:800;line-height:.98;letter-spacing:-.035em;margin:0;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+.skip{position:absolute;left:-999px;top:8px;background:var(--sun);color:var(--ink);padding:10px 16px;border-radius:8px;z-index:50}
+.skip:focus{left:8px}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:.55em;min-height:48px;padding:0 22px;border-radius:999px;font:700 1rem/1 var(--sans);letter-spacing:-.01em;text-decoration:none;border:2px solid currentColor;cursor:pointer;transition:transform .3s var(--ease),background-color .2s,color .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0)}
+.btn svg{width:18px;height:18px;flex:none}
+.btn-sun{background:var(--sun);border-color:var(--sun);color:var(--ink)}
+.btn-sun:hover{background:#ffd35e;border-color:#ffd35e}
+.btn-line{background:transparent;color:inherit}
+.btn-line:hover{background:rgba(255,255,255,.12)}
+.btn-ink{background:var(--ink);border-color:var(--ink);color:var(--stock)}
+.btn-ink:hover{background:var(--leaf-deep);border-color:var(--leaf-deep)}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--ink)}
+.btn-ghost:hover{background:var(--ink);color:var(--stock)}
+
+/* ---------- header ---------- */
+.top{position:fixed;inset:0 0 auto 0;z-index:20;color:var(--on-leaf);transition:background-color .35s,color .35s,box-shadow .35s}
+.top .wrap{display:flex;align-items:center;gap:24px;height:68px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.15rem;letter-spacing:-.03em;text-decoration:none;white-space:nowrap}
+.brand svg{width:30px;height:30px}
+.top nav{display:flex;gap:22px;margin-left:auto;font-weight:600;font-size:.95rem}
+.top nav a{text-decoration:none;opacity:.9}
+.top nav a:hover{text-decoration:underline;opacity:1}
+.top .btn{min-height:42px;padding:0 18px;font-size:.92rem;white-space:nowrap}
+.top.solid{background:rgba(246,247,242,.94);color:var(--ink);box-shadow:0 1px 0 rgba(19,38,28,.18),0 8px 24px -16px rgba(19,38,28,.4);backdrop-filter:saturate(1.2) blur(8px)}
+.top.solid .btn-sun{background:var(--ink);border-color:var(--ink);color:var(--stock)}
+@media (max-width:760px){.top nav{display:none}.top .btn{margin-left:auto;padding:0 14px;font-size:.85rem}}
+
+/* ---------- stage: assembled -> exploded ---------- */
+.stage{position:relative;height:260vh;height:260svh;background:var(--leaf);color:var(--on-leaf);--p:0}
+.stage-sticky{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.stage-art{position:absolute;inset:0}
+.stage-art img{position:absolute;inset:0 0 0 auto;width:min(100%,max(62%,calc(100% - 520px)));height:100%;object-fit:contain;object-position:60% 50%;pointer-events:none;transition:opacity .2s linear}
+.poster-b{opacity:var(--p)}
+.poster-a{opacity:calc(1 - var(--p))}
+#stage-canvas,#viewer-canvas{position:absolute;inset:0}
+#stage-canvas canvas,#viewer-canvas canvas{width:100%!important;height:100%!important;display:block;opacity:0;animation:fadein .8s var(--ease) .05s forwards}
+@keyframes fadein{to{opacity:1}}
+.has-3d .stage-art img{display:none}
+.stage-copy{position:absolute;left:0;right:0;bottom:clamp(28px,7vh,72px);pointer-events:none}
+.stage-copy .wrap>*{pointer-events:auto}
+.stage-copy h1{font-size:clamp(2.9rem,6.4vw,6rem);max-width:9.5ch}
+.stage-copy h2{font-size:clamp(2.3rem,4.6vw,4.4rem);max-width:12ch}
+.stage-copy .lede{margin-top:20px;max-width:34ch;font-size:clamp(1.05rem,1.2vw + .5rem,1.3rem);color:var(--on-leaf-2);line-height:1.45}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.copy-a{opacity:calc(1 - var(--p) * 3);transform:translateY(calc(var(--p) * -60px))}
+.copy-b{opacity:calc((var(--p) - .62) * 3);transform:translateY(calc((1 - var(--p)) * 40px))}
+.copy-b .note{display:flex;align-items:center;gap:10px;margin-top:22px;font-weight:600;color:var(--on-leaf)}
+.copy-b .note svg{width:22px;height:22px;flex:none;color:var(--sun)}
+.ticket{display:inline-flex;align-items:center;gap:10px;margin-bottom:22px;padding:6px 14px 6px 6px;border:2px solid var(--on-leaf);border-radius:999px;font-size:.88rem;font-weight:600;letter-spacing:.005em}
+.ticket b{background:var(--sun);color:var(--ink);border-radius:999px;padding:3px 10px;font-weight:800}
+.label{position:absolute;left:0;top:0;pointer-events:none;opacity:0;transition:opacity .45s var(--ease)}
+.label.on{opacity:1}
+.label span{position:absolute;left:14px;bottom:10px;white-space:nowrap;background:var(--stock);color:var(--ink);font-weight:700;font-size:.85rem;padding:5px 11px;border-radius:999px;box-shadow:0 4px 14px -6px rgba(0,0,0,.45)}
+.label::before{content:"";position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;background:var(--stock);box-shadow:0 0 0 3px var(--ink)}
+.label::after{content:"";position:absolute;left:0;bottom:0;width:16px;height:2px;background:var(--stock);transform-origin:0 0;transform:rotate(-38deg)}
+.no-3d .label{display:none}
+.scroll-cue{position:absolute;left:50%;bottom:16px;width:2px;height:40px;background:linear-gradient(var(--on-leaf),transparent);opacity:calc(.7 - var(--p) * 4);transform:translateX(-50%)}
+@media (max-width:900px){
+  .stage-art img{object-position:50% 30%;width:100%}
+  .stage-art{bottom:34%}
+  .stage-copy h1{font-size:clamp(2.6rem,11vw,4rem)}
+  .stage-copy h2{font-size:clamp(2.1rem,9vw,3.2rem)}
+  .label span{font-size:.75rem;padding:4px 9px}
+}
+.js-off .stage{height:auto}.js-off .stage-sticky{position:relative;height:auto;min-height:100vh}
+.js-off .copy-b,.js-off .poster-b{display:none}
+.js-off .copy-a{opacity:1;transform:none}
+
+/* ---------- horizon rule ---------- */
+.horizon{height:0;border:0;border-top:2px solid var(--rule);margin:0}
+
+/* ---------- why + rundown ---------- */
+.why{padding:clamp(72px,11vw,140px) 0 clamp(64px,9vw,120px)}
+.why-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,6vw,96px);align-items:start}
+.why h2{font-size:clamp(2.4rem,4.6vw,4.2rem)}
+.why .story p{font-size:clamp(1.1rem,.9vw + .7rem,1.3rem);line-height:1.6;max-width:62ch}
+.why .story p+p{margin-top:1em}
+.draft{display:inline-block;margin-top:22px;font-size:.85rem;font-weight:700;background:var(--sun);padding:4px 10px;border-radius:6px}
+.who{display:flex;align-items:center;gap:14px;margin-top:28px;font-weight:700}
+.who small{display:block;font-weight:500;color:var(--ink-2);font-size:.92rem}
+.who .mark{width:46px;height:46px;border-radius:50%;background:var(--leaf);color:var(--stock);display:grid;place-items:center;font-weight:800;letter-spacing:-.04em}
+.spec{margin-top:clamp(56px,8vw,96px)}
+.spec h2{font-size:clamp(2rem,3.4vw,3rem);margin-bottom:28px}
+.spec dl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:0;border-top:2px solid var(--rule);border-left:2px solid var(--rule)}
+.spec .cell{border-right:2px solid var(--rule);border-bottom:2px solid var(--rule);padding:18px 20px 22px;min-height:150px;display:flex;flex-direction:column;gap:10px}
+.spec dt{font-size:.85rem;font-weight:700;letter-spacing:.01em;color:var(--ink-2)}
+.spec dd{margin:0;font-size:1.02rem;line-height:1.4}
+.spec dd strong{display:block;font-size:clamp(1.7rem,2.4vw,2.3rem);line-height:1;letter-spacing:-.035em;font-weight:800;margin-bottom:6px;font-variant-numeric:tabular-nums}
+.spec .wide{grid-column:span 2}
+.spec .status{background:var(--sun);grid-column:1/-1;min-height:0}
+.spec .status dd{font-size:1.1rem;max-width:70ch}
+@media (max-width:960px){.why-grid{grid-template-columns:1fr}.spec dl{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.spec dl{grid-template-columns:1fr}.spec .wide{grid-column:auto}.spec .cell{min-height:0}}
+
+/* ---------- resources + viewer ---------- */
+.res{padding:clamp(72px,10vw,128px) 0 clamp(72px,10vw,120px);background:var(--stock)}
+.res-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(28px,5vw,72px);align-items:start}
+.res h2{font-size:clamp(2.4rem,4.6vw,4.2rem);margin-bottom:12px}
+.res .intro{color:var(--ink-2);max-width:40ch;margin-bottom:32px}
+.res ol{list-style:none;margin:0;padding:0;border-top:2px solid var(--rule)}
+.res li{border-bottom:2px solid var(--rule);padding:24px 0 26px;display:grid;gap:10px}
+.res h3{font-size:clamp(1.5rem,2vw,1.9rem);letter-spacing:-.03em}
+.res li p{color:var(--ink-2);max-width:46ch}
+.tag{justify-self:start;display:inline-flex;align-items:center;gap:7px;font-size:.8rem;font-weight:800;letter-spacing:.02em;padding:4px 10px 4px 8px;border-radius:999px;border:2px solid var(--ink)}
+.tag::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.tag.live{background:var(--leaf);border-color:var(--leaf);color:var(--stock)}
+.tag.soon{color:var(--ink-2);border-style:dashed}
+.res li .btn{justify-self:start;margin-top:6px}
+.res li.soon h3{color:var(--ink-2)}
+.viewer{position:sticky;top:88px}
+.viewer-box{position:relative;aspect-ratio:1/1;background:var(--leaf);border-radius:22px;overflow:hidden;touch-action:pan-y;user-select:none;cursor:grab}
+.viewer-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:6%}
+.has-3d .viewer-box img{display:none}
+.viewer-box:active{cursor:grabbing}
+.viewer-hint{position:absolute;left:16px;top:14px;color:var(--on-leaf);font-size:.85rem;font-weight:600;display:flex;align-items:center;gap:8px;pointer-events:none}
+.viewer-hint svg{width:18px;height:18px}
+.no-3d .viewer-hint .h3d{display:none}
+.has-3d .viewer-hint .h2d,.want-3d .viewer-hint .h2d{display:none}
+.viewer-tools{position:absolute;right:12px;top:12px;display:flex;gap:8px}
+.viewer-tools button{min-height:40px;padding:0 14px;border-radius:999px;border:2px solid var(--on-leaf);background:rgba(19,38,28,.25);color:var(--on-leaf);font:700 .85rem/1 var(--sans);cursor:pointer}
+.viewer-tools button:hover{background:var(--on-leaf);color:var(--ink)}
+.viewer-tools button:focus-visible{outline-color:var(--sun)}
+.no-3d .viewer-tools,.want-3d:not(.has-3d) .viewer-tools{display:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chips button{min-height:40px;padding:0 14px;border-radius:999px;border:2px solid var(--ink);background:transparent;color:var(--ink);font:600 .9rem/1 var(--sans);cursor:pointer;transition:background-color .2s,color .2s}
+.chips button:hover{background:rgba(19,38,28,.08)}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--stock)}
+.chips .sep{flex-basis:100%;height:0}
+.chips .more{border-style:dashed;color:var(--ink-2)}
+.info{margin-top:18px;min-height:150px;padding:20px 22px;border:2px solid var(--rule);border-radius:16px;background:#fff}
+.info h3{font-size:1.6rem;margin-bottom:8px}
+.info .role{font-size:1.1rem;max-width:52ch}
+.info .like{margin-top:8px;color:var(--ink-2)}
+.info .kit{margin-top:12px;font-size:.88rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.info .kit i{width:14px;height:14px;border-radius:50%;flex:none;border:2px solid var(--ink)}
+.info .empty{color:var(--ink-2)}
+.d3-toggle{margin-top:12px;font-size:.85rem;color:var(--ink-2)}
+.d3-toggle button{background:none;border:0;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-underline-offset:.2em;cursor:pointer}
+@media (max-width:960px){.res-grid{grid-template-columns:1fr}.viewer{position:relative;top:0}}
+
+/* ---------- footer ---------- */
+.foot{background:var(--ink);color:var(--stock);padding:56px 0 64px}
+.foot .wrap{display:flex;flex-wrap:wrap;gap:24px 48px;align-items:flex-end;justify-content:space-between}
+.foot .big{font-size:clamp(1.8rem,3.4vw,2.8rem);font-weight:800;letter-spacing:-.035em;line-height:1}
+.foot p{color:#C9D6CC;font-size:.95rem;max-width:56ch}
+.foot a{color:var(--stock)}
+
+/* ---------- poster render mode (only used to make the fallback images) ---------- */
+.poster-mode,.poster-mode body{background:transparent}
+.poster-mode body>*:not(main){display:none}
+.poster-mode main>*:not(#stage){display:none}
+.poster-mode .stage{height:auto;background:transparent}
+.poster-mode .stage-sticky{position:relative;width:1600px;height:1200px}
+.poster-mode .stage-copy,.poster-mode .stage-art img,.poster-mode .scroll-cue,.poster-mode .label{display:none}
 </style>
 </head>
 <body>
+<a class="skip" href="#why">Skip to content</a>
+
+<header class="top on-leaf" id="top">
+  <div class="wrap">
+    <a class="brand" href="#" aria-label="WRA STEM Kits, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="14" cy="15" r="4.6" fill="currentColor"/><ellipse cx="21.4" cy="20.2" rx="2.6" ry="1.7" fill="currentColor" transform="rotate(-30 21.4 20.2)"/></svg>
+      WRA STEM Kits
+    </a>
+    <nav aria-label="Sections">
+      <a href="#stage-b">The kit</a>
+      <a href="#why">Why I built it</a>
+      <a href="#resources">Resources</a>
+    </nav>
+    <a class="btn btn-sun" href="cell-kit-generator/">Make a worksheet</a>
+  </div>
+</header>
+
 <main>
-<h1>WRA STEM Kits</h1>
-<p>Hands-on, 3D printed science kits for middle school classrooms, made at Western Reserve Academy.</p>
-<a class="card" href="cell-kit-generator/"><b>Plant Cell Worksheet Generator</b><span>Make a new plant cell worksheet and answer key in one click. Grades 6 and 7, designed around NGSS MS-LS1-2.</span></a>
-<footer>WRA STEM Kits · Mark Tang · Western Reserve Academy</footer>
+  <section class="stage on-leaf" id="stage" aria-label="The plant cell kit">
+    <div class="stage-sticky">
+      <div class="stage-art">
+        <img class="poster-a" src="assets/img/cell-assembled.webp" width="1600" height="1200" alt="The 3D printed plant cell kit, fully assembled: a six-sided cell wall around a yellow cell membrane, with the nucleus, chloroplast, mitochondria and other organelles pressed into the cytoplasm." fetchpriority="high">
+        <img class="poster-b" src="assets/img/cell-exploded.webp" width="1600" height="1200" alt="The same kit pulled apart into layers: cell wall at the bottom, then the membrane, the cytoplasm tray, and each organelle lifted above its pocket." loading="lazy" decoding="async">
+        <div id="stage-canvas"></div>
+        <div class="label" data-label="wall"><span>Cell wall</span></div>
+        <div class="label" data-label="membrane"><span>Cell membrane</span></div>
+        <div class="label" data-label="nucleus"><span>Nucleus</span></div>
+        <div class="label" data-label="chloroplast"><span>Chloroplast</span></div>
+        <div class="label" data-label="mitochondrion"><span>Mitochondrion</span></div>
+      </div>
+
+      <div class="stage-copy copy-a">
+        <div class="wrap">
+          <div class="ticket"><b>Plant Cell Kit</b> Grades 6–7 · NGSS MS-LS1-2</div>
+          <h1>A plant cell you can take apart.</h1>
+          <p class="lede">Hands-on, 3D printed science kits for middle school classrooms, with a free tool that prints the worksheets to go with them.</p>
+          <div class="actions">
+            <a class="btn btn-sun" href="cell-kit-generator/">Make a worksheet
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            <a class="btn btn-line" href="#stage-b">See it come apart
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-copy copy-b" id="stage-b-copy">
+        <div class="wrap">
+          <h2>12 printed pieces. Every one comes out.</h2>
+          <p class="lede">Students lift the nucleus, chloroplast and mitochondria out of the cell, learn what each part does, then press it back into place.</p>
+          <p class="note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 20V9l6-5 6 5v11M10 20v-6h4v6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>Every piece is 3D printed, which keeps a classroom set affordable.</p>
+        </div>
+      </div>
+      <div class="scroll-cue" aria-hidden="true"></div>
+    </div>
+    <span id="stage-b" style="position:absolute;top:150vh" aria-hidden="true"></span>
+  </section>
+
+  <hr class="horizon">
+
+  <section class="why" id="why">
+    <div class="wrap">
+      <div class="why-grid">
+        <div>
+          <h2>Why I built it</h2>
+          <div class="who"><span class="mark" aria-hidden="true">MT</span><span>Mark Tang<small>Student, Western Reserve Academy · Hudson, Ohio</small></span></div>
+        </div>
+        <div class="story">
+          <p>Cells are too small to see, and a flat diagram makes it hard to picture how the parts fit together. I wanted students to hold a plant cell in their hands, take it apart, and put it back together.</p>
+          <p>So I modeled the cell in CAD and 3D printed every piece. Then I built a worksheet generator, so a teacher can print a fresh worksheet and answer key that match the kit in one click.</p>
+          <span class="draft">Draft: Mark to rewrite in his own words</span>
+        </div>
+      </div>
+
+      <div class="spec" id="rundown">
+        <h2>The quick rundown</h2>
+        <dl>
+          <div class="cell"><dt>For</dt><dd><strong>Grades 6–7</strong>Middle school life science</dd></div>
+          <div class="cell"><dt>Standard</dt><dd><strong>MS-LS1-2</strong>Designed to align with NGSS. Not certified.</dd></div>
+          <div class="cell"><dt>The kit</dt><dd><strong>12 pieces</strong>All 3D printed</dd></div>
+          <div class="cell"><dt>Parts students learn</dt><dd>Cell wall, cell membrane, nucleus, chloroplast, mitochondrion</dd></div>
+          <div class="cell wide"><dt>Each worksheet</dt><dd><strong>3 pages + answer key</strong>Six sections, from labeling the cell to short written answers. Questions come from a fixed bank of 43, never made up on the spot.</dd></div>
+          <div class="cell"><dt>Version number</dt><dd><strong>1000–9999</strong>Type a number to print the same worksheet again</dd></div>
+          <div class="cell"><dt>Works</dt><dd><strong>Offline too</strong>Download PDFs or print straight from the browser</dd></div>
+          <div class="cell wide status"><dt>Where it stands</dt><dd>Built and tested in software. A science teacher is reviewing every question. Not yet tested with students.</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <hr class="horizon">
+
+  <section class="res" id="resources" aria-labelledby="res-h">
+    <div class="wrap res-grid">
+      <div>
+        <h2 id="res-h">Resources</h2>
+        <p class="intro">Free tools for teachers using the kits. One is ready now; two more are on the way.</p>
+        <ol>
+          <li>
+            <span class="tag live">Ready now</span>
+            <h3>Worksheet Generator</h3>
+            <p>Print a new plant cell worksheet and answer key in one click. Each one gets a version number so you can print it again.</p>
+            <a class="btn btn-ink" href="cell-kit-generator/">Open the generator
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          </li>
+          <li class="soon">
+            <span class="tag soon">Coming soon</span>
+            <h3>Instruction Sheet Editor</h3>
+            <p>Edit and print the step-by-step instructions that go with each kit.</p>
+          </li>
+          <li class="soon">
+            <span class="tag soon">Coming soon</span>
+            <h3>NGSS AI</h3>
+            <p>Ask a question about the Next Generation Science Standards and get an answer built on the standards themselves.</p>
+          </li>
+        </ol>
+      </div>
+
+      <div class="viewer">
+        <div class="viewer-box on-leaf" id="viewer-box">
+          <img src="assets/img/cell-exploded.webp" width="1600" height="1200" alt="" loading="lazy" decoding="async">
+          <div id="viewer-canvas"></div>
+          <p class="viewer-hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L3.6 14a1.5 1.5 0 0 1 2.4-1.8L9 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="h3d">Drag to turn. Click a part.</span><span class="h2d">Pick a part below.</span></p>
+          <div class="viewer-tools">
+            <button type="button" id="explode-toggle" aria-pressed="false">Take it apart</button>
+            <button type="button" id="reset-view">Reset</button>
+          </div>
+        </div>
+        <div class="chips" role="group" aria-label="Parts of the plant cell">
+          <button type="button" data-part="wall" aria-pressed="false">Cell wall</button>
+          <button type="button" data-part="membrane" aria-pressed="false">Cell membrane</button>
+          <button type="button" data-part="nucleus" aria-pressed="false">Nucleus</button>
+          <button type="button" data-part="chloroplast" aria-pressed="false">Chloroplast</button>
+          <button type="button" data-part="mitochondrion" aria-pressed="false">Mitochondrion</button>
+          <span class="sep" aria-hidden="true"></span>
+          <button type="button" class="more" data-part="cytoplasm" aria-pressed="false">Cytoplasm</button>
+          <button type="button" class="more" data-part="nucleolus" aria-pressed="false">Nucleolus</button>
+          <button type="button" class="more" data-part="vacuole" aria-pressed="false">Vacuole</button>
+          <button type="button" class="more" data-part="er" aria-pressed="false">Endoplasmic reticulum</button>
+          <button type="button" class="more" data-part="golgi" aria-pressed="false">Golgi apparatus</button>
+          <button type="button" class="more" data-part="vesicle" aria-pressed="false">Vesicle</button>
+        </div>
+        <div class="info" id="part-info" aria-live="polite"><p class="empty">Click a part of the model, or pick one above, to see what it does.</p></div>
+        <p class="d3-toggle" id="d3-toggle" hidden></p>
+      </div>
+    </div>
+  </section>
 </main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <p class="big">WRA STEM Kits</p>
+      <p>A student project by Mark Tang at Western Reserve Academy, Hudson, Ohio. Designed to align with NGSS MS-LS1-2; not certified. Not yet tested with students.</p>
+    </div>
+    <p><a href="cell-kit-generator/">Worksheet Generator</a></p>
+  </div>
+</footer>
+
+<template id="info-empty"><p class="empty">Click a part of the model, or pick one above, to see what it does.</p></template>
+<template id="info-wall"><h3>Cell wall</h3><p class="role">Holds the cell's shape. It is stiff and strong and helps the plant stand up tall.</p><p class="like">Like a strong fence around a yard.</p><p class="kit"><i style="background:#EFE6CF"></i>NGSS MS-LS1-2 part · The six-sided frame around the outside</p></template>
+<template id="info-membrane"><h3>Cell membrane</h3><p class="role">Controls what goes in and out of the cell. It lets water in and keeps harmful things out.</p><p class="like">Like a guard at a door.</p><p class="kit"><i style="background:#F6C343"></i>NGSS MS-LS1-2 part · The yellow tray just inside the wall</p></template>
+<template id="info-nucleus"><h3>Nucleus</h3><p class="role">Tells the cell what to do. It holds the DNA, the cell's instructions.</p><p class="like">Like a principal who runs the school.</p><p class="kit"><i style="background:#7A45A0"></i>NGSS MS-LS1-2 part · The large dome, cut open to show the inside</p></template>
+<template id="info-chloroplast"><h3>Chloroplast</h3><p class="role">Makes sugar using sunlight and water. It is green because it catches light.</p><p class="like">Like a solar panel.</p><p class="kit"><i style="background:#7EE07A"></i>NGSS MS-LS1-2 part · The oval with stacks inside</p></template>
+<template id="info-mitochondrion"><h3>Mitochondrion</h3><p class="role">Turns sugar into energy the cell can use. Plant cells need them too.</p><p class="like">Like a power plant.</p><p class="kit"><i style="background:#E8573A"></i>NGSS MS-LS1-2 part · The kit has two</p></template>
+<template id="info-cytoplasm"><h3>Cytoplasm</h3><p class="role">The jelly-like filling that holds the organelles in place inside the cell.</p><p class="kit"><i style="background:#CFE8C9"></i>Also in the kit · The tray every organelle presses into</p></template>
+<template id="info-nucleolus"><h3>Nucleolus</h3><p class="role">A dense spot inside the nucleus that helps build ribosomes.</p><p class="kit"><i style="background:#E06AA5"></i>Also in the kit · Sits inside the cut-open nucleus</p></template>
+<template id="info-vacuole"><h3>Vacuole</h3><p class="role">Stores water and helps keep the plant cell firm.</p><p class="kit"><i style="background:#F4FAFC"></i>Also in the kit</p></template>
+<template id="info-er"><h3>Endoplasmic reticulum</h3><p class="role">A folded network that helps make and move materials around the cell.</p><p class="kit"><i style="background:#7CC4E8"></i>Also in the kit</p></template>
+<template id="info-golgi"><h3>Golgi apparatus</h3><p class="role">Packs materials and ships them where they need to go.</p><p class="kit"><i style="background:#F29E38"></i>Also in the kit</p></template>
+<template id="info-vesicle"><h3>Vesicle</h3><p class="role">A small sac that carries materials around the cell.</p><p class="kit"><i style="background:#E06AA5"></i>Also in the kit</p></template>
+
+<script>
+  // Page behavior that works with or without the 3D model.
+  (function () {
+    var d = document.documentElement, stage = document.getElementById('stage'), top = document.getElementById('top');
+    var ticking = false;
+    function onScroll() {
+      if (ticking) return; ticking = true;
+      requestAnimationFrame(function () {
+        ticking = false;
+        var r = stage.getBoundingClientRect(), vh = window.innerHeight;
+        var p = Math.min(1, Math.max(0, (-r.top - vh * 0.15) / (vh * 1.1)));
+        stage.style.setProperty('--p', p.toFixed(3));
+        top.classList.toggle('solid', r.bottom < 68);
+      });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+
+    // Part info, shared by the chips and the 3D model.
+    var info = document.getElementById('part-info');
+    var chips = [].slice.call(document.querySelectorAll('[data-part]'));
+    window.wraShowPart = function (name) {
+      var key = name === 'mitochondrion2' ? 'mitochondrion' : name;
+      var tpl = key && document.getElementById('info-' + key);
+      info.innerHTML = (tpl || document.getElementById('info-empty')).innerHTML;
+      chips.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.part === key)); });
+      document.dispatchEvent(new CustomEvent('wra:part', { detail: key || null }));
+    };
+    chips.forEach(function (b) {
+      b.addEventListener('click', function () {
+        window.wraShowPart(b.getAttribute('aria-pressed') === 'true' ? null : b.dataset.part);
+      });
+    });
+
+    // Let people switch 3D on or off for this device.
+    var t = document.getElementById('d3-toggle');
+    function setToggle() {
+      var on = d.classList.contains('want-3d');
+      t.innerHTML = on ? '3D running slowly? <button type="button">Use still pictures</button>'
+                       : 'Showing still pictures to keep this page fast. <button type="button">Try the 3D model</button>';
+      t.hidden = false;
+      t.querySelector('button').onclick = function () {
+        try { localStorage.setItem('wra-3d', on ? 'off' : 'on'); } catch (e) {}
+        location.href = location.pathname + (on ? '?3d=off' : '?3d=force') + '#resources';
+      };
+    }
+    setToggle();
+
+    // Load the 3D model only on capable devices, after the page is already usable.
+    if (d.classList.contains('want-3d')) {
+      var go = function () { var s = document.createElement('script'); s.type = 'module'; s.src = 'assets/js/cell-viewer.js'; document.head.appendChild(s); };
+      if (document.readyState === 'complete') go(); else window.addEventListener('load', function () { (window.requestIdleCallback || setTimeout)(go, { timeout: 1200 }); });
+    }
+  })();
+</script>
 </body>
 </html>
