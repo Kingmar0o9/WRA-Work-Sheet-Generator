@@ -100,8 +100,6 @@ p{margin:0;text-wrap:pretty}
 .poster-frame{position:absolute;right:var(--gutter);top:52%;transform:translateY(-50%);width:min(calc(100% - 540px),112vh,1000px);aspect-ratio:4/3}
 .poster-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
 .poster-frame .label{left:var(--lx);top:var(--ly);opacity:calc((var(--p) - .75) * 4)}
-.label.flip span{left:auto;right:14px}
-.label.flip::after{left:auto;right:0;transform-origin:100% 0;transform:rotate(38deg)}
 .poster-b{opacity:var(--p)}
 .poster-a{opacity:calc(1 - var(--p))}
 #stage-canvas,#viewer-canvas{position:absolute;inset:0}
@@ -120,19 +118,20 @@ p{margin:0;text-wrap:pretty}
 .copy-b .note svg{width:22px;height:22px;flex:none;color:var(--sun)}
 .kitline{margin-top:22px;font-size:.9rem;font-weight:600;color:var(--on-leaf-2)}
 .kitline b{color:var(--sun);font-weight:800}
-.label{position:absolute;left:0;top:0;pointer-events:none;opacity:0;transition:opacity .45s var(--ease)}
+.label{position:absolute;left:0;top:0;pointer-events:none;opacity:0;transition:opacity .45s var(--ease);--lead:14px}
 .label.on{opacity:1}
-.label span{position:absolute;left:14px;bottom:10px;white-space:nowrap;background:var(--stock);color:var(--ink);font-weight:700;font-size:.85rem;padding:5px 11px;border-radius:999px;box-shadow:0 4px 14px -6px rgba(0,0,0,.45)}
+.label span{position:absolute;left:var(--dx,0px);top:0;transform:translate(-50%,calc(-100% - var(--lead)));white-space:nowrap;background:var(--stock);color:var(--ink);font-weight:700;font-size:.82rem;padding:4px 10px;border-radius:999px;box-shadow:0 4px 14px -6px rgba(0,0,0,.45)}
+.label.below span{transform:translate(-50%,var(--lead))}
 .label::before{content:"";position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;background:var(--stock);box-shadow:0 0 0 3px var(--ink)}
-.label::after{content:"";position:absolute;left:0;bottom:0;width:16px;height:2px;background:var(--stock);transform-origin:0 0;transform:rotate(-38deg)}
-.no-3d .stage-art>.label,.js-off .stage-art>.label{display:none}
+.label::after{content:"";position:absolute;left:-1px;bottom:0;width:2px;height:var(--lead);background:var(--stock)}
+.label.below::after{bottom:auto;top:0}
 .scroll-cue{position:absolute;left:50%;bottom:16px;width:2px;height:40px;background:linear-gradient(var(--on-leaf),transparent);opacity:calc(.7 - var(--p) * 4);transform:translateX(-50%)}
 @media (max-width:900px){
   .stage-art{bottom:34%}
   .poster-frame{right:auto;left:50%;top:84px;transform:translateX(-50%);width:min(112%,calc((66svh - 84px) * 4 / 3))}
   .stage-copy h1{font-size:clamp(2.6rem,11vw,4rem)}
   .stage-copy h2{font-size:clamp(2.1rem,9vw,3.2rem)}
-  .label span{font-size:.75rem;padding:4px 9px}
+  .label span{font-size:.7rem;padding:3px 8px}
 }
 .js-off .stage{height:auto}.js-off .stage-sticky{position:relative;height:auto;min-height:100vh}
 .js-off .copy-b,.js-off .poster-b{display:none}
@@ -186,6 +185,7 @@ p{margin:0;text-wrap:pretty}
 .viewer-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:6%}
 .has-3d .viewer-box img{display:none}
 .viewer-box:active{cursor:grabbing}
+.viewer-name{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);margin:0;background:var(--sun);color:var(--ink);font-weight:800;font-size:1.15rem;letter-spacing:-.02em;padding:9px 20px;border-radius:999px;box-shadow:0 6px 18px -8px rgba(0,0,0,.55);white-space:nowrap;pointer-events:none}
 .viewer-hint{position:absolute;left:16px;top:14px;color:var(--on-leaf);font-size:.85rem;font-weight:600;display:flex;align-items:center;gap:8px;pointer-events:none}
 .viewer-hint svg{width:18px;height:18px}
 .no-3d .viewer-hint .h3d{display:none}
@@ -255,18 +255,30 @@ p{margin:0;text-wrap:pretty}
         <div class="poster-frame">
         <img class="poster-a" src="assets/img/cell-assembled.webp" width="1600" height="1200" alt="The 3D printed plant cell kit, fully assembled: a six-sided cell wall around a yellow cell membrane, with the nucleus, chloroplast, mitochondria and other organelles pressed into the cytoplasm." fetchpriority="high">
         <img class="poster-b" src="assets/img/cell-exploded.webp" width="1600" height="1200" alt="The same kit pulled apart into layers: cell wall at the bottom, then the membrane, the cytoplasm tray, and each organelle lifted above its pocket." loading="lazy" decoding="async">
-        <div class="label" style="--lx:50%;--ly:65.2%"><span>Cell wall</span></div>
-        <div class="label" style="--lx:50%;--ly:56.6%"><span>Cell membrane</span></div>
-        <div class="label" style="--lx:46.3%;--ly:23.4%"><span>Nucleus</span></div>
-        <div class="label" style="--lx:66.2%;--ly:30.4%"><span>Chloroplast</span></div>
-        <div class="label flip" style="--lx:38.2%;--ly:26.7%"><span>Mitochondrion</span></div>
+        <div class="label" data-plabel="wall" style="--lx:53.9%;--ly:84.6%"><span>Cell wall</span></div>
+        <div class="label" data-plabel="membrane" style="--lx:52.9%;--ly:70%"><span>Cell membrane</span></div>
+        <div class="label" data-plabel="cytoplasm" style="--lx:49.9%;--ly:48.3%"><span>Cytoplasm</span></div>
+        <div class="label" data-plabel="nucleus" style="--lx:46.3%;--ly:23.4%"><span>Nucleus</span></div>
+        <div class="label" data-plabel="chloroplast" style="--lx:66.2%;--ly:30.4%"><span>Chloroplast</span></div>
+        <div class="label" data-plabel="mitochondrion" style="--lx:38.2%;--ly:26.7%"><span>Mitochondrion</span></div>
+        <div class="label" data-plabel="golgi" style="--lx:58.9%;--ly:28%"><span>Golgi apparatus</span></div>
+        <div class="label" data-plabel="er" style="--lx:41.4%;--ly:34.6%"><span>Endoplasmic reticulum</span></div>
+        <div class="label" data-plabel="vacuole" style="--lx:57%;--ly:33.1%"><span>Central vacuole</span></div>
+        <div class="label" data-plabel="peroxisome" style="--lx:53.2%;--ly:39.9%"><span>Peroxisome</span></div>
+        <div class="label" data-plabel="amyloplast" style="--lx:47.2%;--ly:15%"><span>Amyloplast</span></div>
         </div>
         <div id="stage-canvas"></div>
         <div class="label" data-label="wall"><span>Cell wall</span></div>
         <div class="label" data-label="membrane"><span>Cell membrane</span></div>
+        <div class="label" data-label="cytoplasm"><span>Cytoplasm</span></div>
         <div class="label" data-label="nucleus"><span>Nucleus</span></div>
         <div class="label" data-label="chloroplast"><span>Chloroplast</span></div>
         <div class="label" data-label="mitochondrion"><span>Mitochondrion</span></div>
+        <div class="label" data-label="golgi"><span>Golgi apparatus</span></div>
+        <div class="label" data-label="er"><span>Endoplasmic reticulum</span></div>
+        <div class="label" data-label="vacuole"><span>Central vacuole</span></div>
+        <div class="label" data-label="peroxisome"><span>Peroxisome</span></div>
+        <div class="label" data-label="amyloplast"><span>Amyloplast</span></div>
       </div>
 
       <div class="stage-copy copy-a">
@@ -356,6 +368,7 @@ p{margin:0;text-wrap:pretty}
         <div class="viewer-box on-leaf" id="viewer-box">
           <img src="assets/img/cell-exploded.webp" width="1600" height="1200" alt="" loading="lazy" decoding="async">
           <div id="viewer-canvas"></div>
+          <p class="viewer-name" id="viewer-name" aria-hidden="true" hidden></p>
           <p class="viewer-hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L3.6 14a1.5 1.5 0 0 1 2.4-1.8L9 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="h3d">Drag to turn. Click a part.</span><span class="h2d">Pick a part below.</span></p>
           <div class="viewer-tools">
             <button type="button" id="explode-toggle" aria-pressed="false">Take it apart</button>
@@ -371,11 +384,11 @@ p{margin:0;text-wrap:pretty}
           <span class="sep" aria-hidden="true"></span>
           <span class="chips-cap">Also in the kit</span>
           <button type="button" class="more" data-part="cytoplasm" aria-pressed="false">Cytoplasm</button>
-          <button type="button" class="more" data-part="nucleolus" aria-pressed="false">Nucleolus</button>
-          <button type="button" class="more" data-part="vacuole" aria-pressed="false">Vacuole</button>
-          <button type="button" class="more" data-part="er" aria-pressed="false">Endoplasmic reticulum</button>
           <button type="button" class="more" data-part="golgi" aria-pressed="false">Golgi apparatus</button>
-          <button type="button" class="more" data-part="vesicle" aria-pressed="false">Vesicle</button>
+          <button type="button" class="more" data-part="er" aria-pressed="false">Endoplasmic reticulum</button>
+          <button type="button" class="more" data-part="vacuole" aria-pressed="false">Central vacuole</button>
+          <button type="button" class="more" data-part="peroxisome" aria-pressed="false">Peroxisome</button>
+          <button type="button" class="more" data-part="amyloplast" aria-pressed="false">Amyloplast</button>
         </div>
         <div class="info" id="part-info" aria-live="polite"><p class="empty">Click a part of the model, or pick one above, to see what it does.</p></div>
         <p class="d3-toggle" id="d3-toggle" hidden></p>
@@ -395,17 +408,17 @@ p{margin:0;text-wrap:pretty}
 </footer>
 
 <template id="info-empty"><p class="empty">Click a part of the model, or pick one above, to see what it does.</p></template>
-<template id="info-wall"><h3>Cell wall</h3><p class="role">Holds the cell's shape. It is stiff and strong and helps the plant stand up tall.</p><p class="like">Like a strong fence around a yard.</p><p class="kit">NGSS MS-LS1-2 part · The six-sided frame around the outside</p></template>
-<template id="info-membrane"><h3>Cell membrane</h3><p class="role">Controls what goes in and out of the cell. It lets water in and keeps harmful things out.</p><p class="like">Like a guard at a door.</p><p class="kit">NGSS MS-LS1-2 part · The tray just inside the wall</p></template>
-<template id="info-nucleus"><h3>Nucleus</h3><p class="role">Tells the cell what to do. It holds the DNA, the cell's instructions.</p><p class="like">Like a principal who runs the school.</p><p class="kit">NGSS MS-LS1-2 part · The large dome, cut open to show the inside</p></template>
-<template id="info-chloroplast"><h3>Chloroplast</h3><p class="role">Makes sugar using sunlight and water. It is green because it catches light.</p><p class="like">Like a solar panel.</p><p class="kit">NGSS MS-LS1-2 part · The oval with stacks inside</p></template>
-<template id="info-mitochondrion"><h3>Mitochondrion</h3><p class="role">Turns sugar into energy the cell can use. Plant cells need them too.</p><p class="like">Like a power plant.</p><p class="kit">NGSS MS-LS1-2 part · The kit has two</p><span class="draft">Second one to confirm with Mark</span></template>
-<template id="info-cytoplasm"><h3>Cytoplasm</h3><p class="role">The jelly-like filling that holds the organelles in place inside the cell.</p><p class="kit">Also in the kit · The tray every organelle presses into</p><span class="draft">Part name to confirm with Mark</span></template>
-<template id="info-nucleolus"><h3>Nucleolus</h3><p class="role">A dense spot inside the nucleus that helps build ribosomes.</p><p class="kit">Also in the kit · Sits inside the cut-open nucleus</p><span class="draft">Part name to confirm with Mark</span></template>
-<template id="info-vacuole"><h3>Vacuole</h3><p class="role">Stores water and helps keep the plant cell firm.</p><p class="kit">Also in the kit</p><span class="draft">Part name to confirm with Mark</span></template>
-<template id="info-er"><h3>Endoplasmic reticulum</h3><p class="role">A folded network that helps make and move materials around the cell.</p><p class="kit">Also in the kit</p><span class="draft">Part name to confirm with Mark</span></template>
-<template id="info-golgi"><h3>Golgi apparatus</h3><p class="role">Packs materials and ships them where they need to go.</p><p class="kit">Also in the kit</p><span class="draft">Part name to confirm with Mark</span></template>
-<template id="info-vesicle"><h3>Vesicle</h3><p class="role">A small sac that carries materials around the cell.</p><p class="kit">Also in the kit</p><span class="draft">Part name to confirm with Mark</span></template>
+<template id="info-wall"><h3>Cell wall</h3><p class="role">A stiff outer layer made mostly of cellulose. It supports and protects the cell and gives it a fixed shape. Plant cells have a cell wall; animal cells do not.</p><p class="like">Like a strong fence around a yard.</p><p class="kit">NGSS MS-LS1-2 part · The mint green frame around the outside</p></template>
+<template id="info-membrane"><h3>Cell membrane</h3><p class="role">A thin, flexible layer just inside the cell wall. It controls what goes in and out, letting in water and nutrients and keeping harmful things out.</p><p class="like">Like a guard at a door.</p><p class="kit">NGSS MS-LS1-2 part · The white layer between the wall and the cytoplasm</p></template>
+<template id="info-nucleus"><h3>Nucleus</h3><p class="role">The control center. It holds the cell’s DNA, the instructions for everything the cell does. The green piece inside is the nucleolus, which helps make ribosomes.</p><p class="like">Like a principal who runs the school.</p><p class="kit">NGSS MS-LS1-2 part · The orange dome, cut open to show the green nucleolus</p></template>
+<template id="info-chloroplast"><h3>Chloroplast</h3><p class="role">Uses energy from sunlight to turn water and carbon dioxide into sugar. This is photosynthesis. Chloroplasts hold chlorophyll, which makes plants green.</p><p class="like">Like a solar panel.</p><p class="kit">NGSS MS-LS1-2 part · The green oval with stacks inside</p></template>
+<template id="info-mitochondrion"><h3>Mitochondrion</h3><p class="role">Breaks down sugar to release energy the cell can use. This is cellular respiration. Plant cells have mitochondria too.</p><p class="like">Like a power plant.</p><p class="kit">NGSS MS-LS1-2 part · The green oval with folds inside</p></template>
+<template id="info-cytoplasm"><h3>Cytoplasm</h3><p class="role">The jelly-like fluid that fills the cell. It holds the organelles in place, and many of the cell’s chemical reactions happen here.</p><p class="kit">Also in the kit · The yellow base every organelle presses into</p></template>
+<template id="info-golgi"><h3>Golgi apparatus</h3><p class="role">Sorts, packages and ships proteins and other materials to where they are needed in or out of the cell.</p><p class="like">Like a post office.</p><p class="kit">Also in the kit · The orange ribbons and circles</p></template>
+<template id="info-er"><h3>Endoplasmic reticulum</h3><p class="role">A folded network of membranes that makes proteins and fats and moves them through the cell.</p><p class="like">Like a system of hallways.</p><p class="kit">Also in the kit · The white wavy ribbons</p></template>
+<template id="info-vacuole"><h3>Central vacuole</h3><p class="role">A large sac that stores water, nutrients and waste. When it is full of water it presses outward and keeps the plant firm. A wilting plant has vacuoles low on water.</p><p class="like">Like a water tank.</p><p class="kit">Also in the kit · The white capsule</p></template>
+<template id="info-peroxisome"><h3>Peroxisome</h3><p class="role">A small sac that breaks down harmful substances and fats so they cannot damage the cell.</p><p class="like">Like a cleanup crew.</p><p class="kit">Also in the kit · The small orange round piece</p></template>
+<template id="info-amyloplast"><h3>Amyloplast</h3><p class="role">Stores starch, the plant’s saved-up food. Potatoes and roots are full of them.</p><p class="like">Like a pantry.</p><p class="kit">Also in the kit · The small orange bean</p></template>
 
 <script>
   // Page behavior that works with or without the 3D model.
@@ -430,8 +443,10 @@ p{margin:0;text-wrap:pretty}
     var info = document.getElementById('part-info');
     var chips = [].slice.call(document.querySelectorAll('[data-part]'));
     window.wraShowPart = function (name, from) {
-      var key = name === 'mitochondrion2' ? 'mitochondrion' : name;
+      var key = name === 'nucleolus' ? 'nucleus' : name;
       var tpl = key && document.getElementById('info-' + key);
+      var bar = document.getElementById('viewer-name');
+      if (tpl) { bar.textContent = tpl.content.querySelector('h3').textContent; bar.hidden = false; } else { bar.hidden = true; }
       info.innerHTML = (tpl || document.getElementById('info-empty')).innerHTML;
       chips.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.part === key)); });
       document.dispatchEvent(new CustomEvent('wra:part', { detail: key || null }));
@@ -442,6 +457,39 @@ p{margin:0;text-wrap:pretty}
         window.wraShowPart(b.getAttribute('aria-pressed') === 'true' ? null : b.dataset.part);
       });
     });
+
+    // Still-picture labels: same rule as the 3D labels. Each pill sits above or below
+    // its dot on a leader line, taking the shortest leader that overlaps nothing.
+    function layoutStillLabels() {
+      var frame = document.querySelector('.poster-frame');
+      if (!frame || !d.classList.contains('no-3d')) return;
+      var fw = frame.clientWidth, fh = frame.clientHeight, placed = [];
+      var ls = [].slice.call(frame.querySelectorAll('.label')).map(function (el) {
+        return { el: el, x: parseFloat(el.style.getPropertyValue('--lx')) / 100 * fw, y: parseFloat(el.style.getPropertyValue('--ly')) / 100 * fh };
+      }).sort(function (a, b) { return a.y - b.y; });
+      ls.forEach(function (p) {
+        var sp = p.el.firstElementChild, w = sp.offsetWidth, h = sp.offsetHeight, best = null;
+        [12, 32, 52, 72, 92].forEach(function (lead) {
+          [0, 0.5, -0.5].forEach(function (shift) {
+            [false, true].forEach(function (below) {
+              var dx = shift * (w + 8), top = below ? p.y + lead : p.y - lead - h;
+              var bx = { l: p.x + dx - w / 2 - 3, r: p.x + dx + w / 2 + 3, t: top - 2, b: top + h + 2 };
+              var cost = (bx.l < 0 || bx.r > fw || bx.t < 0 ? 1e6 : 0) + lead + Math.abs(shift) * 30;
+              placed.forEach(function (q) { cost += Math.max(0, Math.min(bx.r, q.r) - Math.max(bx.l, q.l)) * Math.max(0, Math.min(bx.b, q.b) - Math.max(bx.t, q.t)); });
+              ls.forEach(function (q) { if (q !== p && q.x > bx.l && q.x < bx.r && q.y > bx.t && q.y < bx.b) cost += 400; });
+              if (!best || cost < best.cost) best = { cost: cost, lead: lead, below: below, dx: dx, box: bx };
+            });
+          });
+        });
+        placed.push(best.box);
+        p.el.style.setProperty('--lead', best.lead + 'px');
+        p.el.style.setProperty('--dx', best.dx + 'px');
+        p.el.classList.toggle('below', best.below);
+      });
+    }
+    layoutStillLabels();
+    window.addEventListener('resize', layoutStillLabels);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(layoutStillLabels);
 
     // Let people switch 3D on or off for this device.
     var t = document.getElementById('d3-toggle');

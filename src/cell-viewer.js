@@ -13,15 +13,19 @@ import {
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 
+// The model file carries the real print colours of each piece (vertex colours).
+// This list is only the part names, plus the colour used for each part's glow when picked.
 const INK = {
-  wall: '#EFE6CF', membrane: '#F6C343', cytoplasm: '#CFE8C9', nucleus: '#7A45A0',
-  nucleolus: '#E06AA5', chloroplast: '#7EE07A', mitochondrion: '#E8573A',
-  mitochondrion2: '#E8573A', golgi: '#F29E38', er: '#7CC4E8', vacuole: '#F4FAFC', vesicle: '#E06AA5',
+  wall: '#5ED68C', membrane: '#F4F2EA', cytoplasm: '#F5CF14', nucleus: '#F2862B',
+  nucleolus: '#3FC777', chloroplast: '#34B865', mitochondrion: '#3FC777',
+  amyloplast: '#F2862B', golgi: '#F2862B', er: '#F4F2EA', vacuole: '#F4F2EA', peroxisome: '#F2862B',
 };
+// Picking the nucleolus (the insert inside the nucleus) selects the nucleus.
+const GROUP = { nucleolus: 'nucleus' };
 // Exploded-view offsets in model units (mm). Y is up.
 const LIFT = {
   wall: -34, membrane: -16, cytoplasm: 0, nucleus: 40, nucleolus: 66, chloroplast: 36,
-  mitochondrion: 34, mitochondrion2: 32, golgi: 30, er: 30, vacuole: 32, vesicle: 28,
+  mitochondrion: 34, amyloplast: 56, golgi: 30, er: 30, vacuole: 32, peroxisome: 28,
 };
 const LIFT_MID = -6; // keeps the exploded stack centred in the frame
 const SPREAD = 0.22; // organelles also drift outward a little when exploded
@@ -62,7 +66,7 @@ export async function start() {
     let n = o, name = '';
     while (n) { const k = (n.name || '').replace(/_\d+$/, ''); if (INK[k]) { name = k; break; } n = n.parent; }
     if (!name) return;
-    o.material = new MeshStandardMaterial({ color: INK[name], roughness: 0.62, metalness: 0 });
+    o.material = new MeshStandardMaterial({ color: '#ffffff', vertexColors: true, roughness: 0.6, metalness: 0 });
     o.userData.part = name;
     o.userData.color = new Color(INK[name]);
     meshes.push(o);
@@ -91,6 +95,7 @@ export async function start() {
       const k = ease(explode);
       o.position.copy(o.userData.base);
       o.position.y += (LIFT[o.userData.part] || 0) * k;
+      if (st.mode === 'viewer' && st.selected && (GROUP[o.userData.part] || o.userData.part) === st.selected) o.position.y += 14 * k;
       if (LIFT[o.userData.part] > 10) o.position.addScaledVector(o.userData.dir, SPREAD * k);
     }
   }
@@ -105,7 +110,7 @@ export async function start() {
     // fit: the model is ~130mm wide; keep it filling the frame on any aspect
     const narrow = w / h < 0.9;
     const k = ease(st.explode);
-    let dist = (st.mode === 'viewer' ? 300 : (narrow ? 430 : 372)) * (1 + 0.22 * k);
+    let dist = (st.mode === 'viewer' ? 335 : (narrow ? 430 : 372)) * (1 + 0.22 * k);
     if (POSTER) dist *= 0.86; // stills are framed tight; the page places them
     camera.position.set(0, 0, dist);
     camera.lookAt(0, 0, 0);
@@ -121,7 +126,30 @@ export async function start() {
     placeLabels();
   }
 
-  // ---- labels for the five NGSS parts (stage, exploded) -------------------
+  // ---- labels for every part (stage, exploded) ---------------------------
+  // Ring-shaped parts (wall, membrane) are hollow in the middle, so their label goes on
+  // the front edge nearest the viewer instead of the empty centre of their box.
+  const RING = { wall: 1, membrane: 1 };
+  const ringPts = {};
+  const tmp = new Vector3();
+  function anchorOf(name, node, r) {
+    if (!RING[name]) { new Box3().setFromObject(node).getCenter(v); v.project(camera); return; }
+    if (!ringPts[name]) {
+      ringPts[name] = [];
+      node.traverse((m) => {
+        if (!m.isMesh) return;
+        const pos = m.geometry.attributes.position;
+        for (let i = 0; i < pos.count; i += 7) ringPts[name].push({ m, i });
+      });
+    }
+    let best = -Infinity;
+    for (const { m, i } of ringPts[name]) {
+      tmp.fromBufferAttribute(m.geometry.attributes.position, i).applyMatrix4(m.matrixWorld).project(camera);
+      // lowest on screen (front edge), kept near the middle so it isn't a far spur
+      const score = -tmp.y - 0.9 * Math.abs(tmp.x - (name === 'wall' ? 0.25 : -0.05));
+      if (score > best) { best = score; v.copy(tmp); }
+    }
+  }
   const labels = [...document.querySelectorAll('[data-label]')];
   const v = new Vector3();
   function placeLabels() {
@@ -132,25 +160,42 @@ export async function start() {
     for (const el of labels) {
       const o = parts[el.dataset.label];
       if (!o) continue;
-      new Box3().setFromObject(o).getCenter(v);
-      v.project(camera);
+      anchorOf(el.dataset.label, o, r);
       pts.push({ el, name: el.dataset.label, x: (v.x * 0.5 + 0.5) * r.width, y: (-v.y * 0.5 + 0.5) * r.height });
     }
-    // keep labels clear of the header and of each other (pills sit up-right of their dot)
-    const minY = Math.max(0, 96 - r.top);
+    // Place each pill above or below its dot on a short leader line, trying longer
+    // leaders until it overlaps nothing already placed and stays clear of the header.
+    const minY = Math.max(0, 80 - r.top);
+    const placed = [];
     pts.sort((a, b) => a.y - b.y);
-    for (let i = 0; i < pts.length; i++) {
-      pts[i].y = Math.max(pts[i].y, minY);
-      for (let j = 0; j < i; j++) {
-        if (Math.abs(pts[i].x - pts[j].x) < 130 && pts[i].y - pts[j].y < 34) pts[i].y = pts[j].y + 34;
+    for (const p of pts) {
+      const sp = p.el.firstElementChild;
+      const w = sp.offsetWidth || 110, h = sp.offsetHeight || 26;
+      p.x = Math.min(Math.max(p.x, w / 2 + 4), r.width - w / 2 - 4);
+      let best = null;
+      for (const lead of [14, 34, 54, 74, 94]) {
+        for (const shift of [0, 0.5, -0.5]) {
+          for (const below of [false, true]) {
+            const dx = shift * (w + 8), top = below ? p.y + lead : p.y - lead - h;
+            const box = { l: p.x + dx - w / 2 - 4, r: p.x + dx + w / 2 + 4, t: top - 3, b: top + h + 3 };
+            let cost = (box.t < minY || box.b > r.height || box.l < 0 || box.r > r.width ? 1e6 : 0) + lead + Math.abs(shift) * 30;
+            for (const q of placed) cost += Math.max(0, Math.min(box.r, q.r) - Math.max(box.l, q.l)) * Math.max(0, Math.min(box.b, q.b) - Math.max(box.t, q.t));
+            for (const q of pts) if (q !== p && q.x > box.l && q.x < box.r && q.y > box.t && q.y < box.b) cost += 400;
+            if (!best || cost < best.cost) best = { cost, lead, below, dx, box };
+          }
+        }
       }
+      placed.push(best.box);
+      p.lead = best.lead; p.below = best.below; p.dx = best.dx;
     }
     for (const p of pts) {
-      p.x = Math.min(p.x, r.width - 150);
       p.el.style.transform = `translate(${p.x}px, ${p.y}px)`;
+      p.el.style.setProperty('--lead', p.lead + 'px');
+      p.el.style.setProperty('--dx', p.dx + 'px');
+      p.el.classList.toggle('below', p.below);
       p.el.classList.toggle('on', show);
     }
-    if (POSTER) window.__labels = Object.fromEntries(pts.map((p) => [p.name, [+(100 * p.x / r.width).toFixed(1), +(100 * p.y / r.height).toFixed(1)]]));
+    if (POSTER) window.__labels = Object.fromEntries(pts.map((p) => [p.name, [+(100 * p.x / r.width).toFixed(1), +(100 * p.y / r.height).toFixed(1), p.lead, p.below]]));
   }
 
   // ---- animation loop: runs only while something is moving ---------------
@@ -213,12 +258,7 @@ export async function start() {
   // ---- viewer interaction ---------------------------------------------------
   let viewerExploded = false;
   const toggle = $('#explode-toggle');
-  toggle?.addEventListener('click', () => {
-    viewerExploded = !viewerExploded;
-    toggle.textContent = viewerExploded ? 'Put it back together' : 'Take it apart';
-    toggle.setAttribute('aria-pressed', String(viewerExploded));
-    st.explodeT = viewerExploded ? 1 : 0; request();
-  });
+  toggle?.addEventListener('click', () => setExploded(!viewerExploded));
   $('#reset-view')?.addEventListener('click', () => {
     st.yawT = -0.5; st.pitchT = 0.75; select(null); request();
   });
@@ -258,19 +298,31 @@ export async function start() {
   // here we only listen for its event and highlight the part in the model.
   document.addEventListener('wra:part', (e) => {
     st.selected = e.detail;
+    if (st.selected && st.mode === 'viewer' && !viewerExploded) setExploded(true);
     highlight();
     st.dirty = true; request();
   });
-  function select(name) { if (window.wraShowPart) window.wraShowPart(name, 'model'); }
+  function select(name) {
+    name = name && (GROUP[name] || name);
+    if (name && !viewerExploded) setExploded(true);
+    if (window.wraShowPart) window.wraShowPart(name, 'model');
+  }
+  function setExploded(on) {
+    viewerExploded = on;
+    if (toggle) { toggle.textContent = on ? 'Put it back together' : 'Take it apart'; toggle.setAttribute('aria-pressed', String(on)); }
+    st.explodeT = on ? 1 : 0; request();
+  }
   function highlight() {
-    const dim = new Color('#d9ddd6');
     for (const o of meshes) {
-      const on = !st.selected || o.userData.part === st.selected ||
-        (st.selected === 'mitochondrion' && o.userData.part === 'mitochondrion2');
-      o.material.color.copy(o.userData.color);
-      if (!on) o.material.color.lerp(dim, 0.6);
-      o.material.emissive.set(on && st.selected ? o.userData.color : '#000000');
-      o.material.emissiveIntensity = on && st.selected ? 0.18 : 0;
+      const part = GROUP[o.userData.part] || o.userData.part;
+      const picked = st.selected && part === st.selected;
+      const ghost = st.selected && !picked;
+      const m = o.material;
+      m.color.set(ghost ? '#b9c4bc' : '#ffffff');
+      m.transparent = !!ghost; m.opacity = ghost ? 0.22 : 1; m.depthWrite = !ghost;
+      m.emissive.set(picked ? INK[part] : '#000000');
+      m.emissiveIntensity = picked ? 0.45 : 0;
+      m.needsUpdate = true;
     }
   }
   function clearHighlight() { const s = st.selected; st.selected = null; highlight(); st.selected = s; }
