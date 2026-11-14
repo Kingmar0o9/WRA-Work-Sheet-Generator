@@ -100,6 +100,8 @@ p{margin:0;text-wrap:pretty}
 .poster-frame{position:absolute;right:var(--gutter);top:52%;transform:translateY(-50%);width:min(calc(100% - 540px),112vh,1000px);aspect-ratio:4/3}
 .poster-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
 .poster-frame .label{left:var(--lx);top:var(--ly);opacity:calc((var(--p) - .75) * 4)}
+.label.flip span{left:auto;right:14px}
+.label.flip::after{left:auto;right:0;transform-origin:100% 0;transform:rotate(38deg)}
 .poster-b{opacity:var(--p)}
 .poster-a{opacity:calc(1 - var(--p))}
 #stage-canvas,#viewer-canvas{position:absolute;inset:0}
@@ -127,7 +129,7 @@ p{margin:0;text-wrap:pretty}
 .scroll-cue{position:absolute;left:50%;bottom:16px;width:2px;height:40px;background:linear-gradient(var(--on-leaf),transparent);opacity:calc(.7 - var(--p) * 4);transform:translateX(-50%)}
 @media (max-width:900px){
   .stage-art{bottom:34%}
-  .poster-frame{right:auto;left:50%;top:64px;transform:translateX(-50%);width:min(100%,calc((66svh - 64px) * 4 / 3))}
+  .poster-frame{right:auto;left:50%;top:84px;transform:translateX(-50%);width:min(112%,calc((66svh - 84px) * 4 / 3))}
   .stage-copy h1{font-size:clamp(2.6rem,11vw,4rem)}
   .stage-copy h2{font-size:clamp(2.1rem,9vw,3.2rem)}
   .label span{font-size:.75rem;padding:4px 9px}
@@ -169,9 +171,10 @@ p{margin:0;text-wrap:pretty}
 .res .intro{color:var(--ink-2);max-width:40ch;margin-bottom:32px}
 .res ol{list-style:none;margin:0;padding:0;border-top:2px solid var(--rule)}
 .res li{border-bottom:2px solid var(--rule);padding:24px 0 26px;display:grid;gap:10px}
-.res h3{font-size:clamp(1.5rem,2vw,1.9rem);letter-spacing:-.03em}
+.res h3{font-size:clamp(1.5rem,2vw,1.9rem);letter-spacing:-.03em;min-width:0}
+.rhead .tag{flex:none}
 .res li p{color:var(--ink-2);max-width:46ch}
-.rhead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px}
+.rhead{display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:8px 16px}
 .tag{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;font-weight:800;letter-spacing:.02em;padding:4px 10px 4px 8px;border-radius:999px;border:2px solid var(--ink)}
 .tag::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
 .tag.live{background:var(--leaf);border-color:var(--leaf);color:var(--stock)}
@@ -254,9 +257,9 @@ p{margin:0;text-wrap:pretty}
         <img class="poster-b" src="assets/img/cell-exploded.webp" width="1600" height="1200" alt="The same kit pulled apart into layers: cell wall at the bottom, then the membrane, the cytoplasm tray, and each organelle lifted above its pocket." loading="lazy" decoding="async">
         <div class="label" style="--lx:50%;--ly:65.2%"><span>Cell wall</span></div>
         <div class="label" style="--lx:50%;--ly:56.6%"><span>Cell membrane</span></div>
-        <div class="label" style="--lx:46.3%;--ly:17%"><span>Nucleus</span></div>
+        <div class="label" style="--lx:46.3%;--ly:23.4%"><span>Nucleus</span></div>
         <div class="label" style="--lx:66.2%;--ly:30.4%"><span>Chloroplast</span></div>
-        <div class="label" style="--lx:38.2%;--ly:26.7%"><span>Mitochondrion</span></div>
+        <div class="label flip" style="--lx:38.2%;--ly:26.7%"><span>Mitochondrion</span></div>
         </div>
         <div id="stage-canvas"></div>
         <div class="label" data-label="wall"><span>Cell wall</span></div>
@@ -392,17 +395,17 @@ p{margin:0;text-wrap:pretty}
 </footer>
 
 <template id="info-empty"><p class="empty">Click a part of the model, or pick one above, to see what it does.</p></template>
-<template id="info-wall"><h3>Cell wall</h3><p class="role">Holds the cell's shape. It is stiff and strong and helps the plant stand up tall.</p><p class="like">Like a strong fence around a yard.</p><p class="kit"><i style="background:#EFE6CF"></i>NGSS MS-LS1-2 part · The six-sided frame around the outside</p></template>
-<template id="info-membrane"><h3>Cell membrane</h3><p class="role">Controls what goes in and out of the cell. It lets water in and keeps harmful things out.</p><p class="like">Like a guard at a door.</p><p class="kit"><i style="background:#F6C343"></i>NGSS MS-LS1-2 part · The yellow tray just inside the wall</p></template>
-<template id="info-nucleus"><h3>Nucleus</h3><p class="role">Tells the cell what to do. It holds the DNA, the cell's instructions.</p><p class="like">Like a principal who runs the school.</p><p class="kit"><i style="background:#7A45A0"></i>NGSS MS-LS1-2 part · The large dome, cut open to show the inside</p></template>
-<template id="info-chloroplast"><h3>Chloroplast</h3><p class="role">Makes sugar using sunlight and water. It is green because it catches light.</p><p class="like">Like a solar panel.</p><p class="kit"><i style="background:#7EE07A"></i>NGSS MS-LS1-2 part · The oval with stacks inside</p></template>
-<template id="info-mitochondrion"><h3>Mitochondrion</h3><p class="role">Turns sugar into energy the cell can use. Plant cells need them too.</p><p class="like">Like a power plant.</p><p class="kit"><i style="background:#E8573A"></i>NGSS MS-LS1-2 part · The kit has two</p><span class="draft">Second one to confirm with Mark</span></template>
-<template id="info-cytoplasm"><h3>Cytoplasm</h3><p class="role">The jelly-like filling that holds the organelles in place inside the cell.</p><p class="kit"><i style="background:#CFE8C9"></i>Also in the kit · The tray every organelle presses into</p><span class="draft">Part name to confirm with Mark</span></template>
-<template id="info-nucleolus"><h3>Nucleolus</h3><p class="role">A dense spot inside the nucleus that helps build ribosomes.</p><p class="kit"><i style="background:#E06AA5"></i>Also in the kit · Sits inside the cut-open nucleus</p><span class="draft">Part name to confirm with Mark</span></template>
-<template id="info-vacuole"><h3>Vacuole</h3><p class="role">Stores water and helps keep the plant cell firm.</p><p class="kit"><i style="background:#F4FAFC"></i>Also in the kit</p><span class="draft">Part name to confirm with Mark</span></template>
-<template id="info-er"><h3>Endoplasmic reticulum</h3><p class="role">A folded network that helps make and move materials around the cell.</p><p class="kit"><i style="background:#7CC4E8"></i>Also in the kit</p><span class="draft">Part name to confirm with Mark</span></template>
-<template id="info-golgi"><h3>Golgi apparatus</h3><p class="role">Packs materials and ships them where they need to go.</p><p class="kit"><i style="background:#F29E38"></i>Also in the kit</p><span class="draft">Part name to confirm with Mark</span></template>
-<template id="info-vesicle"><h3>Vesicle</h3><p class="role">A small sac that carries materials around the cell.</p><p class="kit"><i style="background:#E06AA5"></i>Also in the kit</p><span class="draft">Part name to confirm with Mark</span></template>
+<template id="info-wall"><h3>Cell wall</h3><p class="role">Holds the cell's shape. It is stiff and strong and helps the plant stand up tall.</p><p class="like">Like a strong fence around a yard.</p><p class="kit">NGSS MS-LS1-2 part · The six-sided frame around the outside</p></template>
+<template id="info-membrane"><h3>Cell membrane</h3><p class="role">Controls what goes in and out of the cell. It lets water in and keeps harmful things out.</p><p class="like">Like a guard at a door.</p><p class="kit">NGSS MS-LS1-2 part · The tray just inside the wall</p></template>
+<template id="info-nucleus"><h3>Nucleus</h3><p class="role">Tells the cell what to do. It holds the DNA, the cell's instructions.</p><p class="like">Like a principal who runs the school.</p><p class="kit">NGSS MS-LS1-2 part · The large dome, cut open to show the inside</p></template>
+<template id="info-chloroplast"><h3>Chloroplast</h3><p class="role">Makes sugar using sunlight and water. It is green because it catches light.</p><p class="like">Like a solar panel.</p><p class="kit">NGSS MS-LS1-2 part · The oval with stacks inside</p></template>
+<template id="info-mitochondrion"><h3>Mitochondrion</h3><p class="role">Turns sugar into energy the cell can use. Plant cells need them too.</p><p class="like">Like a power plant.</p><p class="kit">NGSS MS-LS1-2 part · The kit has two</p><span class="draft">Second one to confirm with Mark</span></template>
+<template id="info-cytoplasm"><h3>Cytoplasm</h3><p class="role">The jelly-like filling that holds the organelles in place inside the cell.</p><p class="kit">Also in the kit · The tray every organelle presses into</p><span class="draft">Part name to confirm with Mark</span></template>
+<template id="info-nucleolus"><h3>Nucleolus</h3><p class="role">A dense spot inside the nucleus that helps build ribosomes.</p><p class="kit">Also in the kit · Sits inside the cut-open nucleus</p><span class="draft">Part name to confirm with Mark</span></template>
+<template id="info-vacuole"><h3>Vacuole</h3><p class="role">Stores water and helps keep the plant cell firm.</p><p class="kit">Also in the kit</p><span class="draft">Part name to confirm with Mark</span></template>
+<template id="info-er"><h3>Endoplasmic reticulum</h3><p class="role">A folded network that helps make and move materials around the cell.</p><p class="kit">Also in the kit</p><span class="draft">Part name to confirm with Mark</span></template>
+<template id="info-golgi"><h3>Golgi apparatus</h3><p class="role">Packs materials and ships them where they need to go.</p><p class="kit">Also in the kit</p><span class="draft">Part name to confirm with Mark</span></template>
+<template id="info-vesicle"><h3>Vesicle</h3><p class="role">A small sac that carries materials around the cell.</p><p class="kit">Also in the kit</p><span class="draft">Part name to confirm with Mark</span></template>
 
 <script>
   // Page behavior that works with or without the 3D model.

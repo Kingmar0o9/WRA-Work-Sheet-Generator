@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-14T23:40:00Z",
+  "title": "Design System: WRA STEM Kits",
+  "extensions": {
+    "colorMeta": {
+      "sun": { "role": "primary", "displayName": "Sunflower Spot", "canonical": "#F6C343", "tonalRamp": ["#3E300E", "#745813", "#AF8212", "#EFAE0C", "#EDBE49", "#ECCE84", "#F0E1BB", "#F9F5EB"] },
+      "plum": { "role": "secondary", "displayName": "Seed Plum", "canonical": "#6B3A80", "tonalRamp": ["#2A1C30", "#4B2F57", "#6D4081", "#904FAD", "#A879BD", "#C1A3CD", "#DACAE0", "#F3EFF5"] },
+      "leaf": { "role": "neutral", "displayName": "Deep Leaf Field", "canonical": "#124A2B", "tonalRamp": ["#163625", "#236440", "#2C955B", "#32CA76", "#64D295", "#95DBB4", "#C3E7D3", "#EEF7F2"] },
+      "leaf-deep": { "role": "neutral", "displayName": "Leaf Shadow", "canonical": "#0C3520", "tonalRamp": ["#163726", "#226543", "#2A975F", "#2FCC7C", "#62D499", "#94DCB7", "#C3E8D5", "#EDF7F2"] },
+      "stock": { "role": "neutral", "displayName": "Cool Paper Stock", "canonical": "#F6F7F2", "tonalRamp": ["#2A2C20", "#4B5037", "#6D754C", "#909B60", "#A8B085", "#C0C6AA", "#D9DCCE", "#F3F4F0"] },
+      "on-leaf": { "role": "neutral", "displayName": "Stock on Leaf", "canonical": "#F6F7F2", "tonalRamp": ["#2A2C20", "#4B5037", "#6D754C", "#909B60", "#A8B085", "#C0C6AA", "#D9DCCE", "#F3F4F0"] },
+      "on-leaf-2": { "role": "neutral", "displayName": "Pale Leaf", "canonical": "#D7EDD3", "tonalRamp": ["#1F311B", "#345A2D", "#48853C", "#59B249", "#81C175", "#A7D0A0", "#CDE1C9", "#F0F5EF"] },
+      "ink": { "role": "neutral", "displayName": "Green-Black Ink", "canonical": "#13261C", "tonalRamp": ["#1E2F26", "#325542", "#447D5F", "#54A77B", "#7DB999", "#A5CBB7", "#CBDFD5", "#F0F5F2"] },
+      "rule": { "role": "neutral", "displayName": "Ink Rule", "canonical": "#13261C", "tonalRamp": ["#1E2F26", "#325542", "#447D5F", "#54A77B", "#7DB999", "#A5CBB7", "#CBDFD5", "#F0F5F2"] },
+      "ink-2": { "role": "neutral", "displayName": "Soft Ink", "canonical": "#3E5446", "tonalRamp": ["#222A25", "#3B4B41", "#546D5D", "#6B9079", "#8DA897", "#AFC1B6", "#D1DAD4", "#F1F3F2"] }
+    },
+    "reservedInks": [
+      { "name": "coral", "value": "#E8573A", "note": "Declared in :root; unused by chrome on the shipped page. Appears only in the model palette." },
+      { "name": "sky", "value": "#7CC4E8", "note": "Declared in :root; unused by chrome on the shipped page. Appears only in the model palette." }
+    ],
+    "modelPalette": {
+      "source": "src/cell-viewer.js (INK)",
+      "purpose": "Per-part teaching palette for the 3D kit model only; one distinct flat colour per part. Chrome may use these only as the swatch dot that names a model part.",
+      "material": { "roughness": 0.62, "metalness": 0 },
+      "parts": {
+        "wall": "#EFE6CF", "membrane": "#F6C343", "cytoplasm": "#CFE8C9", "nucleus": "#7A45A0",
+        "nucleolus": "#E06AA5", "chloroplast": "#7EE07A", "mitochondrion": "#E8573A", "golgi": "#F29E38",
+        "er": "#7CC4E8", "vacuole": "#F4FAFC", "vesicle": "#E06AA5"
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The hero line only, max 9.5ch; the loudest thing on the page. Mobile clamp(2.6rem, 11vw, 4rem)." },
+      "headline": { "displayName": "Headline", "purpose": "Section titles on paper; the spec grid title steps down to clamp(2rem, 3.4vw, 3rem)." },
+      "title": { "displayName": "Title", "purpose": "Resource names and the info panel part title (1.6rem)." },
+      "figure": { "displayName": "Figure", "purpose": "The big value in a spec cell, tabular numerals." },
+      "lede": { "displayName": "Lede", "purpose": "One line of subcopy under a display line, max 34ch." },
+      "body": { "displayName": "Body", "purpose": "All running text; measure held to 40-62ch by component." },
+      "label": { "displayName": "Label", "purpose": "Spec labels, viewer hint, model labels, draft sticker. Never uppercase." }
+    },
+    "fonts": [
+      { "family": "Bricolage", "file": "assets/fonts/bricolage-wght.woff2", "weights": "200 800", "display": "swap", "preload": true }
+    ],
+    "shadows": [
+      { "name": "header-settle", "value": "0 1px 0 rgba(19,38,28,.18), 0 8px 24px -16px rgba(19,38,28,.4)", "purpose": "Header only, once it turns solid stock (94%, backdrop-filter saturate(1.2) blur(8px)) over paper." },
+      { "name": "label-lift", "value": "0 4px 14px -6px rgba(0,0,0,.45)", "purpose": "Pill labels that point at parts of the 3D model." }
+    ],
+    "rules": [
+      { "name": "rule", "value": "2px solid #13261C", "purpose": "Horizon between sections, spec grid, resource list, info panel, ticket and chip borders." }
+    ],
+    "focus": { "value": "outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 6px", "onLeaf": "outline-color: var(--sun)" },
+    "motion": [
+      { "name": "ease", "value": "cubic-bezier(.16,1,.3,1)", "purpose": "Expo-out for button lift (0.3s), label fade (0.45s), canvas fade-in (0.8s)." },
+      { "name": "color-shift", "value": "0.2s", "purpose": "Background and colour changes on buttons and chips." },
+      { "name": "header-shift", "value": "0.35s", "purpose": "Header turning solid as it leaves the leaf field." },
+      { "name": "scroll-explode", "value": "--p 0..1 over the 260svh sticky stage", "purpose": "Crossfades assembled to exploded kit, swaps stage copy, reveals part labels from --p 0.75." },
+      { "name": "reduced-motion", "value": "scroll-behavior: auto", "purpose": "Smooth scroll is off under prefers-reduced-motion." }
+    ],
+    "breakpoints": [
+      { "name": "spec-1col", "value": "520px" },
+      { "name": "nav-collapse", "value": "760px" },
+      { "name": "stage-stack", "value": "900px" },
+      { "name": "grid-collapse", "value": "960px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Sun Button",
+      "kind": "button",
+      "refersTo": "button-sun",
+      "description": "The one primary action on the leaf field.",
+      "html": "<div class=\"ds-field\"><a class=\"ds-btn ds-btn-sun\" href=\"#\">Make a worksheet <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12h14M13 6l6 6-6 6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></a></div>",
+      "css": ".ds-field{background:var(--leaf,#124A2B);padding:24px} .ds-btn{display:inline-flex;align-items:center;gap:.55em;min-height:48px;padding:0 22px;border-radius:999px;font:700 1rem/1 var(--sans,'Bricolage',system-ui,sans-serif);letter-spacing:-.01em;text-decoration:none;border:2px solid currentColor;cursor:pointer;transition:transform .3s cubic-bezier(.16,1,.3,1),background-color .2s,color .2s} .ds-btn svg{width:18px;height:18px} .ds-btn:hover{transform:translateY(-2px)} .ds-btn:active{transform:translateY(0)} .ds-btn:focus-visible{outline:3px solid var(--sun,#F6C343);outline-offset:3px} .ds-btn-sun{background:var(--sun,#F6C343);border-color:var(--sun,#F6C343);color:var(--ink,#13261C)}"
+    },
+    {
+      "name": "Line Button",
+      "kind": "button",
+      "refersTo": "button-line",
+      "description": "Secondary action on the leaf field.",
+      "html": "<div class=\"ds-field\"><a class=\"ds-btn ds-btn-line\" href=\"#\">See it come apart</a></div>",
+      "css": ".ds-field{background:var(--leaf,#124A2B);padding:24px} .ds-btn{display:inline-flex;align-items:center;gap:.55em;min-height:48px;padding:0 22px;border-radius:999px;font:700 1rem/1 var(--sans,'Bricolage',system-ui,sans-serif);letter-spacing:-.01em;text-decoration:none;border:2px solid currentColor;cursor:pointer;transition:transform .3s cubic-bezier(.16,1,.3,1),background-color .2s,color .2s} .ds-btn:hover{transform:translateY(-2px)} .ds-btn:focus-visible{outline:3px solid var(--sun,#F6C343);outline-offset:3px} .ds-btn-line{background:transparent;color:var(--on-leaf,#F6F7F2)} .ds-btn-line:hover{background:rgba(255,255,255,.12)}"
+    },
+    {
+      "name": "Ink Button",
+      "kind": "button",
+      "refersTo": "button-ink",
+      "description": "The primary action on paper stock.",
+      "html": "<a class=\"ds-btn ds-btn-ink\" href=\"#\">Open the generator</a>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;gap:.55em;min-height:48px;padding:0 22px;border-radius:999px;font:700 1rem/1 var(--sans,'Bricolage',system-ui,sans-serif);letter-spacing:-.01em;text-decoration:none;border:2px solid currentColor;cursor:pointer;transition:transform .3s cubic-bezier(.16,1,.3,1),background-color .2s,color .2s} .ds-btn:hover{transform:translateY(-2px)} .ds-btn:focus-visible{outline:3px solid var(--ink,#13261C);outline-offset:3px} .ds-btn-ink{background:var(--ink,#13261C);border-color:var(--ink,#13261C);color:var(--stock,#F6F7F2)} .ds-btn-ink:hover{background:var(--leaf-deep,#0C3520);border-color:var(--leaf-deep,#0C3520)}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action on paper stock.",
+      "html": "<a class=\"ds-btn ds-btn-ghost\" href=\"#\">Print the review packet</a>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;gap:.55em;min-height:48px;padding:0 22px;border-radius:999px;font:700 1rem/1 var(--sans,'Bricolage',system-ui,sans-serif);letter-spacing:-.01em;text-decoration:none;border:2px solid currentColor;cursor:pointer;transition:transform .3s cubic-bezier(.16,1,.3,1),background-color .2s,color .2s} .ds-btn:hover{transform:translateY(-2px)} .ds-btn:focus-visible{outline:3px solid var(--ink,#13261C);outline-offset:3px} .ds-btn-ghost{background:transparent;color:var(--ink,#13261C);border-color:var(--ink,#13261C)} .ds-btn-ghost:hover{background:var(--ink,#13261C);color:var(--stock,#F6F7F2)}"
+    },
+    {
+      "name": "Status Tickets",
+      "kind": "chip",
+      "refersTo": "tag-live",
+      "description": "Every resource prints its status: Live in leaf, Coming soon in dashed plum.",
+      "html": "<div class=\"ds-tickets\"><span class=\"ds-tag ds-tag-live\">Ready now</span><span class=\"ds-tag ds-tag-soon\">Coming soon</span></div>",
+      "css": ".ds-tickets{display:flex;gap:12px;flex-wrap:wrap} .ds-tag{display:inline-flex;align-items:center;gap:7px;font:800 .8rem/1.2 var(--sans,'Bricolage',system-ui,sans-serif);letter-spacing:.02em;padding:4px 10px 4px 8px;border-radius:999px;border:2px solid var(--ink,#13261C)} .ds-tag::before{content:\"\";width:8px;height:8px;border-radius:50%;background:currentColor} .ds-tag-live{background:var(--leaf,#124A2B);border-color:var(--leaf,#124A2B);color:var(--stock,#F6F7F2)} .ds-tag-soon{color:var(--plum,#6B3A80);border-color:var(--plum,#6B3A80);border-style:dashed}"
+    },
+    {
+      "name": "Part Chips",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Toggle chips that select a model part; pressed fills ink.",
+      "html": "<div class=\"ds-chips\" role=\"group\"><button class=\"ds-chip\" aria-pressed=\"true\">Nucleus</button><button class=\"ds-chip\" aria-pressed=\"false\">Chloroplast</button><button class=\"ds-chip ds-chip-more\" aria-pressed=\"false\">Vacuole</button></div>",
+      "css": ".ds-chips{display:flex;flex-wrap:wrap;gap:8px} .ds-chip{min-height:40px;padding:0 14px;border-radius:999px;border:2px solid var(--ink,#13261C);background:transparent;color:var(--ink,#13261C);font:600 .9rem/1 var(--sans,'Bricolage',system-ui,sans-serif);cursor:pointer;transition:background-color .2s,color .2s} .ds-chip:hover{background:rgba(19,38,28,.08)} .ds-chip:focus-visible{outline:3px solid var(--ink,#13261C);outline-offset:3px} .ds-chip[aria-pressed=\"true\"]{background:var(--ink,#13261C);color:var(--stock,#F6F7F2)} .ds-chip-more{border-color:var(--ink-2,#3E5446);color:var(--ink-2,#3E5446)}"
+    },
+    {
+      "name": "Spec Grid",
+      "kind": "custom",
+      "refersTo": "spec-cell-status",
+      "description": "Back-of-packet ruled grid; every value sits in a cell, status cell spans the row in sunflower.",
+      "html": "<dl class=\"ds-spec\"><div class=\"ds-cell\"><dt>For</dt><dd><strong>Grades 6–7</strong>Middle school life science</dd></div><div class=\"ds-cell\"><dt>The kit</dt><dd><strong>12 pieces</strong>All 3D printed</dd></div><div class=\"ds-cell ds-status\"><dt>Where it stands</dt><dd>Built and tested in software. Not yet tested with students.</dd></div></dl>",
+      "css": ".ds-spec{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin:0;border-top:2px solid var(--rule,#13261C);border-left:2px solid var(--rule,#13261C);font-family:var(--sans,'Bricolage',system-ui,sans-serif);color:var(--ink,#13261C);background:var(--stock,#F6F7F2)} .ds-cell{border-right:2px solid var(--rule,#13261C);border-bottom:2px solid var(--rule,#13261C);padding:18px 20px 22px;display:flex;flex-direction:column;gap:10px} .ds-cell dt{font-size:.85rem;font-weight:700;letter-spacing:.01em;color:var(--ink-2,#3E5446)} .ds-cell dd{margin:0;font-size:1.02rem;line-height:1.4} .ds-cell dd strong{display:block;font-size:clamp(1.7rem,2.4vw,2.3rem);line-height:1;letter-spacing:-.035em;font-weight:800;margin-bottom:6px;font-variant-numeric:tabular-nums} .ds-status{background:var(--sun,#F6C343);grid-column:1/-1}"
+    },
+    {
+      "name": "Draft Sticker",
+      "kind": "custom",
+      "refersTo": "draft-sticker",
+      "description": "Sunflower block under content that is a draft or unconfirmed, naming what needs confirming.",
+      "html": "<span class=\"ds-draft\">Draft: Mark to rewrite in his own words</span>",
+      "css": ".ds-draft{display:inline-block;font:700 .85rem/1.3 var(--sans,'Bricolage',system-ui,sans-serif);background:var(--sun,#F6C343);color:var(--ink,#13261C);padding:4px 10px;border-radius:6px}"
+    },
+    {
+      "name": "Part Info Panel",
+      "kind": "card",
+      "refersTo": "info-panel",
+      "description": "Ruled panel that explains the selected model part, with a swatch in its model colour.",
+      "html": "<div class=\"ds-info\"><h3>Chloroplast</h3><p class=\"ds-role\">Makes sugar using sunlight and water.</p><p class=\"ds-like\">Like a solar panel.</p><p class=\"ds-kit\"><i style=\"background:#7EE07A\"></i>NGSS MS-LS1-2 part · The oval with stacks inside</p></div>",
+      "css": ".ds-info{padding:18px 22px;border:2px solid var(--rule,#13261C);border-radius:16px;background:var(--stock,#F6F7F2);color:var(--ink,#13261C);font-family:var(--sans,'Bricolage',system-ui,sans-serif)} .ds-info h3{font-size:1.6rem;font-weight:800;line-height:.98;letter-spacing:-.035em;margin:0 0 8px} .ds-role{font-size:1.1rem;margin:0;max-width:52ch} .ds-like{margin:8px 0 0;color:var(--ink-2,#3E5446)} .ds-kit{margin:12px 0 0;font-size:.88rem;font-weight:700;display:flex;align-items:center;gap:8px} .ds-kit i{width:14px;height:14px;border-radius:50%;flex:none;border:2px solid var(--ink,#13261C)}"
+    },
+    {
+      "name": "Header",
+      "kind": "nav",
+      "refersTo": "button-sun",
+      "description": "Fixed 68px header: wordmark, three links, sun button; turns stock with ink text once past the leaf stage.",
+      "html": "<header class=\"ds-top\"><a class=\"ds-brand\" href=\"#\"><svg viewBox=\"0 0 32 32\" aria-hidden=\"true\"><path d=\"M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linejoin=\"round\"/><circle cx=\"14\" cy=\"15\" r=\"4.6\" fill=\"currentColor\"/><ellipse cx=\"21.4\" cy=\"20.2\" rx=\"2.6\" ry=\"1.7\" fill=\"currentColor\" transform=\"rotate(-30 21.4 20.2)\"/></svg>WRA STEM Kits</a><nav><a href=\"#\">The kit</a><a href=\"#\">Why I built it</a><a href=\"#\">Resources</a></nav><a class=\"ds-hbtn\" href=\"#\">Make a worksheet</a></header>",
+      "css": ".ds-top{display:flex;align-items:center;gap:24px;height:68px;padding:0 24px;background:var(--leaf,#124A2B);color:var(--on-leaf,#F6F7F2);font-family:var(--sans,'Bricolage',system-ui,sans-serif)} .ds-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.15rem;letter-spacing:-.03em;text-decoration:none;color:inherit;white-space:nowrap} .ds-brand svg{width:30px;height:30px} .ds-top nav{display:flex;gap:22px;margin-left:auto;font-weight:600;font-size:.95rem} .ds-top nav a{color:inherit;text-decoration:none;opacity:.9;text-underline-offset:.2em;text-decoration-thickness:2px} .ds-top nav a:hover{text-decoration:underline;opacity:1} .ds-top a:focus-visible{outline:3px solid var(--sun,#F6C343);outline-offset:3px;border-radius:6px} .ds-hbtn{display:inline-flex;align-items:center;min-height:42px;padding:0 18px;border-radius:999px;font-size:.92rem;font-weight:700;line-height:1;text-decoration:none;white-space:nowrap;background:var(--sun,#F6C343);border:2px solid var(--sun,#F6C343);color:var(--ink,#13261C);transition:transform .3s cubic-bezier(.16,1,.3,1)} .ds-hbtn:hover{transform:translateY(-2px)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Seed Packet",
+    "overview": "The site prints like the front and back of a seed packet, made modern. The front is a full-bleed field of deep leaf green with the real printed kit as the picture; the back is cool paper stock ruled into a fixed spec grid where every value sits in a cell. Colour is flat spot ink, never blended, and the type is one heavy, tightly set grotesque that carries volume through size alone.\n\nDensity is generous on the field and tight on the back panel: big display lines and air around the model, then hard 2px rules that box facts into cells and rows. The physical kit is always the picture. Chrome is quiet so the model, with its own per-part teaching colours, is the most colourful thing on screen.\n\nSurfaces alternate between two grounds, leaf field and paper stock, joined by one continuous 2px ink horizon rule. Status is printed, not implied: every resource carries a ticket (Live or Coming soon) and every unconfirmed fact carries a sun-yellow draft sticker.",
+    "keyCharacteristics": [
+      "Two grounds only: deep leaf field and cool paper stock, with green-black ink.",
+      "Flat spot inks; sunflower is the one action and highlight ink.",
+      "One variable face (Bricolage Grotesque, 200-800), display at 800 with tight negative tracking.",
+      "2px ink rules everywhere a printed packet would have a rule: horizons, spec grid, resource list, tickets, chips.",
+      "Pill-shaped controls; softly rounded panels; no hard offset shadows.",
+      "The 3D model keeps its own one-colour-per-part teaching palette, separate from chrome."
+    ],
+    "rules": [
+      { "name": "The Spot Ink Rule", "body": "Chrome uses only the declared spot inks. Fills are flat; no gradients, no tints mixed by eye.", "section": "colors" },
+      { "name": "The Teaching Palette Exception", "body": "The model, and the swatch that names a model part, may use the per-part palette. Nothing else may. A future kit (for example an animal cell) defines its own per-part palette for its model and leaves chrome on the spot inks.", "section": "colors" },
+      { "name": "The Sunflower Is The Button Rule", "body": "On the leaf field, the one primary action is sunflower. On paper, the primary action is ink. Sunflower on paper marks status or a draft, not an action.", "section": "colors" },
+      { "name": "The Loudest Line Rule", "body": "The hero line is the largest type on the page. No other element may match it.", "section": "typography" },
+      { "name": "The One Face Rule", "body": "Bricolage only. Hierarchy comes from size and weight (400 body, 600-700 labels, 800 display), never from a second family or from uppercase tracking.", "section": "typography" },
+      { "name": "The Horizon Rule", "body": "One 2px ink rule runs full width between each major section, tying the packet together.", "section": "layout" },
+      { "name": "The Fixed Cell Rule", "body": "Facts live in ruled cells or ruled rows, never as floating stat blocks.", "section": "layout" },
+      { "name": "The Flat Print Rule", "body": "Panels, cards, buttons, tickets and chips have no shadow. If something needs separation, give it a 2px ink rule or a ground change.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do set every surface on one of two grounds: leaf field (#124A2B) or paper stock (#F6F7F2).",
+      "Do make the physical kit the picture, and let its per-part teaching palette be the most colourful thing on screen.",
+      "Do use sunflower for the one primary action on leaf, and ink for the primary action on paper.",
+      "Do rule facts into cells and rows with 2px ink lines, and separate major sections with a full-width 2px horizon rule.",
+      "Do give every resource a printed status ticket (Live in leaf, Coming soon in dashed plum).",
+      "Do mark unconfirmed content with the sunflower draft sticker, naming what needs confirming.",
+      "Do keep controls as 2px-bordered pills at a 40px minimum height (48px for primary buttons).",
+      "Do keep the hero line the largest type on the page, set in Bricolage 800 at -0.035em.",
+      "Do show still pictures of the same model when a device cannot run 3D, and let people switch."
+    ],
+    "donts": [
+      "Don't use gradients or blended tints in chrome; spot inks print flat.",
+      "Don't use the model teaching palette in chrome, except the swatch dot that names a model part.",
+      "Don't add a second typeface, uppercase tracked labels, or small text above headlines.",
+      "Don't put shadows on panels, cards, buttons, tickets or chips; use a rule or a ground change.",
+      "Don't let values float as loose stat blocks; they belong in ruled cells.",
+      "Don't use plum for anything but \"not yet\", or sunflower on paper as an action.",
+      "Don't build the edu-template hero of headline, stock illustration and three equal feature cards."
+    ]
+  }
+}
