@@ -13,7 +13,8 @@ Home page of wrastem.com (`index.html`). Mode: Persuade. Audience: middle school
 
 THESIS: The real printed kit is the hero: Mark's own 12-piece plant cell, live in 3D, assembles, comes apart on scroll, then sits beside the resources to be clicked. Refuses the edu template of headline + stock illustration + three equal feature cards.
 
-OWN-WORLD: Seed-packet print grammar, made modern: flat spot inks with no gradients (leaf green field #1F7A3E, sunflower, plum, coral, sky) on cool paper stock #F6F7F2, deep green-black ink. Bricolage Grotesque, heavy and tight for display. Model parts painted in the same spot inks. Ruled spec grid like the back of a packet.
+OWN-WORLD: Seed-packet print grammar, made modern: flat spot inks with no gradients (deep leaf field #124A2B, sunflower, plum, coral, sky) on cool paper stock #F6F7F2, deep green-black ink. Bricolage Grotesque, heavy and tight for display. Ruled spec grid like the back of a packet.
+- Amended after the first build: the field moved from #1F7A3E to deep leaf #124A2B because the green chloroplast vanished on the lighter green; the model keeps its own teaching palette (one distinct colour per part, so parts are told apart at a glance), which is a deliberate exception to the six-ink limit for the model only. Chrome stays on the spot inks.
 - Raise (one-bit desktop): strict ink limit, every colour is one of six spot inks.
 - Raise (split-flap board): the rundown is a fixed-cell ruled grid; values sit in cells, never floating.
 - Raise (moon-shadow bazaar): every resource carries its own status ticket (Live / Coming soon).

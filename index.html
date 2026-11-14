@@ -97,13 +97,15 @@ p{margin:0;text-wrap:pretty}
 .stage{position:relative;height:260vh;height:260svh;background:var(--leaf);color:var(--on-leaf);--p:0}
 .stage-sticky{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
 .stage-art{position:absolute;inset:0}
-.stage-art img{position:absolute;inset:0 0 0 auto;width:min(100%,max(62%,calc(100% - 520px)));height:100%;object-fit:contain;object-position:60% 50%;pointer-events:none;transition:opacity .2s linear}
+.poster-frame{position:absolute;right:var(--gutter);top:52%;transform:translateY(-50%);width:min(calc(100% - 540px),112vh,1000px);aspect-ratio:4/3}
+.poster-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.poster-frame .label{left:var(--lx);top:var(--ly);opacity:calc((var(--p) - .75) * 4)}
 .poster-b{opacity:var(--p)}
 .poster-a{opacity:calc(1 - var(--p))}
 #stage-canvas,#viewer-canvas{position:absolute;inset:0}
 #stage-canvas canvas,#viewer-canvas canvas{width:100%!important;height:100%!important;display:block;opacity:0;animation:fadein .8s var(--ease) .05s forwards}
 @keyframes fadein{to{opacity:1}}
-.has-3d .stage-art img{display:none}
+.has-3d .poster-frame{display:none}
 .stage-copy{position:absolute;left:0;right:0;bottom:clamp(28px,7vh,72px);pointer-events:none}
 .stage-copy .wrap>*{pointer-events:auto}
 .stage-copy h1{font-size:clamp(2.9rem,6.4vw,6rem);max-width:9.5ch}
@@ -114,18 +116,18 @@ p{margin:0;text-wrap:pretty}
 .copy-b{opacity:calc((var(--p) - .62) * 3);transform:translateY(calc((1 - var(--p)) * 40px))}
 .copy-b .note{display:flex;align-items:center;gap:10px;margin-top:22px;font-weight:600;color:var(--on-leaf)}
 .copy-b .note svg{width:22px;height:22px;flex:none;color:var(--sun)}
-.ticket{display:inline-flex;align-items:center;gap:10px;margin-bottom:22px;padding:6px 14px 6px 6px;border:2px solid var(--on-leaf);border-radius:999px;font-size:.88rem;font-weight:600;letter-spacing:.005em}
-.ticket b{background:var(--sun);color:var(--ink);border-radius:999px;padding:3px 10px;font-weight:800}
+.kitline{margin-top:22px;font-size:.9rem;font-weight:600;color:var(--on-leaf-2)}
+.kitline b{color:var(--sun);font-weight:800}
 .label{position:absolute;left:0;top:0;pointer-events:none;opacity:0;transition:opacity .45s var(--ease)}
 .label.on{opacity:1}
 .label span{position:absolute;left:14px;bottom:10px;white-space:nowrap;background:var(--stock);color:var(--ink);font-weight:700;font-size:.85rem;padding:5px 11px;border-radius:999px;box-shadow:0 4px 14px -6px rgba(0,0,0,.45)}
 .label::before{content:"";position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;background:var(--stock);box-shadow:0 0 0 3px var(--ink)}
 .label::after{content:"";position:absolute;left:0;bottom:0;width:16px;height:2px;background:var(--stock);transform-origin:0 0;transform:rotate(-38deg)}
-.no-3d .label{display:none}
+.no-3d .stage-art>.label,.js-off .stage-art>.label{display:none}
 .scroll-cue{position:absolute;left:50%;bottom:16px;width:2px;height:40px;background:linear-gradient(var(--on-leaf),transparent);opacity:calc(.7 - var(--p) * 4);transform:translateX(-50%)}
 @media (max-width:900px){
-  .stage-art img{object-position:50% 30%;width:100%}
   .stage-art{bottom:34%}
+  .poster-frame{right:auto;left:50%;top:64px;transform:translateX(-50%);width:min(100%,calc((66svh - 64px) * 4 / 3))}
   .stage-copy h1{font-size:clamp(2.6rem,11vw,4rem)}
   .stage-copy h2{font-size:clamp(2.1rem,9vw,3.2rem)}
   .label span{font-size:.75rem;padding:4px 9px}
@@ -169,14 +171,15 @@ p{margin:0;text-wrap:pretty}
 .res li{border-bottom:2px solid var(--rule);padding:24px 0 26px;display:grid;gap:10px}
 .res h3{font-size:clamp(1.5rem,2vw,1.9rem);letter-spacing:-.03em}
 .res li p{color:var(--ink-2);max-width:46ch}
-.tag{justify-self:start;display:inline-flex;align-items:center;gap:7px;font-size:.8rem;font-weight:800;letter-spacing:.02em;padding:4px 10px 4px 8px;border-radius:999px;border:2px solid var(--ink)}
+.rhead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px}
+.tag{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;font-weight:800;letter-spacing:.02em;padding:4px 10px 4px 8px;border-radius:999px;border:2px solid var(--ink)}
 .tag::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
 .tag.live{background:var(--leaf);border-color:var(--leaf);color:var(--stock)}
-.tag.soon{color:var(--ink-2);border-style:dashed}
+.tag.soon{color:var(--plum);border-color:var(--plum);border-style:dashed}
 .res li .btn{justify-self:start;margin-top:6px}
 .res li.soon h3{color:var(--ink-2)}
 .viewer{position:sticky;top:88px}
-.viewer-box{position:relative;aspect-ratio:1/1;background:var(--leaf);border-radius:22px;overflow:hidden;touch-action:pan-y;user-select:none;cursor:grab}
+.viewer-box{position:relative;aspect-ratio:4/3;width:min(100%,calc((100svh - 430px) * 4 / 3));min-width:min(100%,320px);background:var(--leaf);border-radius:22px;overflow:hidden;touch-action:pan-y;user-select:none;cursor:grab}
 .viewer-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:6%}
 .has-3d .viewer-box img{display:none}
 .viewer-box:active{cursor:grabbing}
@@ -194,8 +197,10 @@ p{margin:0;text-wrap:pretty}
 .chips button:hover{background:rgba(19,38,28,.08)}
 .chips button[aria-pressed="true"]{background:var(--ink);color:var(--stock)}
 .chips .sep{flex-basis:100%;height:0}
-.chips .more{border-style:dashed;color:var(--ink-2)}
-.info{margin-top:18px;min-height:150px;padding:20px 22px;border:2px solid var(--rule);border-radius:16px;background:#fff}
+.chips .more{border-color:var(--ink-2);color:var(--ink-2)}
+.chips-cap{font-size:.82rem;font-weight:700;color:var(--ink-2);align-self:center;margin-right:4px}
+.info{margin-top:16px;min-height:150px;padding:18px 22px;border:2px solid var(--rule);border-radius:16px;background:var(--stock);scroll-margin-bottom:16px}
+.info .draft{margin-top:10px}
 .info h3{font-size:1.6rem;margin-bottom:8px}
 .info .role{font-size:1.1rem;max-width:52ch}
 .info .like{margin-top:8px;color:var(--ink-2)}
@@ -204,7 +209,7 @@ p{margin:0;text-wrap:pretty}
 .info .empty{color:var(--ink-2)}
 .d3-toggle{margin-top:12px;font-size:.85rem;color:var(--ink-2)}
 .d3-toggle button{background:none;border:0;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-underline-offset:.2em;cursor:pointer}
-@media (max-width:960px){.res-grid{grid-template-columns:1fr}.viewer{position:relative;top:0}}
+@media (max-width:960px){.res-grid{grid-template-columns:1fr}.viewer{position:relative;top:0}.viewer-box{width:100%;aspect-ratio:1/1}}
 
 /* ---------- footer ---------- */
 .foot{background:var(--ink);color:var(--stock);padding:56px 0 64px}
@@ -219,7 +224,7 @@ p{margin:0;text-wrap:pretty}
 .poster-mode main>*:not(#stage){display:none}
 .poster-mode .stage{height:auto;background:transparent}
 .poster-mode .stage-sticky{position:relative;width:1600px;height:1200px}
-.poster-mode .stage-copy,.poster-mode .stage-art img,.poster-mode .scroll-cue,.poster-mode .label{display:none}
+.poster-mode .stage-copy,.poster-mode .poster-frame,.poster-mode .scroll-cue,.poster-mode .label{display:none}
 </style>
 </head>
 <body>
@@ -244,8 +249,15 @@ p{margin:0;text-wrap:pretty}
   <section class="stage on-leaf" id="stage" aria-label="The plant cell kit">
     <div class="stage-sticky">
       <div class="stage-art">
+        <div class="poster-frame">
         <img class="poster-a" src="assets/img/cell-assembled.webp" width="1600" height="1200" alt="The 3D printed plant cell kit, fully assembled: a six-sided cell wall around a yellow cell membrane, with the nucleus, chloroplast, mitochondria and other organelles pressed into the cytoplasm." fetchpriority="high">
         <img class="poster-b" src="assets/img/cell-exploded.webp" width="1600" height="1200" alt="The same kit pulled apart into layers: cell wall at the bottom, then the membrane, the cytoplasm tray, and each organelle lifted above its pocket." loading="lazy" decoding="async">
+        <div class="label" style="--lx:50%;--ly:65.2%"><span>Cell wall</span></div>
+        <div class="label" style="--lx:50%;--ly:56.6%"><span>Cell membrane</span></div>
+        <div class="label" style="--lx:46.3%;--ly:17%"><span>Nucleus</span></div>
+        <div class="label" style="--lx:66.2%;--ly:30.4%"><span>Chloroplast</span></div>
+        <div class="label" style="--lx:38.2%;--ly:26.7%"><span>Mitochondrion</span></div>
+        </div>
         <div id="stage-canvas"></div>
         <div class="label" data-label="wall"><span>Cell wall</span></div>
         <div class="label" data-label="membrane"><span>Cell membrane</span></div>
@@ -256,7 +268,6 @@ p{margin:0;text-wrap:pretty}
 
       <div class="stage-copy copy-a">
         <div class="wrap">
-          <div class="ticket"><b>Plant Cell Kit</b> Grades 6–7 · NGSS MS-LS1-2</div>
           <h1>A plant cell you can take apart.</h1>
           <p class="lede">Hands-on, 3D printed science kits for middle school classrooms, with a free tool that prints the worksheets to go with them.</p>
           <div class="actions">
@@ -265,6 +276,7 @@ p{margin:0;text-wrap:pretty}
             <a class="btn btn-line" href="#stage-b">See it come apart
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
           </div>
+          <p class="kitline"><b>Plant Cell Kit</b> · Grades 6–7 · Designed to align with NGSS MS-LS1-2</p>
         </div>
       </div>
 
@@ -306,7 +318,7 @@ p{margin:0;text-wrap:pretty}
           <div class="cell wide"><dt>Each worksheet</dt><dd><strong>3 pages + answer key</strong>Six sections, from labeling the cell to short written answers. Questions come from a fixed bank of 43, never made up on the spot.</dd></div>
           <div class="cell"><dt>Version number</dt><dd><strong>1000–9999</strong>Type a number to print the same worksheet again</dd></div>
           <div class="cell"><dt>Works</dt><dd><strong>Offline too</strong>Download PDFs or print straight from the browser</dd></div>
-          <div class="cell wide status"><dt>Where it stands</dt><dd>Built and tested in software. A science teacher is reviewing every question. Not yet tested with students.</dd></div>
+          <div class="cell wide status"><dt>Where it stands</dt><dd>Built and tested in software. Every question is listed in a review packet for a science teacher to check. Not yet tested with students.</dd></div>
         </dl>
       </div>
     </div>
@@ -321,20 +333,17 @@ p{margin:0;text-wrap:pretty}
         <p class="intro">Free tools for teachers using the kits. One is ready now; two more are on the way.</p>
         <ol>
           <li>
-            <span class="tag live">Ready now</span>
-            <h3>Worksheet Generator</h3>
+            <div class="rhead"><h3>Worksheet Generator</h3><span class="tag live">Ready now</span></div>
             <p>Print a new plant cell worksheet and answer key in one click. Each one gets a version number so you can print it again.</p>
             <a class="btn btn-ink" href="cell-kit-generator/">Open the generator
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
           </li>
           <li class="soon">
-            <span class="tag soon">Coming soon</span>
-            <h3>Instruction Sheet Editor</h3>
+            <div class="rhead"><h3>Instruction Sheet Editor</h3><span class="tag soon">Coming soon</span></div>
             <p>Edit and print the step-by-step instructions that go with each kit.</p>
           </li>
           <li class="soon">
-            <span class="tag soon">Coming soon</span>
-            <h3>NGSS AI</h3>
+            <div class="rhead"><h3>NGSS AI</h3><span class="tag soon">Coming soon</span></div>
             <p>Ask a question about the Next Generation Science Standards and get an answer built on the standards themselves.</p>
           </li>
         </ol>
@@ -357,6 +366,7 @@ p{margin:0;text-wrap:pretty}
           <button type="button" data-part="chloroplast" aria-pressed="false">Chloroplast</button>
           <button type="button" data-part="mitochondrion" aria-pressed="false">Mitochondrion</button>
           <span class="sep" aria-hidden="true"></span>
+          <span class="chips-cap">Also in the kit</span>
           <button type="button" class="more" data-part="cytoplasm" aria-pressed="false">Cytoplasm</button>
           <button type="button" class="more" data-part="nucleolus" aria-pressed="false">Nucleolus</button>
           <button type="button" class="more" data-part="vacuole" aria-pressed="false">Vacuole</button>
@@ -386,13 +396,13 @@ p{margin:0;text-wrap:pretty}
 <template id="info-membrane"><h3>Cell membrane</h3><p class="role">Controls what goes in and out of the cell. It lets water in and keeps harmful things out.</p><p class="like">Like a guard at a door.</p><p class="kit"><i style="background:#F6C343"></i>NGSS MS-LS1-2 part · The yellow tray just inside the wall</p></template>
 <template id="info-nucleus"><h3>Nucleus</h3><p class="role">Tells the cell what to do. It holds the DNA, the cell's instructions.</p><p class="like">Like a principal who runs the school.</p><p class="kit"><i style="background:#7A45A0"></i>NGSS MS-LS1-2 part · The large dome, cut open to show the inside</p></template>
 <template id="info-chloroplast"><h3>Chloroplast</h3><p class="role">Makes sugar using sunlight and water. It is green because it catches light.</p><p class="like">Like a solar panel.</p><p class="kit"><i style="background:#7EE07A"></i>NGSS MS-LS1-2 part · The oval with stacks inside</p></template>
-<template id="info-mitochondrion"><h3>Mitochondrion</h3><p class="role">Turns sugar into energy the cell can use. Plant cells need them too.</p><p class="like">Like a power plant.</p><p class="kit"><i style="background:#E8573A"></i>NGSS MS-LS1-2 part · The kit has two</p></template>
-<template id="info-cytoplasm"><h3>Cytoplasm</h3><p class="role">The jelly-like filling that holds the organelles in place inside the cell.</p><p class="kit"><i style="background:#CFE8C9"></i>Also in the kit · The tray every organelle presses into</p></template>
-<template id="info-nucleolus"><h3>Nucleolus</h3><p class="role">A dense spot inside the nucleus that helps build ribosomes.</p><p class="kit"><i style="background:#E06AA5"></i>Also in the kit · Sits inside the cut-open nucleus</p></template>
-<template id="info-vacuole"><h3>Vacuole</h3><p class="role">Stores water and helps keep the plant cell firm.</p><p class="kit"><i style="background:#F4FAFC"></i>Also in the kit</p></template>
-<template id="info-er"><h3>Endoplasmic reticulum</h3><p class="role">A folded network that helps make and move materials around the cell.</p><p class="kit"><i style="background:#7CC4E8"></i>Also in the kit</p></template>
-<template id="info-golgi"><h3>Golgi apparatus</h3><p class="role">Packs materials and ships them where they need to go.</p><p class="kit"><i style="background:#F29E38"></i>Also in the kit</p></template>
-<template id="info-vesicle"><h3>Vesicle</h3><p class="role">A small sac that carries materials around the cell.</p><p class="kit"><i style="background:#E06AA5"></i>Also in the kit</p></template>
+<template id="info-mitochondrion"><h3>Mitochondrion</h3><p class="role">Turns sugar into energy the cell can use. Plant cells need them too.</p><p class="like">Like a power plant.</p><p class="kit"><i style="background:#E8573A"></i>NGSS MS-LS1-2 part · The kit has two</p><span class="draft">Second one to confirm with Mark</span></template>
+<template id="info-cytoplasm"><h3>Cytoplasm</h3><p class="role">The jelly-like filling that holds the organelles in place inside the cell.</p><p class="kit"><i style="background:#CFE8C9"></i>Also in the kit · The tray every organelle presses into</p><span class="draft">Part name to confirm with Mark</span></template>
+<template id="info-nucleolus"><h3>Nucleolus</h3><p class="role">A dense spot inside the nucleus that helps build ribosomes.</p><p class="kit"><i style="background:#E06AA5"></i>Also in the kit · Sits inside the cut-open nucleus</p><span class="draft">Part name to confirm with Mark</span></template>
+<template id="info-vacuole"><h3>Vacuole</h3><p class="role">Stores water and helps keep the plant cell firm.</p><p class="kit"><i style="background:#F4FAFC"></i>Also in the kit</p><span class="draft">Part name to confirm with Mark</span></template>
+<template id="info-er"><h3>Endoplasmic reticulum</h3><p class="role">A folded network that helps make and move materials around the cell.</p><p class="kit"><i style="background:#7CC4E8"></i>Also in the kit</p><span class="draft">Part name to confirm with Mark</span></template>
+<template id="info-golgi"><h3>Golgi apparatus</h3><p class="role">Packs materials and ships them where they need to go.</p><p class="kit"><i style="background:#F29E38"></i>Also in the kit</p><span class="draft">Part name to confirm with Mark</span></template>
+<template id="info-vesicle"><h3>Vesicle</h3><p class="role">A small sac that carries materials around the cell.</p><p class="kit"><i style="background:#E06AA5"></i>Also in the kit</p><span class="draft">Part name to confirm with Mark</span></template>
 
 <script>
   // Page behavior that works with or without the 3D model.
@@ -416,12 +426,13 @@ p{margin:0;text-wrap:pretty}
     // Part info, shared by the chips and the 3D model.
     var info = document.getElementById('part-info');
     var chips = [].slice.call(document.querySelectorAll('[data-part]'));
-    window.wraShowPart = function (name) {
+    window.wraShowPart = function (name, from) {
       var key = name === 'mitochondrion2' ? 'mitochondrion' : name;
       var tpl = key && document.getElementById('info-' + key);
       info.innerHTML = (tpl || document.getElementById('info-empty')).innerHTML;
       chips.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.part === key)); });
       document.dispatchEvent(new CustomEvent('wra:part', { detail: key || null }));
+      if (from === 'model' && key && window.innerWidth <= 960) info.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     };
     chips.forEach(function (b) {
       b.addEventListener('click', function () {

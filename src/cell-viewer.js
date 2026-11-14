@@ -105,13 +105,17 @@ export async function start() {
     // fit: the model is ~130mm wide; keep it filling the frame on any aspect
     const narrow = w / h < 0.9;
     const k = ease(st.explode);
-    const dist = (st.mode === 'viewer' ? 262 : (narrow ? 430 : 372)) * (1 + 0.22 * k);
+    let dist = (st.mode === 'viewer' ? 300 : (narrow ? 430 : 372)) * (1 + 0.22 * k);
+    if (POSTER) dist *= 0.86; // stills are framed tight; the page places them
     camera.position.set(0, 0, dist);
     camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
     model.rotation.set(st.pitch, st.yaw, st.roll, 'XYZ');
     // centre the model in its frame (stage puts it right of the headline on wide screens)
-    model.position.set(st.mode === 'stage' && !narrow ? Math.min(78, 30 * (w / h)) : 0, (st.mode === 'stage' && narrow ? 22 : 0) - LIFT_MID * k, 0);
+    const offX = POSTER ? 0 : (st.mode === 'stage' && !narrow ? Math.min(78, 30 * (w / h)) : 0);
+    const offY = (st.mode === 'stage' && narrow && !POSTER ? 22 - 16 * k : 0) - LIFT_MID * k;
+    model.position.set(offX, offY, 0);
+    model.scale.setScalar(st.mode === 'stage' && narrow ? 1 - 0.15 * k : 1);
     pose(st.explode);
     renderer.render(scene, camera);
     placeLabels();
@@ -124,14 +128,29 @@ export async function start() {
     if (st.mode !== 'stage') return;
     const r = canvas.getBoundingClientRect();
     const show = st.explode > 0.85;
+    const pts = [];
     for (const el of labels) {
       const o = parts[el.dataset.label];
       if (!o) continue;
       new Box3().setFromObject(o).getCenter(v);
       v.project(camera);
-      el.style.transform = `translate(${(v.x * 0.5 + 0.5) * r.width}px, ${(-v.y * 0.5 + 0.5) * r.height}px)`;
-      el.classList.toggle('on', show);
+      pts.push({ el, name: el.dataset.label, x: (v.x * 0.5 + 0.5) * r.width, y: (-v.y * 0.5 + 0.5) * r.height });
     }
+    // keep labels clear of the header and of each other (pills sit up-right of their dot)
+    const minY = Math.max(0, 96 - r.top);
+    pts.sort((a, b) => a.y - b.y);
+    for (let i = 0; i < pts.length; i++) {
+      pts[i].y = Math.max(pts[i].y, minY);
+      for (let j = 0; j < i; j++) {
+        if (Math.abs(pts[i].x - pts[j].x) < 130 && pts[i].y - pts[j].y < 34) pts[i].y = pts[j].y + 34;
+      }
+    }
+    for (const p of pts) {
+      p.x = Math.min(p.x, r.width - 150);
+      p.el.style.transform = `translate(${p.x}px, ${p.y}px)`;
+      p.el.classList.toggle('on', show);
+    }
+    if (POSTER) window.__labels = Object.fromEntries(pts.map((p) => [p.name, [+(100 * p.x / r.width).toFixed(1), +(100 * p.y / r.height).toFixed(1)]]));
   }
 
   // ---- animation loop: runs only while something is moving ---------------
@@ -242,7 +261,7 @@ export async function start() {
     highlight();
     st.dirty = true; request();
   });
-  function select(name) { window.wraShowPart ? window.wraShowPart(name) : null; }
+  function select(name) { if (window.wraShowPart) window.wraShowPart(name, 'model'); }
   function highlight() {
     const dim = new Color('#d9ddd6');
     for (const o of meshes) {
