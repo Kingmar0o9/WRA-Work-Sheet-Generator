@@ -1,0 +1,21 @@
+// Standards AI server. Free Cloudflare Workers plan; nothing here can create a bill.
+{
+  "name": "standards-ai",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-01",
+
+  // The AI model (Cloudflare Workers AI). Free plan: 10,000 "neurons" a day, then it pauses
+  // until 00:00 UTC. To trade answer quality for more questions per day, swap the model for
+  // "@cf/meta/llama-3.1-8b-instruct-fp8-fast" (roughly 6x more questions a day).
+  "ai": { "binding": "AI" },
+  "vars": { "MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast" },
+
+  // At most 6 questions a minute from one visitor.
+  "ratelimits": [{ "name": "LIMITER", "namespace_id": "1001", "simple": { "limit": 6, "period": 60 } }],
+
+  // The address the website calls. Cloudflare creates this DNS record itself.
+  "routes": [{ "pattern": "ai.wrastem.com", "custom_domain": true }],
+
+  // Questions show up in the dashboard under Workers & Pages > standards-ai > Logs (kept 7 days).
+  "observability": { "enabled": true }
+}
