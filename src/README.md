@@ -13,6 +13,7 @@ below if you change the 3D model or the viewer code. Editing text in
 | `assets/js/cell-viewer.js` | The 3D viewer, built from `src/cell-viewer.js` (includes three.js) |
 | `assets/img/cell-*.webp` | Still pictures of the whole cell shown on slow devices (rendered from the same model) |
 | `assets/img/parts/*.webp` | One picture of each piece, for the laid-out sheet on slow devices |
+| `assets/img/kit-laid-out.webp` | The whole kit laid out (tray plus every organelle), for the Buy section and purchase page |
 | `assets/fonts/bricolage-wght.woff2` | The one font the page uses |
 
 ## Changing part names or descriptions

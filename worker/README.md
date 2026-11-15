@@ -50,6 +50,27 @@ Only questions that need a written answer reach the server. A bare code such as
 `MS-LS1-2` is answered on the page and does not appear in the logs. "hi", "thanks" and
 "who are you" get a ready-made reply without using the AI (they show as `small_talk`).
 
+## Purchase requests (wrastem.com/purchase)
+
+The "Buy now" form sends its answers (number of sets, name, school, email, message) to
+this server at `/purchase`, which emails them to you. Pressing **Reply** in that email
+answers the teacher directly. It's free: Cloudflare delivers to a verified address in your
+own account at no charge, on the Workers Free plan.
+
+One-time setup in the Cloudflare dashboard (about 3 minutes):
+
+1. **Compute → Email Service → Email Routing → Onboard Domain**, pick `wrastem.com`, then
+   **Done**. Cloudflare adds the email DNS records itself (the site had none before).
+2. **Email Routing → Destination Addresses**: add the inbox that should get requests,
+   then open the email Cloudflare sends there and click **Verify email address**.
+3. That inbox is saved on the server as a secret, not in this code. To change it:
+   `npx wrangler secret put NOTIFY_TO`
+
+Every request is also written to the Logs (Workers & Pages → `standards-ai` → Logs, look
+for `purchase`), so if an email ever fails you can still find it there for 7 days. A
+hidden "website" field catches most spam bots, and one visitor can send at most a few
+requests a minute.
+
 ## What happens when the free allowance runs out
 
 The AI stops until 00:00 UTC (8 pm Eastern in winter). The page says answers are

@@ -17,6 +17,10 @@
   // At most 6 questions a minute from one visitor.
   "ratelimits": [{ "name": "LIMITER", "namespace_id": "1001", "simple": { "limit": 6, "period": 60 } }],
 
+  // Purchase requests are emailed (free) to a verified address in the Cloudflare account.
+  // That address is a secret, not written here: npx wrangler secret put NOTIFY_TO
+  "send_email": [{ "name": "EMAIL" }],
+
   // The address the website calls. Cloudflare creates this DNS record itself.
   "routes": [{ "pattern": "ai.wrastem.com", "custom_domain": true }],
 
