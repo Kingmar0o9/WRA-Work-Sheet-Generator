@@ -150,7 +150,7 @@ flowchart LR
 | [`purchase/`](purchase) | Request kits form |
 | [`worker/`](worker) | Cloudflare Worker for Standards AI answers and purchase requests ([setup notes](worker/README.md)) |
 | [`src/`](src) | Source for the 3D viewer, the model pipeline and the NGSS pipeline ([build notes](src/README.md)) |
-| [`assets/`](assets) | Fonts, images, the 3D model and the built viewer |
+| [`assets/`](assets) | Fonts, images, the 3D model and the built viewer. Logo files are in [`assets/brand/`](assets/brand) |
 | [`DESIGN.md`](DESIGN.md) | The design system |
 | `9113d54f23e68ee25a1596c5112c4986.txt` | Public IndexNow verification file, so search engines accept page updates from wrastem.com (not a secret) |
 
