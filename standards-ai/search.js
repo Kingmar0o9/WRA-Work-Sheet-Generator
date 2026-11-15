@@ -30,15 +30,16 @@ export function codesIn(query) {
 
 // Grade words in a question nudge results toward that grade band.
 const BANDS = [
-  [/\b(kindergarten|kinder)\b/i, ['K']],
-  [/\b(first grade|grade 1|1st grade)\b/i, ['1', 'K-2']],
-  [/\b(second grade|grade 2|2nd grade)\b/i, ['2', 'K-2']],
-  [/\b(third grade|grade 3|3rd grade)\b/i, ['3', '3-5']],
-  [/\b(fourth grade|grade 4|4th grade)\b/i, ['4', '3-5']],
-  [/\b(fifth grade|grade 5|5th grade)\b/i, ['5', '3-5']],
+  // "4th grade", "4th graders", "grade 4"
+  [/\b(kindergarten|kinder|kindergart[e]?ners?)\b/i, ['K']],
+  [/\b((first|1st) grade(rs?)?|grade 1)\b/i, ['1', 'K-2']],
+  [/\b((second|2nd) grade(rs?)?|grade 2)\b/i, ['2', 'K-2']],
+  [/\b((third|3rd) grade(rs?)?|grade 3)\b/i, ['3', '3-5']],
+  [/\b((fourth|4th) grade(rs?)?|grade 4)\b/i, ['4', '3-5']],
+  [/\b((fifth|5th) grade(rs?)?|grade 5)\b/i, ['5', '3-5']],
   [/\b(elementary)\b/i, ['K', '1', '2', '3', '4', '5', 'K-2', '3-5']],
-  [/\b(middle school|grade [678]|[678]th grade|sixth|seventh|eighth|ms)\b/i, ['MS']],
-  [/\b(high school|grades? (9|10|11|12)|(9|10|11|12)th grade|biology|chemistry|physics|hs)\b/i, ['HS']],
+  [/\b(middle school(ers?)?|grades? [678]|[678]th grade(rs?)?|sixth|seventh|eighth|ms)\b/i, ['MS']],
+  [/\b(high school(ers?)?|grades? (9|10|11|12)|(9|10|11|12)th grade(rs?)?|biology|chemistry|physics|hs)\b/i, ['HS']],
 ];
 // Grade bands a question asks for, e.g. ['MS'] for "middle school photosynthesis".
 export function bandsIn(query) { return BANDS.filter(([re]) => re.test(query)).flatMap(([, b]) => b); }
@@ -107,8 +108,9 @@ export function interpret(index, query) {
   return { text: fixed.join(' '), changed: fixed.some((f, i) => f !== raw[i] && f !== stem(raw[i])) };
 }
 
-// Returns [{ pe, score }] best first.
-export function search(index, query, limit = 8) {
+// Returns [{ pe, score }] best first. With onlyBands (e.g. ['4', '3-5']), the text match
+// looks only at standards in those grade bands.
+export function search(index, query, limit = 8, onlyBands = null) {
   const { data, docs, df, avg, N } = index;
   const out = new Map();
   // 1. exact or partial codes always come first
@@ -124,6 +126,7 @@ export function search(index, query, limit = 8) {
   if (q.length) {
     const k1 = 1.2, b = 0.75;
     for (const d of docs) {
+      if (onlyBands && !onlyBands.includes(bandOf(data.pe[d.i].c))) continue;
       let s = 0;
       for (const t of q) {
         const f = d.tf.get(t);
@@ -143,6 +146,26 @@ export function search(index, query, limit = 8) {
     .filter(([, s]) => s >= 1e5 || s >= best * 0.35)
     .slice(0, limit)
     .map(([i, score]) => ({ pe: data.pe[i], score }));
+}
+
+// Greetings, thanks and "who are you" get a friendly reply straight away: no search, no AI.
+const SMALL_TALK = [
+  [/^(hi+|hello+|hey+|heya|hiya|howdy|yo|sup|what'?s up|good (morning|afternoon|evening|day)|greetings)( there| everyone| all| standards ai)?$/,
+    'Hi! I’m Standards AI. Ask me what a science idea means, what students learn about it at each grade, or how to teach it. I’ll keep it simple and show you which NGSS standard it comes from.'],
+  [/^(how are you|how are you doing|how's it going|how is it going)( today)?$/,
+    'Doing well, thanks for asking! What are you teaching right now? I can find the standard for it and suggest a few ways to teach it.'],
+  [/^(thanks|thank you|thank u|thx|ty|cheers)( so much| a lot| very much)?$/,
+    'You’re welcome! Ask me anything else about a science topic, a standard or a lesson.'],
+  [/^(ok|okay|cool|great|nice|awesome|perfect|got it|sounds good)$/,
+    'Great. What would you like to look at next?'],
+  [/^(who are you|what are you|what can you do|what do you do|help)$/,
+    'I’m Standards AI, a helper for science teachers. I can explain a science idea in plain words, tell you what the NGSS expects students to learn at each grade, and suggest ways to teach it. Anything I take from the NGSS has its code in brackets, linked to the official standard.'],
+  [/^(bye|goodbye|see you|see ya)$/, 'Bye! Come back any time.'],
+];
+export function smallTalk(q) {
+  const t = String(q).toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, ' ').replace(/^[\s!.,?]+|[\s!.,?:)(]+$/g, '');
+  const hit = SMALL_TALK.find(([re]) => re.test(t));
+  return hit ? hit[1] : null;
 }
 
 const KIND = { SEP: 'Science and engineering practice', DCI: 'Disciplinary core idea', CCC: 'Crosscutting concept' };
