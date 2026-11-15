@@ -53,7 +53,54 @@ export function createIndex(data) {
   const df = new Map();
   for (const d of docs) for (const t of d.tf.keys()) df.set(t, (df.get(t) || 0) + 1);
   const avg = docs.reduce((a, d) => a + d.len, 0) / docs.length;
-  return { data, docs, df, avg, N: docs.length };
+  // spelling help: every word the standards use, and the same words with their letters sorted
+  const vocab = [...df.keys()].filter((t) => /^[a-z]+$/.test(t) && t.length > 3);
+  const anagram = new Map();
+  for (const t of vocab) { const k = [...t].sort().join(''); if (!anagram.has(k) || df.get(t) > df.get(anagram.get(k))) anagram.set(k, t); }
+  return { data, docs, df, avg, N: docs.length, vocab, anagram };
+}
+
+// Edit distance that counts a swap of two neighbouring letters as one change.
+function distance(a, b, max) {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    let rowMin = Infinity;
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+      rowMin = Math.min(rowMin, d[i][j]);
+    }
+    if (rowMin > max) return max + 1;
+  }
+  return d[a.length][b.length];
+}
+
+// A word the standards never use is swapped for the closest one they do: a misspelling
+// (mitocondria), swapped letters (mtiochondira) or fully scrambled letters (aidnorhcotim).
+function fixWord(index, w) {
+  // short words are too easy to mistake for other words, so they are left alone
+  if (index.df.has(w) || w.length < 5 || /\d/.test(w)) return w;
+  const scrambled = w.length >= 6 && index.anagram.get([...w].sort().join(''));
+  if (scrambled) return scrambled;
+  const max = w.length >= 8 ? 2 : 1;
+  let best = null, bestD = max + 1;
+  for (const t of index.vocab) {
+    // typos usually keep the first letter; long words may not (fotosynthesis)
+    if (w.length < 8 && t[0] !== w[0]) continue;
+    const dd = distance(w, t, max);
+    if (dd < bestD || (dd === bestD && best && index.df.get(t) > index.df.get(best))) { best = t; bestD = dd; }
+  }
+  return best || w;
+}
+
+// What the search will actually look for, after spelling help: { text, changed }.
+export function interpret(index, query) {
+  const raw = (String(query).toLowerCase().replace(CODE, ' ').match(/[a-z0-9]+/g) || []).filter((w) => w.length > 1 && !STOP.has(w));
+  const fixed = raw.map((w) => { const st = stem(w); const f = fixWord(index, st); return f === st ? w : f; });
+  return { text: fixed.join(' '), changed: fixed.some((f, i) => f !== raw[i] && f !== stem(raw[i])) };
 }
 
 // Returns [{ pe, score }] best first.
@@ -68,7 +115,7 @@ export function search(index, query, limit = 8) {
     });
   }
   // 2. ranked text match (BM25)
-  const q = [...new Set(tokens(query.replace(CODE, ' ')))];
+  const q = [...new Set(tokens(query.replace(CODE, ' ')).map((t) => fixWord(index, t)))];
   const bands = BANDS.filter(([re]) => re.test(query)).flatMap(([, b]) => b);
   if (q.length) {
     const k1 = 1.2, b = 0.75;

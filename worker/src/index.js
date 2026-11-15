@@ -12,7 +12,7 @@
 //      page shows the matching standards instead.
 
 import data from '../../standards-ai/ngss.json';
-import { createIndex, search, sourceText } from '../../standards-ai/search.js';
+import { createIndex, search, sourceText, codesIn } from '../../standards-ai/search.js';
 
 const index = createIndex(data);
 
@@ -26,6 +26,30 @@ Rules:
 3. Use the standards' own wording where you can. Short quotes are good.
 4. If SOURCES do not answer the question, or the question is not about the science standards, reply with exactly this sentence and nothing else: ${NOT_COVERED}
 5. Write plainly for a teacher, in at most 150 words.`;
+
+// Step 1 (routing): a small, fast model works out what the person meant (misspellings,
+// scrambled letters, everyday words) and turns it into search words. It does not answer.
+const ROUTER = `You turn a teacher's search text into search keywords for the Next Generation Science Standards.
+The text may be misspelled, scrambled, abbreviated or vague. Work out the science topic they most likely mean.
+Reply with only one line of JSON and nothing else, in this form:
+{"keywords":"3 to 8 correctly spelled science words for the topic","grade":"K, 1, 2, 3, 4, 5, MS, HS or any"}
+Do not answer the question. Do not invent standard codes.`;
+const GRADE_WORDS = { K: 'kindergarten', 1: 'first grade', 2: 'second grade', 3: 'third grade', 4: 'fourth grade', 5: 'fifth grade', MS: 'middle school', HS: 'high school' };
+
+async function route(env, q) {
+  try {
+    const r = await env.AI.run(env.ROUTER_MODEL, {
+      messages: [{ role: 'system', content: ROUTER }, { role: 'user', content: q }],
+      max_tokens: 60, temperature: 0,
+    });
+    const m = String(r.response || '').match(/\{[\s\S]*?\}/);
+    const j = m ? JSON.parse(m[0]) : null;
+    const words = String(j?.keywords || '').replace(/[^a-zA-Z ,-]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120);
+    if (!words) return null;
+    const grade = GRADE_WORDS[String(j.grade || '').toUpperCase()] || '';
+    return { words, search: (words + ' ' + grade).trim() };
+  } catch { return null; }
+}
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -57,19 +81,26 @@ export default {
     try { q = String((await request.json()).q || '').slice(0, 300).trim(); } catch { /* bad body */ }
     if (q.length < 3) return json({ error: 'empty' }, 400);
 
-    const hits = search(index, q, 5);
-    const sources = hits.map((h) => h.pe.c);
-    if (!hits.length) {
-      console.log(JSON.stringify({ q, sources, status: 'no_match' }));
-      return json({ answer: NOT_COVERED, sources, status: 'no_match' });
-    }
-
     const cache = caches.default;
     const key = new Request('https://cache.standards-ai/ask?q=' + encodeURIComponent(normal(q)));
     const cached = await cache.match(key);
     if (cached) {
-      console.log(JSON.stringify({ q, sources, status: 'cached' }));
+      console.log(JSON.stringify({ q, status: 'cached' }));
       return new Response(cached.body, { headers: { 'Content-Type': 'application/json', ...CORS } });
+    }
+
+    // Route: a typed code goes straight to its standard; anything else is interpreted first.
+    const routed = codesIn(q).length ? null : await route(env, q);
+    const seen = new Set(), hits = [];
+    for (const h of [...(routed ? search(index, routed.search, 5) : []), ...search(index, q, 5)]) {
+      if (!seen.has(h.pe.c)) { seen.add(h.pe.c); hits.push(h); }
+    }
+    hits.splice(5);
+    const sources = hits.map((h) => h.pe.c);
+    const interpreted = routed ? routed.words : null;
+    if (!hits.length) {
+      console.log(JSON.stringify({ q, interpreted, sources, status: 'no_match' }));
+      return json({ answer: NOT_COVERED, sources, interpreted, status: 'no_match' });
     }
 
     const context = hits.map((h) => sourceText(data, h.pe)).join('\n\n---\n\n');
@@ -78,7 +109,7 @@ export default {
       const r = await env.AI.run(env.MODEL, {
         messages: [
           { role: 'system', content: SYSTEM },
-          { role: 'user', content: `SOURCES (the only text you may use):\n\n${context}\n\nQUESTION: ${q}` },
+          { role: 'user', content: `SOURCES (the only text you may use):\n\n${context}\n\nQUESTION: ${q}${interpreted ? `\n(The question is about: ${interpreted})` : ''}` },
         ],
         max_tokens: 380,
         temperature: 0.1,
@@ -87,8 +118,8 @@ export default {
     } catch (err) {
       // most often the free daily allowance is used up; the page falls back to search results
       status = 'ai_unavailable';
-      console.log(JSON.stringify({ q, sources, status, error: String(err).slice(0, 200) }));
-      return json({ answer: null, sources, status });
+      console.log(JSON.stringify({ q, interpreted, sources, status, error: String(err).slice(0, 200) }));
+      return json({ answer: null, sources, interpreted, status });
     }
 
     // Keep the answer only if every citation points at text it was given.
@@ -96,8 +127,8 @@ export default {
     if (answer.startsWith(NOT_COVERED)) { answer = NOT_COVERED; status = 'not_covered'; }
     else if (!cited.length || cited.some((c) => !sources.includes(c))) { answer = null; status = 'unsupported'; }
 
-    console.log(JSON.stringify({ q, sources, status }));
-    const res = json({ answer, sources, status });
+    console.log(JSON.stringify({ q, interpreted, sources, status }));
+    const res = json({ answer, sources, interpreted, status });
     if (answer) ctx.waitUntil(cache.put(key, new Response(res.clone().body, { headers: { 'Cache-Control': 'max-age=604800' } })));
     return res;
   },

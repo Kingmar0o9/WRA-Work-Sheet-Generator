@@ -68,6 +68,9 @@ main{padding:clamp(28px,4vw,48px) 0 64px}
 .results{border-top:2px solid var(--rule);padding-top:18px}
 .results .count{font-size:.92rem;color:var(--ink-2);margin-bottom:12px}
 .pe{padding:18px 0 20px;border-bottom:1px solid rgba(19,38,28,.25);scroll-margin-top:16px}
+.pe.best{background:linear-gradient(var(--sun),var(--sun)) 0 0/6px 100% no-repeat;padding-left:16px}
+.pe .bestlabel{display:inline-block;margin-bottom:6px;font-size:.78rem;font-weight:800;background:var(--sun);border-radius:6px;padding:2px 8px}
+.results .heard{font-size:.95rem;margin-bottom:4px}
 .pe:target{background:linear-gradient(var(--sun),var(--sun)) 0 0/6px 100% no-repeat;padding-left:16px}
 .pe h3{font-size:1.25rem;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
 .pe h3 small{font-size:.85rem;font-weight:600;color:var(--ink-2);letter-spacing:0}
@@ -138,7 +141,7 @@ main{padding:clamp(28px,4vw,48px) 0 64px}
 </footer>
 
 <script type="module">
-import { createIndex, search, codesIn } from './search.js';
+import { createIndex, search, codesIn, interpret } from './search.js';
 
 const DATA_URL = 'ngss.json';
 const ENDPOINT = document.querySelector('meta[name="standards-ai-endpoint"]').content;
@@ -171,13 +174,23 @@ const saved = {
 let data, index;
 const form = $('#ask-form'), input = $('#q'), button = form.querySelector('button');
 
-function renderResults(hits, q) {
+// Bring the best match into view and mark it, so a search lands right on its standard.
+function routeToBest() {
+  const best = document.querySelector('.pe');
+  if (!best) return;
+  best.classList.add('best');
+  best.insertAdjacentHTML('afterbegin', '<span class="bestlabel">Best match</span>');
+  best.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+}
+
+function renderResults(hits, q, heard) {
   const box = $('#results');
+  const heardLine = heard ? `<p class="heard">Showing standards for <b>“${esc(heard)}”</b></p>` : '';
   if (!hits.length) {
-    box.innerHTML = `<h2>Standards that match</h2><p class="empty">No performance expectation matches “${esc(q)}”. Try other words, or a code such as MS-LS1-2.</p>`;
+    box.innerHTML = `<h2>Standards that match</h2>${heardLine}<p class="empty">No performance expectation matches “${esc(q)}”. Try other words, or a code such as MS-LS1-2.</p>`;
     return;
   }
-  box.innerHTML = `<h2>Standards that match</h2><p class="count">${hits.length} performance expectation${hits.length > 1 ? 's' : ''}, best match first</p>` +
+  box.innerHTML = `<h2>Standards that match</h2>${heardLine}<p class="count">${hits.length} performance expectation${hits.length > 1 ? 's' : ''}, best match first</p>` +
     hits.map(({ pe }) => {
       const els = pe.e.map((j) => data.el[j]);
       return `<article class="pe" id="pe-${esc(pe.c)}">
@@ -202,18 +215,29 @@ function showAnswer(state, text, note) {
 
 let pending = null;
 let aiOn = null; // null = still checking, true / false once the server answers (or doesn't)
+// The server's routing (what it understood, and which standards fit best) replaces the
+// quick in-browser match, and the page jumps to the best one.
+function useServer(out, q) {
+  const pes = (out.sources || []).map((c) => data.pe.find((p) => p.c === c)).filter(Boolean);
+  if (pes.length) { renderResults(pes.map((pe) => ({ pe })), q, out.interpreted || ''); routeToBest(); }
+  if (out.answer) showAnswer('done', out.answer); else $('#answer').hidden = true;
+}
+
 async function ask(q) {
   q = q.trim();
   if (!q) return;
   if (!index) { pending = q; $('#meta').textContent = 'Loading the standards… your question will run in a moment.'; return; }
   const hits = search(index, q, 8);
-  renderResults(hits, q);
-  if (!hits.length) { showAnswer('done', NOT_COVERED); return; }
+  const heard = interpret(index, q);
+  renderResults(hits, q, heard.changed ? heard.text : '');
+  if (hits.length) routeToBest();
+  // nothing found here and no AI to interpret it: say so
+  if (!hits.length && aiOn === false) { showAnswer('done', NOT_COVERED); return; }
   // a bare code needs no AI: the standard itself is the answer
   if (codesIn(q).length && q.replace(/[\s-]/g, '').length <= 12) { $('#answer').hidden = true; return; }
 
   const prior = saved.get(q);
-  if (prior) { showAnswer('done', prior.answer); return; }
+  if (prior) { useServer(prior, q); return; }
   if (aiOn === false) {
     showAnswer('done', 'Written answers are switched off right now, so here are the matching standards, word for word.', 'Everything below is the official NGSS text for your question.');
     return;
@@ -225,7 +249,8 @@ async function ask(q) {
     const res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q }) });
     const out = await res.json().catch(() => ({}));
     if (res.status === 429) showAnswer('done', 'Too many questions in a minute. Wait a moment and ask again.');
-    else if (out.answer) { showAnswer('done', out.answer); saved.set(q, out); }
+    else if (out.answer) { useServer(out, q); saved.set(q, out); }
+    else if (out.sources && out.sources.length && out.status !== 'ai_unavailable' && !out.answer && out.status !== 'unsupported') { useServer(out, q); }
     else if (out.status === 'unsupported') showAnswer('done', 'I couldn’t write an answer that sticks strictly to the standards text for this question.', 'The matching standards are below, word for word.');
     else showAnswer('done', 'AI answers are resting right now.', 'The free daily allowance may be used up; it resets at midnight UTC. The matching standards are below, word for word.');
   } catch {
