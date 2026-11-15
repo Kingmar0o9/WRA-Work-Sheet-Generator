@@ -52,7 +52,7 @@ Only questions that need a written answer reach the server. A bare code such as
 
 ## Purchase requests (wrastem.com/purchase)
 
-The "Buy now" form sends its answers (number of sets, name, school, email, message) to
+The "Request kits" form sends its answers (number of sets, name, school, email, message) to
 this server at `/purchase`, which emails them to you. Pressing **Reply** in that email
 answers the teacher directly. It's free: Cloudflare delivers to a verified address in your
 own account at no charge, on the Workers Free plan.

@@ -240,10 +240,10 @@ async function purchase(request, env) {
   const request_ = { sets, name, school, email, message };
   const subject = `Kit request: ${sets} set${sets === 1 ? '' : 's'} for ${school}`.slice(0, 200);
   const rows = [['Sets', String(sets)], ['Name', name || '(not given)'], ['School', school], ['Email', email], ['Message', message || '(none)']];
-  const text = `A teacher asked to buy the plant cell kit on wrastem.com.\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nReply to this email to answer them. They were told to expect a reply within 48 hours.`;
-  const html = `<p>A teacher asked to buy the plant cell kit on wrastem.com.</p><table cellpadding="6" style="border-collapse:collapse">${
+  const text = `A teacher requested the plant cell kit on wrastem.com.\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nReply to this email to answer them. They were told you'll get back to them as soon as possible.`;
+  const html = `<p>A teacher requested the plant cell kit on wrastem.com.</p><table cellpadding="6" style="border-collapse:collapse">${
     rows.map(([k, v]) => `<tr><th align="left" valign="top">${k}</th><td style="white-space:pre-wrap">${esc(v)}</td></tr>`).join('')
-  }</table><p>Reply to this email to answer them. They were told to expect a reply within 48 hours.</p>`;
+  }</table><p>Reply to this email to answer them. They were told you'll get back to them as soon as possible.</p>`;
   let status = 'emailed';
   try {
     if (!env.EMAIL || !env.NOTIFY_TO) throw new Error('email not set up');
