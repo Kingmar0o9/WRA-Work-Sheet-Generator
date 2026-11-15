@@ -1,4 +1,13 @@
-"""Find round magnet holes in the assembled part meshes (assembly coords, Z up)."""
+"""Find the round holes in the assembled part meshes (assembly coords, Z up).
+
+usage: find_holes.py <scratch_dir> [step_dir]    (reads asm_*.stl, writes magnets/holes.json)
+
+Magnet holes are 6 mm across and 2 mm deep (radius 3.0). The small 3 mm holes (radius 1.5) are
+labelling holes: recorded here, but export_glb.py leaves them empty and also ignores every other
+round feature (the Golgi's tube ends, the nucleolus pocket).
+With step_dir, the wall, membrane and cytoplasm tray (which keep their CAD coordinates in the
+assembly) also take any hole straight from their STEP file, which catches a hole that breaks into
+an edge."""
 import sys, json, numpy as np, trimesh
 S = sys.argv[1]
 P = {'Student__0': 'wall', 'BasePart2__2': 'membrane', 'BasePart1__0': 'cytoplasm', 'Green__0': 'nucleus', 'Nucleus__0': 'nucleolus',
@@ -52,4 +61,5 @@ if len(sys.argv) > 2:
             if any(np.hypot(h['c'][0] - c[0], h['c'][1] - c[1]) < 0.6 for h in out[name]): continue
             out[name].append({'c': c, 'r': round(rad, 2), 'z': [round(z0, 2), round(z1, 2)], 'from': 'step'}); added += 1
         print(name, 'from STEP:', added)
+import os; os.makedirs(f'{S}/magnets', exist_ok=True)
 json.dump(out, open(f'{S}/magnets/holes.json', 'w'), indent=1)
