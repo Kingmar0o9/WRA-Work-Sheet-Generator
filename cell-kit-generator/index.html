@@ -136,7 +136,11 @@ h2{font-size:17pt;margin:0;display:flex;align-items:center;gap:10px}
   .bar{display:none}
   .page{zoom:1}
   #out{padding:0}
-  .page{margin:0;break-after:page;height:11in;min-height:0;overflow:hidden}
+  /* Each printed sheet starts a new page, except the first one. A page break after the last
+     sheet made Safari and Firefox print an extra blank page. Sheets are a hair shorter than
+     the paper so rounding can't spill a sliver onto another page. */
+  .page{margin:0;break-before:page;break-after:auto;height:10.96in;min-height:0;overflow:hidden}
+  .page.print-first{break-before:auto}
   body.p-ws .page.key{display:none}
   body.p-key .page:not(.key){display:none}
 }
@@ -838,7 +842,12 @@ document.getElementById("load").onclick=()=>{
 // phones: shrink each 8.5 in sheet to fit the screen (the PDF and printing always use full size)
 function fit(){const w=document.documentElement.clientWidth;document.documentElement.style.setProperty("--fit",Math.min(1,(w-16)/816).toFixed(3));}
 fit();addEventListener("resize",fit);
-function doPrint(c){document.body.className=c;try{window.print();}catch(e){}setTimeout(()=>document.body.className="",500);}
+// mark the first sheet that will actually print (Print buttons and Ctrl+P alike)
+function markFirst(){const pages=[...document.querySelectorAll(".page")];pages.forEach(p=>p.classList.remove("print-first"));
+  const c=document.body.className,first=pages.find(p=>c==="p-ws"?!p.classList.contains("key"):c==="p-key"?p.classList.contains("key"):true);
+  if(first)first.classList.add("print-first");}
+addEventListener("beforeprint",markFirst);
+function doPrint(c){document.body.className=c;markFirst();try{window.print();}catch(e){}setTimeout(()=>document.body.className="",500);}
 document.getElementById("pws").onclick=()=>doPrint("p-ws");
 document.getElementById("pkey").onclick=()=>doPrint("p-key");
 newVersions();
