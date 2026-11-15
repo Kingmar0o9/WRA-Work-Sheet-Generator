@@ -53,7 +53,12 @@ form label{position:absolute;left:-9999px}
 .tries span{font-size:.85rem;font-weight:700;color:var(--on-leaf-2);margin-right:2px}
 .tries button{min-height:36px;padding:0 12px;border-radius:999px;border:2px solid rgba(246,247,242,.55);background:transparent;color:var(--on-leaf);font:600 .88rem var(--sans);cursor:pointer}
 .tries button:hover{background:rgba(255,255,255,.1);border-color:var(--on-leaf)}
-.meta{margin-top:18px;font-size:.85rem;color:var(--on-leaf-2)}
+.status-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:18px}
+.meta{font-size:.85rem;color:var(--on-leaf-2)}
+.ai-toggle{min-height:36px;padding:0 14px;border-radius:999px;border:2px solid var(--on-leaf);background:transparent;color:var(--on-leaf);font:700 .85rem var(--sans);cursor:pointer}
+.ai-toggle:hover{background:var(--on-leaf);color:var(--ink)}
+.ai-toggle[aria-pressed="false"]{border-color:var(--sun);color:var(--sun)}
+.ai-toggle[aria-pressed="false"]:hover{background:var(--sun);color:var(--ink)}
 
 main{padding:clamp(28px,4vw,48px) 0 64px}
 .answer{border-top:2px solid var(--rule);padding-top:18px;margin-bottom:36px}
@@ -116,7 +121,10 @@ main{padding:clamp(28px,4vw,48px) 0 64px}
       <button type="button">What is the assessment boundary for HS-LS1-5?</button>
       <button type="button">Kindergarten weather</button>
     </div>
-    <p class="meta" id="meta">Loading the standards…</p>
+    <div class="status-row">
+      <p class="meta" id="meta">Loading the standards…</p>
+      <button type="button" class="ai-toggle" id="ai-toggle" aria-pressed="true">Turn off AI answers</button>
+    </div>
   </div>
 </section>
 
@@ -213,6 +221,22 @@ function showAnswer(state, text, note) {
   n.hidden = !note; n.textContent = note || '';
 }
 
+// Written answers are on by default; a visitor can turn them off (remembered on this computer).
+let aiWanted = true;
+try { aiWanted = localStorage.getItem('sai-ai') !== 'off'; } catch { /* storage blocked: stays on */ }
+const toggleBtn = $('#ai-toggle');
+function paintToggle() {
+  toggleBtn.textContent = aiWanted ? 'Turn off AI answers' : 'Turn on AI answers';
+  toggleBtn.setAttribute('aria-pressed', String(aiWanted));
+}
+toggleBtn.addEventListener('click', () => {
+  aiWanted = !aiWanted;
+  try { localStorage.setItem('sai-ai', aiWanted ? 'on' : 'off'); } catch { /* not saved; still works this visit */ }
+  paintToggle(); setMeta();
+  if (input.value.trim()) ask(input.value);
+});
+paintToggle();
+
 let pending = null;
 let aiOn = null; // null = still checking, true / false once the server answers (or doesn't)
 // The server's routing (what it understood, and which standards fit best) replaces the
@@ -232,10 +256,14 @@ async function ask(q) {
   renderResults(hits, q, heard.changed ? heard.text : '');
   if (hits.length) routeToBest();
   // nothing found here and no AI to interpret it: say so
-  if (!hits.length && aiOn === false) { showAnswer('done', NOT_COVERED); return; }
+  if (!hits.length && (aiOn === false || !aiWanted)) { showAnswer('done', NOT_COVERED); return; }
   // a bare code needs no AI: the standard itself is the answer
   if (codesIn(q).length && q.replace(/[\s-]/g, '').length <= 12) { $('#answer').hidden = true; return; }
 
+  if (!aiWanted) {
+    showAnswer('done', 'AI answers are turned off, so here are the matching standards, word for word.', 'Use “Turn on AI answers” above to get a written answer.');
+    return;
+  }
   const prior = saved.get(q);
   if (prior) { useServer(prior, q); return; }
   if (aiOn === false) {
@@ -267,7 +295,7 @@ document.querySelectorAll('.tries button').forEach((b) => b.addEventListener('cl
 function setMeta() {
   if (!data) return;
   const when = new Date(data.retrieved + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  const ai = aiOn === true ? ' · written answers on' : aiOn === false ? ' · written answers off (standards search only)' : '';
+  const ai = !aiWanted ? ' · AI answers turned off' : aiOn === true ? ' · AI answers on' : aiOn === false ? ' · AI answers unavailable right now (standards search only)' : '';
   $('#meta').textContent = `${data.count} performance expectations, K–12 · text copied from nextgenscience.org on ${when}${ai}`;
 }
 
