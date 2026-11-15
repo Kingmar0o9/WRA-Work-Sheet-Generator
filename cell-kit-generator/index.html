@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#124A2B">
 <title>Plant Cell Worksheet Generator · WRA STEM Kits</title>
 <meta name="description" content="Print a new plant cell worksheet and answer key for middle school science in one click. Matched to the WRA STEM Kits 3D printed plant cell and NGSS MS-LS1-2.">
 <link rel="canonical" href="https://wrastem.com/cell-kit-generator/">
@@ -18,20 +20,66 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="The WRA STEM Kits plant cell kit laid out: the cell tray and every organelle beside it.">
 <meta name="twitter:card" content="summary_large_image">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="../assets/fonts/bricolage-wght.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+/* Fonts live on this site, so the page and its PDFs look right offline too.
+   The tool's controls use the site face (Bricolage). The printed worksheets keep Poppins:
+   plain, even letters that read well for students and print cleanly in black and white. */
+@font-face{font-family:"Bricolage";src:url(../assets/fonts/bricolage-wght.woff2) format("woff2");font-weight:200 800;font-display:swap}
+@font-face{font-family:"Poppins";src:url(../assets/fonts/poppins-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Poppins";src:url(../assets/fonts/poppins-500.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Poppins";src:url(../assets/fonts/poppins-600.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Poppins";src:url(../assets/fonts/poppins-700.woff2) format("woff2");font-weight:700;font-display:swap}
 /* Always a light page: in dark mode, browsers otherwise turn unstyled button text white (blank buttons). */
-:root{color-scheme:light}
+:root{color-scheme:light;--stock:#F6F7F2;--ink:#13261C;--ink-2:#3E5446;--leaf:#124A2B;--leaf-deep:#0C3520;--on-leaf:#F6F7F2;--sun:#F6C343;--coral:#B8391F;
+  --sans:"Bricolage",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 *{box-sizing:border-box}
-body{margin:0;font-family:'Poppins',Arial,sans-serif;color:#111;background:#ddd}
-.controls{background:#fff;color:#111;border-bottom:2px solid #111;padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;position:sticky;top:0;z-index:5}
-.controls b{font-size:16px;margin-right:8px}
-.controls button{font:inherit;font-size:15px;font-weight:600;padding:7px 14px;border:2px solid #111;background:#fff;color:#111;border-radius:6px;cursor:pointer}
-.controls button.main{background:#111;color:#fff}
-.controls label{font-size:14px;display:flex;gap:6px;align-items:center}
-.controls input{font:inherit;font-size:14px;width:80px;padding:4px 6px;border:2px solid #111;border-radius:6px;background:#fff;color:#111}
-.controls .hint{font-size:12px;color:#555;width:100%}
-#out{padding:20px 0}
+body{margin:0;font-family:'Poppins',Arial,sans-serif;color:#111;background:var(--leaf)}
+::selection{background:var(--sun);color:var(--ink)}
+
+/* tool bar: paper stock, ink, one primary action */
+.bar{position:sticky;top:0;z-index:5;background:var(--stock);color:var(--ink);border-bottom:2px solid var(--ink);font-family:var(--sans)}
+.bar .row{max-width:1240px;margin:0 auto;padding:10px clamp(14px,3vw,28px);display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.bar a.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.02rem;letter-spacing:-.03em;color:var(--ink);text-decoration:none;white-space:nowrap}
+.bar a.brand svg{width:26px;height:26px}
+.bar .tb-title{font-weight:700;font-size:1.02rem;letter-spacing:-.02em;color:var(--ink-2);padding-left:14px;border-left:2px solid var(--ink);line-height:1.2}
+.bar .acts{margin-left:auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:.45em;min-height:42px;padding:0 16px;border-radius:999px;border:2px solid var(--ink);background:transparent;color:var(--ink);font:700 .92rem/1 var(--sans);letter-spacing:-.01em;cursor:pointer;text-decoration:none;white-space:nowrap}
+.pill:hover{background:var(--ink);color:var(--stock)}
+.pill.primary{background:var(--ink);color:var(--stock);min-height:46px;padding:0 20px}
+.pill.primary:hover{background:var(--leaf-deep);border-color:var(--leaf-deep)}
+.pill:disabled{opacity:.55;cursor:progress}
+.pill svg{width:16px;height:16px}
+.bar :focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:999px}
+#status{font-weight:700;font-size:.9rem;color:var(--ink-2)}
+#status.bad{color:var(--coral)}
+details.more{max-width:1240px;margin:0 auto;padding:0 clamp(14px,3vw,28px)}
+details.more summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:.9rem;color:var(--ink-2);padding:2px 0 10px}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::before{content:"";width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .2s}
+details.more[open] summary::before{transform:rotate(45deg) translate(-2px,-2px)}
+details.more summary:hover{color:var(--ink)}
+.tb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:2px solid var(--ink);margin-bottom:12px}
+.tb-opt{padding:12px 16px 14px 0;display:grid;gap:6px;align-content:start}
+.tb-opt+.tb-opt{padding-left:16px;border-left:2px solid var(--ink)}
+.tb-opt label,.tb-opt .lbl{font-weight:800;font-size:.95rem}
+.tb-opt .help{font-size:.85rem;color:var(--ink-2);line-height:1.35}
+.tb-opt .tb-line{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tb-opt input{width:6.5em;min-height:42px;padding:0 12px;border:2px solid var(--ink);border-radius:999px;background:var(--stock);color:var(--ink);font:700 1rem var(--sans);font-variant-numeric:tabular-nums;text-align:center}
+.tb-opt input[aria-invalid="true"]{border-color:var(--coral)}
+.tb-opt .err{font-size:.85rem;font-weight:700;color:var(--coral)}
+.tb-opt .err:empty{display:none}
+.tb-opt p{margin:0}
+@media (max-width:760px){
+  .bar .tb-title{display:none}
+  .bar .acts{margin-left:0;width:100%}
+  .pill{min-height:44px;font-size:.88rem;padding:0 14px}
+  .tb-grid{grid-template-columns:1fr}
+  .tb-opt+.tb-opt{padding-left:0;border-left:0;border-top:2px solid var(--ink)}
+}
+#out{padding:24px 0}
+/* phones: each letter-size sheet shrinks to fit the screen (set in the script) */
+.page{zoom:var(--fit,1)}
 
 /* paper */
 .page{width:8.5in;height:11in;overflow:hidden;margin:0 auto 20px;background:#fff;padding:.55in .65in;font-size:13.5pt;line-height:1.4;position:relative}
@@ -77,7 +125,7 @@ h2{font-size:17pt;margin:0;display:flex;align-items:center;gap:10px}
 .foot{position:absolute;bottom:.4in;left:.65in;right:.65in;font-size:9pt;color:#666;display:flex;justify-content:space-between;border-top:1px solid #aaa;padding-top:5px}
 .key{font-size:11pt}
 .key h1{font-size:22pt}
-.key h3{font-size:12.5pt;margin:14px 0 3px}
+.key h2{display:block;font-size:12.5pt;margin:14px 0 3px}
 .key p{margin:2px 0}
 .key ol{margin:2px 0;padding-left:22px}
 .note{border:1.5px solid #111;border-radius:8px;padding:7px 11px;font-size:10pt;margin-top:16px}
@@ -85,7 +133,8 @@ h2{font-size:17pt;margin:0;display:flex;align-items:center;gap:10px}
 @media print{
   @page{size:letter;margin:0}
   body{background:#fff}
-  .controls{display:none}
+  .bar{display:none}
+  .page{zoom:1}
   #out{padding:0}
   .page{margin:0;break-after:page;height:11in;min-height:0;overflow:hidden}
   body.p-ws .page.key{display:none}
@@ -94,20 +143,39 @@ h2{font-size:17pt;margin:0;display:flex;align-items:center;gap:10px}
 </style>
 </head>
 <body>
-<div class="controls">
-  <a href="../" style="font-weight:600;color:#111;text-decoration:none;border:2px solid #111;border-radius:999px;padding:6px 14px;margin-right:6px" aria-label="Back to WRA STEM Kits home">&larr; Home</a>
-  <b>WRA Plant Cell Worksheet Generator</b>
-  <button class="main" id="gen">Generate new worksheet</button>
-  <button class="main" id="pdfws">Download worksheet PDF</button>
-  <button id="pdfkey">Download answer key PDF</button>
-  <span id="status" style="font-size:14px;font-weight:600"></span>
-  <label>How many versions <input id="count" type="number" min="1" max="30" value="1"></label>
-  <label>Version number <input id="ver" type="number" min="1000" max="9999"></label>
-  <button id="load">Load this version</button>
-  <button id="pws">Print worksheets</button>
-  <button id="pkey">Print answer keys</button>
-  <div class="hint">Every worksheet has 6 sections pulled from a fixed question bank. The version number is printed on each worksheet and its answer key, so you can always rebuild the same one. Download worksheet PDF saves a ready-to-print PDF in one click.</div>
-</div>
+<header class="bar">
+  <div class="row">
+    <a class="brand" href="../" aria-label="WRA STEM Kits, home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="14" cy="15" r="4.6" fill="currentColor"/><ellipse cx="21.4" cy="20.2" rx="2.6" ry="1.7" fill="currentColor" transform="rotate(-30 21.4 20.2)"/></svg>WRA STEM Kits</a>
+    <span class="tb-title">Plant Cell Worksheet Generator</span>
+    <div class="acts">
+      <button class="pill primary" id="pdfws" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Download worksheet PDF</button>
+      <button class="pill" id="pdfkey" type="button">Answer key PDF</button>
+      <button class="pill" id="gen" type="button">New worksheet</button>
+      <span id="status" role="status" aria-live="polite"></span>
+    </div>
+  </div>
+  <details class="more">
+    <summary>More options: several versions, rebuild a version, print</summary>
+    <div class="tb-grid">
+      <div class="tb-opt">
+        <label for="count">How many different worksheets</label>
+        <div class="tb-line"><input id="count" type="number" inputmode="numeric" min="1" max="30" value="1"></div>
+        <p class="help">Up to 30 at once, each with its own version number, so neighbors don't copy. Press New worksheet to make them.</p>
+      </div>
+      <div class="tb-opt">
+        <label for="ver">Rebuild a worksheet</label>
+        <div class="tb-line"><input id="ver" type="number" inputmode="numeric" min="1000" max="9999" aria-describedby="ver-help ver-err"><button class="pill" id="load" type="button">Load this version</button></div>
+        <p class="help" id="ver-help">Type the version number printed at the bottom of a worksheet (1000 to 9999) to get the same one and its answer key.</p>
+        <p class="err" id="ver-err" role="alert"></p>
+      </div>
+      <div class="tb-opt">
+        <span class="lbl">Print instead of PDF</span>
+        <div class="tb-line"><button class="pill" id="pws" type="button">Print worksheets</button><button class="pill" id="pkey" type="button">Print answer keys</button></div>
+        <p class="help">Every worksheet has the same 6 sections, drawn from a fixed bank of 43 questions. Works offline once this page has loaded.</p>
+      </div>
+    </div>
+  </details>
+</header>
 <div id="out"></div>
 
 <script>/*!
@@ -749,12 +817,12 @@ function build(ver){
   <div class="page">${s2}${s3}${foot(2)}</div>
   <div class="page">${tw(4,w1,3).replace('class="sec"','class="sec first"')}${s5.replace('class="sec first"','class="sec"')}${tw(6,w2,3)}${foot(3)}</div>
   <div class="page key"><div class="top"><h1>Answer Key</h1><div class="kit">For teachers<br>Version ${ver}</div></div>
-    <h3>1. Label the plant cell</h3><p>${key.s1}</p>
-    <h3>2. ${match.title}</h3><p>${key.s2}</p>
-    <h3>3. ${team.title}</h3><p>${key.s3}</p>
-    <h3>4. Think and write</h3><p><i>${w1.q}</i></p><p>Sample: ${w1.key}</p>
-    <h3>5. ${mc.title}</h3><p>${mcKey.join(" &nbsp;&nbsp; ")}</p>
-    <h3>6. Think and write</h3><p><i>${w2.q}</i></p><p>Sample: ${w2.key}</p>
+    <h2>1. Label the plant cell</h2><p>${key.s1}</p>
+    <h2>2. ${match.title}</h2><p>${key.s2}</p>
+    <h2>3. ${team.title}</h2><p>${key.s3}</p>
+    <h2>4. Think and write</h2><p><i>${w1.q}</i></p><p>Sample: ${w1.key}</p>
+    <h2>5. ${mc.title}</h2><p>${mcKey.join(" &nbsp;&nbsp; ")}</p>
+    <h2>6. Think and write</h2><p><i>${w2.q}</i></p><p>Sample: ${w2.key}</p>
     <div class="note">Every section uses only the five cell parts named in NGSS MS-LS1-2 (nucleus, chloroplast, mitochondrion, cell membrane, cell wall) and asks how each part helps the whole cell. Designed to align with MS-LS1-2. Not yet tested with students.</div>
     <div class="foot"><span>Answer Key · Version ${ver}</span><span>WRA STEM Kits · Western Reserve Academy</span></div></div>`;
 }
@@ -762,7 +830,14 @@ function build(ver){
 function render(vers){document.getElementById("out").innerHTML=vers.map(build).join("");document.getElementById("ver").value=vers[0];window.scrollTo(0,0);}
 function newVersions(){const n=Math.max(1,Math.min(30,parseInt(document.getElementById("count").value)||1));const s=new Set();while(s.size<n)s.add(1000+Math.floor(Math.random()*9000));render([...s]);}
 document.getElementById("gen").onclick=newVersions;
-document.getElementById("load").onclick=()=>{const v=parseInt(document.getElementById("ver").value);if(v>=1000&&v<=9999)render([v]);};
+document.getElementById("load").onclick=()=>{
+  const inp=document.getElementById("ver"),err=document.getElementById("ver-err"),v=parseInt(inp.value);
+  if(v>=1000&&v<=9999){err.textContent="";inp.setAttribute("aria-invalid","false");render([v]);}
+  else{err.textContent="Version numbers go from 1000 to 9999. Check the number at the bottom of the worksheet.";inp.setAttribute("aria-invalid","true");inp.focus();}
+};
+// phones: shrink each 8.5 in sheet to fit the screen (the PDF and printing always use full size)
+function fit(){const w=document.documentElement.clientWidth;document.documentElement.style.setProperty("--fit",Math.min(1,(w-16)/816).toFixed(3));}
+fit();addEventListener("resize",fit);
 function doPrint(c){document.body.className=c;try{window.print();}catch(e){}setTimeout(()=>document.body.className="",500);}
 document.getElementById("pws").onclick=()=>doPrint("p-ws");
 document.getElementById("pkey").onclick=()=>doPrint("p-key");
@@ -772,7 +847,9 @@ async function makePDF(which){
   const st=document.getElementById("status");
   const pages=[...document.querySelectorAll(which==="key"?".page.key":".page:not(.key)")];
   if(!pages.length) return;
-  st.textContent="Making PDF...";
+  st.className="";st.textContent="Making PDF…";
+  const btns=[...document.querySelectorAll(".bar button")];btns.forEach(b=>b.disabled=true);
+  document.documentElement.style.setProperty("--fit",1);
   try{
     await document.fonts.ready;
     const pdf=new window.jspdf.jsPDF({unit:"in",format:"letter"});
@@ -785,7 +862,8 @@ async function makePDF(which){
     const tag=vers.length===1?"Version_"+vers[0]:vers.length+"_versions";
     pdf.save((which==="key"?"Plant_Cell_Answer_Key_":"Plant_Cell_Worksheet_")+tag+".pdf");
     st.textContent="";
-  }catch(e){st.textContent="Could not make the PDF. Use Print instead.";}
+  }catch(e){st.className="bad";st.textContent="The PDF couldn't be made in this browser. Use Print worksheets under More options.";}
+  finally{btns.forEach(b=>b.disabled=false);fit();}
 }
 document.getElementById("pdfws").onclick=()=>makePDF("ws");
 document.getElementById("pdfkey").onclick=()=>makePDF("key");
