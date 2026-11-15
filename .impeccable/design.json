@@ -117,7 +117,7 @@
       "kind": "custom",
       "refersTo": "spec-cell-status",
       "description": "Back-of-packet ruled grid; every value sits in a cell, status cell spans the row in sunflower.",
-      "html": "<dl class=\"ds-spec\"><div class=\"ds-cell\"><dt>For</dt><dd><strong>Grades 6–7</strong>Middle school life science</dd></div><div class=\"ds-cell\"><dt>The kit</dt><dd><strong>12 pieces</strong>All 3D printed</dd></div><div class=\"ds-cell ds-status\"><dt>Where it stands</dt><dd>Built and tested in software. Not yet tested with students.</dd></div></dl>",
+      "html": "<dl class=\"ds-spec\"><div class=\"ds-cell\"><dt>For</dt><dd><strong>Grades 6–8</strong>Middle school life science</dd></div><div class=\"ds-cell\"><dt>The kit</dt><dd><strong>12 pieces</strong>All 3D printed</dd></div><div class=\"ds-cell ds-status\"><dt>Where it stands</dt><dd>Built and tested in software. Not yet tested with students.</dd></div></dl>",
       "css": ".ds-spec{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin:0;border-top:2px solid var(--rule,#13261C);border-left:2px solid var(--rule,#13261C);font-family:var(--sans,'Bricolage',system-ui,sans-serif);color:var(--ink,#13261C);background:var(--stock,#F6F7F2)} .ds-cell{border-right:2px solid var(--rule,#13261C);border-bottom:2px solid var(--rule,#13261C);padding:18px 20px 22px;display:flex;flex-direction:column;gap:10px} .ds-cell dt{font-size:.85rem;font-weight:700;letter-spacing:.01em;color:var(--ink-2,#3E5446)} .ds-cell dd{margin:0;font-size:1.02rem;line-height:1.4} .ds-cell dd strong{display:block;font-size:clamp(1.7rem,2.4vw,2.3rem);line-height:1;letter-spacing:-.035em;font-weight:800;margin-bottom:6px;font-variant-numeric:tabular-nums} .ds-status{background:var(--sun,#F6C343);grid-column:1/-1}"
     },
     {
@@ -125,7 +125,7 @@
       "kind": "custom",
       "refersTo": "draft-sticker",
       "description": "Sunflower block under content that is a draft or unconfirmed, naming what needs confirming.",
-      "html": "<span class=\"ds-draft\">Draft: Mark to rewrite in his own words</span>",
+      "html": "<span class=\"ds-draft\">Draft: confirm this part name</span>",
       "css": ".ds-draft{display:inline-block;font:700 .85rem/1.3 var(--sans,'Bricolage',system-ui,sans-serif);background:var(--sun,#F6C343);color:var(--ink,#13261C);padding:4px 10px;border-radius:6px}"
     },
     {

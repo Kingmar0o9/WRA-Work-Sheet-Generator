@@ -2,6 +2,7 @@
 User-agent: *
 Disallow: /src/
 Disallow: /worker/
+Disallow: /docs/
 Disallow: /.impeccable/
 Disallow: /README.md
 Disallow: /PRODUCT.md
