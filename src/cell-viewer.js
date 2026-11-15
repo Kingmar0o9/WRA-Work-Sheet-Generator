@@ -26,7 +26,7 @@ const ACCENT = { golgi: '#F27A1F', er: '#F3F1E8' };
 const GROUP = { nucleolus: 'nucleus' };
 // Exploded-view offsets in model units (mm). Y is up.
 const LIFT = {
-  wall: -34, membrane: -16, cytoplasm: 0, nucleus: 40, nucleolus: 66, chloroplast: 36,
+  wall: -34, membrane: -16, cytoplasm: 0, nucleus: 40, nucleolus: 52, chloroplast: 36,
   mitochondrion: 34, amyloplast: 56, golgi: 30, er: 30, vacuole: 32, peroxisome: 28,
 };
 // Coplanar faces (organelle in its pocket, layers in the tray) would flicker; push the
@@ -349,8 +349,8 @@ export async function start() {
   let dropSeq = 0;
   function explodeAll() {
     setFlag(true); dropSeq++;
-    Object.values(parts).forEach((p, i) => animate(p, 'e', 1, 1100, i * 45, easeInOut));
-    return 1100 + 11 * 45;
+    Object.values(parts).forEach((p, i) => animate(p, 'e', 1, 850, i * 30, easeInOut));
+    return 850 + 11 * 30;
   }
   // The wall and membrane slide back up, then the organelles drop into their pockets
   // one at a time, each landing with a bounce and a little thud.
@@ -372,30 +372,39 @@ export async function start() {
     st.selected = name;
     // the name tag at the bottom appears once the cell is apart and the rest has faded
     const bar = $('#viewer-name');
-    if (bar) bar.style.animationDelay = (wait + 350) + 'ms';
+    if (bar) bar.style.animationDelay = (wait + 250) + 'ms';
     // then everything except the chosen part fades to a ghost, and the chosen part lifts
     for (const p of Object.values(parts)) {
       const mine = (GROUP[p.userData.part] || p.userData.part) === name;
-      animate(p, 'g', mine ? 0 : 1, 650, wait + 80);
-      animate(p, 's', mine ? 1 : 0, 650, wait + 80);
+      animate(p, 'g', mine ? 0 : 1, 480, wait + 40);
+      animate(p, 's', mine ? 1 : 0, 480, wait + 40);
     }
   }
-  // Colours come back first, then the cell goes back together.
-  function release(assemble = true) {
-    const had = !!st.selected;
+  // Colours come back; the cell stays apart (a second click puts it back together).
+  function release() {
     st.selected = null;
-    for (const p of Object.values(parts)) { animate(p, 'g', 0, 550); animate(p, 's', 0, 550); }
-    if (assemble && st.exploded) assembleAll(had ? 600 : 0);
+    for (const p of Object.values(parts)) { animate(p, 'g', 0, 380); animate(p, 's', 0, 380); }
   }
+  // Straight back to the closed cell with no animation (rapid taps on the background).
+  function snapClosed() {
+    anims = []; dropSeq++;
+    st.selected = null; setFlag(false);
+    for (const p of Object.values(parts)) Object.assign(p.userData, { e: 0, g: 0, s: 0 });
+    quiet = true; window.wraShowPart(null, 'model'); quiet = false;
+    request();
+  }
+  let quiet = false;       // ignore our own "nothing chosen" event while snapping closed
+  let closeAfter = false;  // Reset: let go of the part and close in one press
+  let lastTap = 0;
 
   toggle?.addEventListener('click', () => {
-    if (st.exploded) { if (st.selected) window.wraShowPart(null, 'model'); else assembleAll(); }
+    if (st.exploded) { if (st.selected) { closeAfter = true; window.wraShowPart(null, 'model'); } else assembleAll(); }
     else explodeAll();
   });
   // Reset always returns to the closed cell at the starting angle.
   $('#reset-view')?.addEventListener('click', () => {
     st.yawT = VIEW.yaw; st.pitchT = VIEW.pitch;
-    if (st.selected) window.wraShowPart(null, 'model');
+    if (st.selected) { closeAfter = true; window.wraShowPart(null, 'model'); }
     else if (st.exploded) assembleAll();
     request();
   });
@@ -420,9 +429,12 @@ export async function start() {
   viewerSlot.addEventListener('pointerup', (e) => {
     if (drag && !drag.moved) {
       const hit = pick(e);
-      // a part: choose it; the green background: let go and put the cell back together
+      const now = performance.now();
       if (hit) window.wraShowPart(GROUP[hit] || hit, 'model');
+      // the green background: quick double tap snaps closed; otherwise one step back
+      else if (now - lastTap < 420 && (st.selected || st.exploded || anims.length)) snapClosed();
       else if (st.selected || st.exploded) window.wraShowPart(null, 'model');
+      if (!hit) lastTap = now;
     }
     drag = null;
   });
@@ -432,14 +444,23 @@ export async function start() {
     const r = canvas.getBoundingClientRect();
     ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
-    const hit = ray.intersectObjects(meshes, false)[0];
-    return hit ? hit.object.userData.part : null;
+    const hits = ray.intersectObjects(meshes, false);
+    if (!hits.length) return null;
+    // if the chosen part is under the pointer at all (even behind a ghost), keep it
+    const mine = st.selected && hits.find((h) => (GROUP[h.object.userData.part] || h.object.userData.part) === st.selected);
+    return (mine || hits[0]).object.userData.part;
   }
 
   // The page's own script shows the part info (it works without 3D too) and tells us
   // which part was chosen, from a click on the model or one of the part buttons.
   document.addEventListener('wra:part', (e) => {
-    if (e.detail) choose(e.detail); else release(true);
+    if (quiet) return;
+    if (e.detail) { choose(e.detail); return; }
+    // nothing chosen: one step back. With a part chosen, its colours come back first and
+    // the cell stays apart; when nothing is chosen, the pieces drop back together.
+    if (st.selected) { release(); if (closeAfter) assembleAll(400); }
+    else if (st.exploded) assembleAll();
+    closeAfter = false;
   });
 
   // ---- fallback when the device is too slow ---------------------------------
