@@ -213,9 +213,19 @@ p{margin:0;text-wrap:pretty}
 .buy h2{font-size:clamp(2.4rem,4.6vw,4.2rem)}
 .buy .lede{margin-top:18px;max-width:36ch;font-size:clamp(1.05rem,1.2vw + .5rem,1.3rem);color:var(--on-leaf-2);line-height:1.45}
 .buy-note{margin-top:18px;font-size:.92rem;font-weight:600;color:var(--on-leaf-2)}
-.buy-art{margin:0 calc(var(--gutter) * -1) 0 0}
-.buy-art img{width:100%;transform:translateX(4%) scale(1.06);transform-origin:left center}
-@media (max-width:960px){.buy-grid{grid-template-columns:1fr}.buy-art{margin:0}.buy-art img{transform:none}}
+.buy-art{margin:0}
+@media (max-width:960px){.buy-grid{grid-template-columns:1fr}}
+/* the kit photo: opens the photo gallery (assets/js/gallery.js) */
+.kit-photo{position:relative;display:block;border-radius:22px;overflow:hidden;background:#dcdcdc;color:inherit;text-decoration:none}
+.kit-photo img{display:block;width:100%;height:auto;transition:transform .6s var(--ease)}
+.kit-photo:hover img{transform:scale(1.025)}
+.kit-photo-cue{position:absolute;right:14px;top:14px;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 15px;border-radius:999px;background:var(--ink);color:var(--stock);font:700 .9rem/1 var(--sans);letter-spacing:-.01em}
+.kit-photo-cue svg{width:16px;height:16px}
+.kit-photo:hover .kit-photo-cue{background:var(--leaf-deep)}
+.kit-photo:focus-visible{outline:3px solid var(--sun);outline-offset:4px;border-radius:22px}
+@media (prefers-reduced-motion:reduce){.kit-photo img{transition:none}.kit-photo:hover img{transform:none}}
+@media (max-width:600px){.kit-photo-cue{right:10px;top:10px;min-height:34px;padding:0 12px;font-size:.8rem;gap:6px}.kit-photo-cue svg{width:14px;height:14px}}
+
 
 /* ---------- resources + viewer ---------- */
 .res{padding:clamp(72px,10vw,128px) 0 clamp(72px,10vw,120px);background:var(--stock)}
@@ -431,7 +441,10 @@ p{margin:0;text-wrap:pretty}
         <p class="buy-note">Tell us how many sets you need. We’ll get back to you as soon as possible.</p>
       </div>
       <figure class="buy-art">
-        <img src="assets/img/kit-laid-out.webp?v=20261115b" width="1447" height="739" alt="The whole kit laid out on a table: the green cell wall, white membrane and yellow cytoplasm tray with its empty slots, and every organelle lined up beside it, ready to be placed." loading="lazy" decoding="async">
+        <a class="kit-photo" href="assets/img/photos/kit-laid-out.jpg?v=20261115c" data-gallery data-index="0">
+          <img src="assets/img/photos/kit-laid-out-1000.jpg?v=20261115c" srcset="assets/img/photos/kit-laid-out-1000.jpg?v=20261115c 1000w, assets/img/photos/kit-laid-out.jpg?v=20261115c 1600w" sizes="(max-width:960px) 92vw, 680px" width="1600" height="1200" alt="Every piece of the plant cell kit laid out: the green cell wall, the white cell membrane, the yellow cytoplasm tray, and the organelles beside them." loading="lazy" decoding="async">
+          <span class="kit-photo-cue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>See all 8 photos</span>
+        </a>
       </figure>
     </div>
   </section>
@@ -627,5 +640,6 @@ p{margin:0;text-wrap:pretty}
     }
   })();
 </script>
+<script src="assets/js/gallery.js?v=20261115c" defer></script>
 </body>
 </html>
