@@ -8,5 +8,6 @@ Disallow: /README.md
 Disallow: /PRODUCT.md
 Disallow: /DESIGN.md
 Disallow: /*.webp.json$
+Disallow: /*.jpg.json$
 
 Sitemap: https://wrastem.com/sitemap.xml
