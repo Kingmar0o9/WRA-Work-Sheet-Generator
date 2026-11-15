@@ -493,6 +493,49 @@ export async function start() {
       camera.lookAt(0, 0, 0); camera.updateProjectionMatrix();
       renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
       renderer.render(scene, camera);
+    } else if (POSTER === 'kit') {
+      // The kit laid out on a table: the tray (wall, membrane, cytoplasm) with its empty
+      // pockets, and every organelle lined up beside it in a neat grid.
+      model.rotation.set(0, 0, 0); model.position.set(0, 0, 0); model.updateMatrixWorld(true);
+      const boxOf = (o) => new Box3().setFromObject(o);
+      const tray = new Box3();
+      for (const n of ['wall', 'membrane', 'cytoplasm']) tray.union(boxOf(parts[n]));
+      // packed into rows, biggest first, with an even gap between pieces
+      const loose = ['vacuole', 'golgi', 'er', 'nucleus', 'chloroplast', 'mitochondrion', 'nucleolus', 'amyloplast', 'peroxisome']
+        .map((n) => { const b = boxOf(parts[n]); return { o: parts[n], b, s: b.getSize(new Vector3()) }; });
+      const gap = 9, maxRow = (tray.max.x - tray.min.x) * 0.78, rowsOf = [[]];
+      for (const it of loose) {
+        const row = rowsOf[rowsOf.length - 1];
+        const w = row.reduce((a, r) => a + r.s.x + gap, 0);
+        if (row.length && w + it.s.x > maxRow) rowsOf.push([it]); else row.push(it);
+      }
+      const depth = rowsOf.map((r) => Math.max(...r.map((it) => it.s.z)));
+      const total = depth.reduce((a, d) => a + d, 0) + gap * (rowsOf.length - 1);
+      let z = (tray.min.z + tray.max.z) / 2 - total / 2;
+      const x0 = tray.max.x + gap * 2.6;
+      rowsOf.forEach((row, ri) => {
+        let x = x0;
+        for (const it of row) {
+          const c = it.b.getCenter(new Vector3());
+          it.o.position.x += x + it.s.x / 2 - c.x;
+          it.o.position.z += z + depth[ri] / 2 - c.z;
+          it.o.position.y += tray.min.y - it.b.min.y;
+          it.o.updateMatrixWorld(true);
+          x += it.s.x + gap;
+        }
+        z += depth[ri] + gap;
+      });
+      looks();
+      model.rotation.set(0.86, -0.16, 0, 'XYZ');
+      model.updateMatrixWorld(true);
+      const all = boxOf(model), c = all.getCenter(new Vector3()), size = all.getSize(new Vector3());
+      model.position.sub(c);
+      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      const fit = Math.max(size.y, size.x / camera.aspect) / 2 / Math.tan((camera.fov * Math.PI) / 360);
+      camera.position.set(0, 0, fit * 1.04 + size.z / 2);
+      camera.lookAt(0, 0, 0); camera.updateProjectionMatrix();
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+      renderer.render(scene, camera);
     } else {
       st.explode = st.explodeT = POSTER === 'exploded' ? 1 : 0;
       if (POSTER === 'exploded') { st.yaw = tiltPose.yaw + 0.5; st.pitch = tiltPose.pitch - 0.52; st.roll = 0; }

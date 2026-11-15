@@ -210,6 +210,57 @@ const CORS = {
 const json = (body, status = 200, extra = {}) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...CORS, ...extra } });
 
+// ---- Purchase requests (wrastem.com/purchase) ------------------------------------
+// The form's answers are emailed to the kit maker, who replies to the teacher directly.
+// The address they go to is a secret on this server (NOTIFY_TO), never in the code or on the
+// site. Free: Cloudflare delivers to a verified address in the account at no cost. Every
+// request is also written to the logs, so nothing is lost if an email can't be sent.
+const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const clean = (v, max) => String(v ?? '').replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, '').trim().slice(0, max);
+async function purchase(request, env) {
+  if (env.LIMITER) {
+    const { success } = await env.LIMITER.limit({ key: 'purchase:' + (request.headers.get('cf-connecting-ip') || 'anon') });
+    if (!success) return json({ error: 'slow_down' }, 429);
+  }
+  let body = {};
+  try { body = await request.json(); } catch { /* bad body */ }
+  // a hidden field people never see: if it is filled in, a bot sent the form
+  if (clean(body.website, 200)) return json({ ok: true });
+  const sets = Math.floor(Number(body.sets));
+  // one-line answers stay on one line (they go into the email's subject and headers)
+  const line = (v, max) => clean(String(v ?? '').replace(/\s+/g, ' '), max);
+  const name = line(body.name, 80), school = line(body.school, 120), email = clean(body.email, 200).replace(/\s/g, '');
+  const message = clean(body.message, 1500).replace(/\r\n?/g, '\n');
+  const bad = [];
+  if (!(sets >= 1 && sets <= 1000)) bad.push('sets');
+  if (school.length < 2) bad.push('school');
+  if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)) bad.push('email');
+  if (bad.length) return json({ error: 'invalid', fields: bad }, 400);
+
+  const request_ = { sets, name, school, email, message };
+  const subject = `Kit request: ${sets} set${sets === 1 ? '' : 's'} for ${school}`.slice(0, 200);
+  const rows = [['Sets', String(sets)], ['Name', name || '(not given)'], ['School', school], ['Email', email], ['Message', message || '(none)']];
+  const text = `A teacher asked to buy the plant cell kit on wrastem.com.\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nReply to this email to answer them. They were told to expect a reply within 48 hours.`;
+  const html = `<p>A teacher asked to buy the plant cell kit on wrastem.com.</p><table cellpadding="6" style="border-collapse:collapse">${
+    rows.map(([k, v]) => `<tr><th align="left" valign="top">${k}</th><td style="white-space:pre-wrap">${esc(v)}</td></tr>`).join('')
+  }</table><p>Reply to this email to answer them. They were told to expect a reply within 48 hours.</p>`;
+  let status = 'emailed';
+  try {
+    if (!env.EMAIL || !env.NOTIFY_TO) throw new Error('email not set up');
+    await env.EMAIL.send({
+      to: env.NOTIFY_TO,
+      from: { email: env.FROM_ADDRESS || 'kits@wrastem.com', name: 'WRA STEM Kits' },
+      replyTo: { email, name: name || undefined },
+      subject, text, html,
+    });
+  } catch (err) {
+    status = 'email_failed';
+    console.log(JSON.stringify({ purchase_email_error: String(err && (err.code || '') + ' ' + (err.message || err)).slice(0, 300) }));
+  }
+  console.log(JSON.stringify({ purchase: request_, status }));
+  return json({ ok: true });
+}
+
 // Questions are cached for a week, so a repeated question costs no AI time.
 const normal = (q) => q.toLowerCase().replace(/[^a-z0-9- ]+/g, ' ').replace(/\s+/g, ' ').trim();
 
@@ -220,6 +271,7 @@ export default {
     if (url.pathname === '/health') {
       return json({ ok: true, standards: data.count, retrieved: data.retrieved, model: env.MODEL });
     }
+    if (url.pathname === '/purchase' && request.method === 'POST') return purchase(request, env);
     if (url.pathname !== '/ask' || request.method !== 'POST') return json({ error: 'not_found' }, 404);
 
     // a few questions a minute per visitor, so nobody can use up the day's free allowance
