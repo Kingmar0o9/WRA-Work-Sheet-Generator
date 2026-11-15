@@ -1,0 +1,11 @@
+# Search engines: index the site's pages, skip the project's working files.
+User-agent: *
+Disallow: /src/
+Disallow: /worker/
+Disallow: /.impeccable/
+Disallow: /README.md
+Disallow: /PRODUCT.md
+Disallow: /DESIGN.md
+Disallow: /*.webp.json$
+
+Sitemap: https://wrastem.com/sitemap.xml
