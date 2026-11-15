@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WRA STEM Kits · A plant cell you can take apart</title>
-<meta name="description" content="Hands-on, 3D printed science kits for middle school classrooms, with free tools that print the worksheets to go with them. Made by Mark Tang at Western Reserve Academy.">
+<meta name="description" content="Hands-on, 3D printed science kits for middle school classrooms, with tools that print the worksheets to go with them. Made by Mark Tang at Western Reserve Academy.">
 <meta name="theme-color" content="#124A2B">
 <meta property="og:title" content="WRA STEM Kits">
-<meta property="og:description" content="A 3D printed plant cell kit for grades 6–7, plus a free worksheet generator.">
+<meta property="og:description" content="A 3D printed plant cell kit for grades 6–7, plus a worksheet generator.">
 <meta property="og:image" content="https://wrastem.com/assets/img/cell-assembled.webp">
 <link rel="preload" href="assets/fonts/bricolage-wght.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/img/cell-assembled.webp" as="image" fetchpriority="high">
@@ -186,6 +186,8 @@ p{margin:0;text-wrap:pretty}
 .has-3d .viewer-box img{display:none}
 .viewer-box:active{cursor:grabbing}
 .viewer-name{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);margin:0;background:var(--sun);color:var(--ink);font-weight:800;font-size:1.15rem;letter-spacing:-.02em;padding:9px 20px;border-radius:999px;box-shadow:0 6px 18px -8px rgba(0,0,0,.55);white-space:nowrap;pointer-events:none}
+.viewer-name.show{animation:namein .5s var(--ease) .2s both}
+@keyframes namein{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
 .viewer-hint{position:absolute;left:16px;top:14px;color:var(--on-leaf);font-size:.85rem;font-weight:600;display:flex;align-items:center;gap:8px;pointer-events:none}
 .viewer-hint svg{width:18px;height:18px}
 .no-3d .viewer-hint .h3d{display:none}
@@ -196,13 +198,22 @@ p{margin:0;text-wrap:pretty}
 .viewer-tools button:focus-visible{outline-color:var(--sun)}
 .no-3d .viewer-tools,.want-3d:not(.has-3d) .viewer-tools{display:none}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.parts-sheet{display:none;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:14px;background:var(--leaf);border-radius:22px}
+.no-3d .parts-sheet,.js-off .parts-sheet{display:grid}
+.no-3d .viewer-box,.no-3d .chips,.js-off .viewer-box,.js-off .chips{display:none}
+.sheet-cap{grid-column:1/-1;margin:2px 4px 6px;color:var(--on-leaf-2);font-size:.9rem;font-weight:600}
+.parts-sheet button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 6px 10px;border:2px solid transparent;border-radius:14px;background:rgba(255,255,255,.05);color:var(--on-leaf);font:700 .88rem/1.2 var(--sans);text-align:center;cursor:pointer;transition:background-color .2s,border-color .2s}
+.parts-sheet button:hover{background:rgba(255,255,255,.1)}
+.parts-sheet button[aria-pressed="true"]{border-color:var(--sun);background:rgba(246,195,67,.14)}
+.parts-sheet img{width:100%;height:auto;aspect-ratio:4/3;object-fit:contain}
+@media (max-width:520px){.parts-sheet{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .chips button{min-height:40px;padding:0 14px;border-radius:999px;border:2px solid var(--ink);background:transparent;color:var(--ink);font:600 .9rem/1 var(--sans);cursor:pointer;transition:background-color .2s,color .2s}
 .chips button:hover{background:rgba(19,38,28,.08)}
 .chips button[aria-pressed="true"]{background:var(--ink);color:var(--stock)}
 .chips .sep{flex-basis:100%;height:0}
 .chips .more{border-color:var(--ink-2);color:var(--ink-2)}
 .chips-cap{font-size:.82rem;font-weight:700;color:var(--ink-2);align-self:center;margin-right:4px}
-.info{margin-top:16px;min-height:150px;padding:18px 22px;border:2px solid var(--rule);border-radius:16px;background:var(--stock);scroll-margin-bottom:16px}
+.info{margin-top:18px;min-height:150px;padding:16px 0 0;border-top:2px solid var(--rule);scroll-margin-bottom:16px}
 .info .draft{margin-top:10px}
 .info h3{font-size:1.6rem;margin-bottom:8px}
 .info .role{font-size:1.1rem;max-width:52ch}
@@ -255,14 +266,14 @@ p{margin:0;text-wrap:pretty}
         <div class="poster-frame">
         <img class="poster-a" src="assets/img/cell-assembled.webp" width="1600" height="1200" alt="The 3D printed plant cell kit, fully assembled: a six-sided cell wall around a yellow cell membrane, with the nucleus, chloroplast, mitochondria and other organelles pressed into the cytoplasm." fetchpriority="high">
         <img class="poster-b" src="assets/img/cell-exploded.webp" width="1600" height="1200" alt="The same kit pulled apart into layers: cell wall at the bottom, then the membrane, the cytoplasm tray, and each organelle lifted above its pocket." loading="lazy" decoding="async">
-        <div class="label" data-plabel="wall" style="--lx:53.9%;--ly:84.6%"><span>Cell wall</span></div>
-        <div class="label" data-plabel="membrane" style="--lx:52.9%;--ly:70%"><span>Cell membrane</span></div>
+        <div class="label" data-plabel="wall" style="--lx:55.3%;--ly:84.2%"><span>Cell wall</span></div>
+        <div class="label" data-plabel="membrane" style="--lx:47.3%;--ly:68.8%"><span>Cell membrane</span></div>
         <div class="label" data-plabel="cytoplasm" style="--lx:49.9%;--ly:48.3%"><span>Cytoplasm</span></div>
         <div class="label" data-plabel="nucleus" style="--lx:46.3%;--ly:23.4%"><span>Nucleus</span></div>
         <div class="label" data-plabel="chloroplast" style="--lx:66.2%;--ly:30.4%"><span>Chloroplast</span></div>
         <div class="label" data-plabel="mitochondrion" style="--lx:38.2%;--ly:26.7%"><span>Mitochondrion</span></div>
-        <div class="label" data-plabel="golgi" style="--lx:58.9%;--ly:28%"><span>Golgi apparatus</span></div>
-        <div class="label" data-plabel="er" style="--lx:41.4%;--ly:34.6%"><span>Endoplasmic reticulum</span></div>
+        <div class="label" data-plabel="golgi" style="--lx:58.9%;--ly:28.1%"><span>Golgi apparatus</span></div>
+        <div class="label" data-plabel="er" style="--lx:41.4%;--ly:34.9%"><span>Endoplasmic reticulum</span></div>
         <div class="label" data-plabel="vacuole" style="--lx:57%;--ly:33.1%"><span>Central vacuole</span></div>
         <div class="label" data-plabel="peroxisome" style="--lx:53.2%;--ly:39.9%"><span>Peroxisome</span></div>
         <div class="label" data-plabel="amyloplast" style="--lx:47.2%;--ly:15%"><span>Amyloplast</span></div>
@@ -284,7 +295,7 @@ p{margin:0;text-wrap:pretty}
       <div class="stage-copy copy-a">
         <div class="wrap">
           <h1>A plant cell you can take apart.</h1>
-          <p class="lede">Hands-on, 3D printed science kits for middle school classrooms, with a free tool that prints the worksheets to go with them.</p>
+          <p class="lede">Hands-on, 3D printed science kits for middle school classrooms, with a tool that prints the worksheets to go with them.</p>
           <div class="actions">
             <a class="btn btn-sun" href="cell-kit-generator/">Make a worksheet
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
@@ -333,7 +344,7 @@ p{margin:0;text-wrap:pretty}
           <div class="cell wide"><dt>Each worksheet</dt><dd><strong>3 pages + answer key</strong>Six sections, from labeling the cell to short written answers. Questions come from a fixed bank of 43, never made up on the spot.</dd></div>
           <div class="cell"><dt>Version number</dt><dd><strong>1000–9999</strong>Type a number to print the same worksheet again</dd></div>
           <div class="cell"><dt>Works</dt><dd><strong>Offline too</strong>Download PDFs or print straight from the browser</dd></div>
-          <div class="cell wide status"><dt>Where it stands</dt><dd>Built and tested in software. Every question is listed in a review packet for a science teacher to check. Not yet tested with students.</dd></div>
+          <div class="cell wide status"><dt>Where things stand</dt><dd>The kit is printed and the worksheet generator works. Before any student uses them, a science teacher will check every question. Neither has been tried in a classroom yet.</dd></div>
         </dl>
       </div>
     </div>
@@ -345,7 +356,7 @@ p{margin:0;text-wrap:pretty}
     <div class="wrap res-grid">
       <div>
         <h2 id="res-h">Resources</h2>
-        <p class="intro">Free tools for teachers using the kits. One is ready now; two more are on the way.</p>
+        <p class="intro">Tools available to teachers using the kits, once each one is ready. The worksheet generator is ready now, and two more are on the way.</p>
         <ol>
           <li>
             <div class="rhead"><h3>Worksheet Generator</h3><span class="tag live">Ready now</span></div>
@@ -365,6 +376,20 @@ p{margin:0;text-wrap:pretty}
       </div>
 
       <div class="viewer">
+        <div class="parts-sheet on-leaf" role="group" aria-label="Every piece of the kit, laid out">
+          <p class="sheet-cap">Every piece of the kit, laid out. Pick one to see what it does.</p>
+          <button type="button" data-part="wall" aria-pressed="false"><img src="assets/img/parts/wall.webp" width="480" height="360" alt="" loading="lazy" decoding="async"><span>Cell wall</span></button>
+          <button type="button" data-part="membrane" aria-pressed="false"><img src="assets/img/parts/membrane.webp" width="480" height="360" alt="" loading="lazy" decoding="async"><span>Cell membrane</span></button>
+          <button type="button" data-part="cytoplasm" aria-pressed="false"><img src="assets/img/parts/cytoplasm.webp" width="480" height="360" alt="" loading="lazy" decoding="async"><span>Cytoplasm</span></button>
+          <button type="button" data-part="nucleus" aria-pressed="false"><img src="assets/img/parts/nucleus.webp" width="480" height="360" alt="" loading="lazy" decoding="async"><span>Nucleus</span></button>
+          <button type="button" data-part="chloroplast" aria-pressed="false"><img src="assets/img/parts/chloroplast.webp" width="480" height="360" alt="" loading="lazy" decoding="async"><span>Chloroplast</span></button>
+          <button type="button" data-part="mitochondrion" aria-pressed="false"><img src="assets/img/parts/mitochondrion.webp" width="480" height="360" alt="" loading="lazy" decoding="async"><span>Mitochondrion</span></button>
+          <button type="button" data-part="golgi" aria-pressed="false"><img src="assets/img/parts/golgi.webp" width="480" height="360" alt="" loading="lazy" decoding="async"><span>Golgi apparatus</span></button>
+          <button type="button" data-part="er" aria-pressed="false"><img src="assets/img/parts/er.webp" width="480" height="360" alt="" loading="lazy" decoding="async"><span>Endoplasmic reticulum</span></button>
+          <button type="button" data-part="vacuole" aria-pressed="false"><img src="assets/img/parts/vacuole.webp" width="480" height="360" alt="" loading="lazy" decoding="async"><span>Central vacuole</span></button>
+          <button type="button" data-part="peroxisome" aria-pressed="false"><img src="assets/img/parts/peroxisome.webp" width="480" height="360" alt="" loading="lazy" decoding="async"><span>Peroxisome</span></button>
+          <button type="button" data-part="amyloplast" aria-pressed="false"><img src="assets/img/parts/amyloplast.webp" width="480" height="360" alt="" loading="lazy" decoding="async"><span>Amyloplast</span></button>
+        </div>
         <div class="viewer-box on-leaf" id="viewer-box">
           <img src="assets/img/cell-exploded.webp" width="1600" height="1200" alt="" loading="lazy" decoding="async">
           <div id="viewer-canvas"></div>
@@ -401,7 +426,7 @@ p{margin:0;text-wrap:pretty}
   <div class="wrap">
     <div>
       <p class="big">WRA STEM Kits</p>
-      <p>A student project by Mark Tang at Western Reserve Academy, Hudson, Ohio. Designed to align with NGSS MS-LS1-2; not certified. Not yet tested with students.</p>
+      <p>A student project by Mark Tang at Western Reserve Academy, Hudson, Ohio. Designed to align with NGSS MS-LS1-2, not certified. Not yet tried in a classroom.</p>
     </div>
     <p><a href="cell-kit-generator/">Worksheet Generator</a></p>
   </div>
@@ -446,7 +471,7 @@ p{margin:0;text-wrap:pretty}
       var key = name === 'nucleolus' ? 'nucleus' : name;
       var tpl = key && document.getElementById('info-' + key);
       var bar = document.getElementById('viewer-name');
-      if (tpl) { bar.textContent = tpl.content.querySelector('h3').textContent; bar.hidden = false; } else { bar.hidden = true; }
+      if (tpl) { bar.textContent = tpl.content.querySelector('h3').textContent; bar.hidden = false; bar.classList.remove('show'); void bar.offsetWidth; bar.classList.add('show'); } else { bar.hidden = true; }
       info.innerHTML = (tpl || document.getElementById('info-empty')).innerHTML;
       chips.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.part === key)); });
       document.dispatchEvent(new CustomEvent('wra:part', { detail: key || null }));

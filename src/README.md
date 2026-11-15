@@ -11,7 +11,8 @@ below if you change the 3D model or the viewer code. Editing text in
 | `index.html` | The home page: all text, styles, and the small script for scrolling and part info |
 | `assets/model/plant-cell.glb` | The plant cell model (165 KB, compressed) |
 | `assets/js/cell-viewer.js` | The 3D viewer, built from `src/cell-viewer.js` (includes three.js) |
-| `assets/img/cell-*.webp` | Still pictures shown on slow devices (rendered from the same model) |
+| `assets/img/cell-*.webp` | Still pictures of the whole cell shown on slow devices (rendered from the same model) |
+| `assets/img/parts/*.webp` | One picture of each piece, for the laid-out sheet on slow devices |
 | `assets/fonts/bricolage-wght.woff2` | The one font the page uses |
 
 ## Changing part names or descriptions
@@ -47,6 +48,11 @@ The scripts in `src/model-pipeline/` turn the STEP files into the web model:
 3. `assemble.py` and `export_glb.py`: build the assembled model with named parts
 4. `npx gltfpack -i cell_raw.glb -o plant-cell.glb -si 0.35 -cc -kn`: simplify and compress
 5. Serve the site locally, then run `node posters.js OUT_DIR` to re-render the
-   still pictures. Convert them to WebP (`ffmpeg -i poster-assembled.png -c:v libwebp -quality 80 cell-assembled.webp`).
+   still pictures (whole cell and each piece). Convert them to WebP
+   (`ffmpeg -i poster-assembled.png -c:v libwebp -quality 80 cell-assembled.webp`;
+   piece pictures at 480x360).
+
+Colours are not stored in the model file. They live in `INK` and `ACCENT` at the top
+of `src/cell-viewer.js`, matched to photos of the printed kit.
 
 The Python scripts need `cadquery-ocp trimesh numpy scipy shapely rtree networkx matplotlib`.

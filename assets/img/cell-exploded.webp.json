@@ -1,4 +1,4 @@
 {
-  "prompt": "Origin: rendered (not AI-generated) from Mark Tang's own plant cell CAD model (12 STEP files, Google Drive folder 'planet Cell model'), converted by src/model-pipeline and rendered by src/model-pipeline/posters.js with ?poster=exploded using assets/model/plant-cell.glb. Re-render after any model change.\n",
-  "createdAt": "2026-11-14T23:07:40.753Z"
+  "prompt": "Origin: rendered (not AI-generated) from Mark Tang's plant cell CAD model by src/model-pipeline/posters.js, using assets/model/plant-cell.glb and the viewer's print colours. Re-render after any model or colour change.\n",
+  "createdAt": "2026-11-15T00:13:56.852Z"
 }
