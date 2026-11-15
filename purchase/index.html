@@ -132,7 +132,7 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--cora
 
   <div class="form-wrap">
     <section id="ask" aria-labelledby="ask-h">
-      <h2 id="ask-h">Contact me to purchase.</h2>
+      <h2 id="ask-h">Tell us what you need.</h2>
       <p class="sub">Fill this in and press Send. We’ll get back to you as soon as possible about how to proceed.</p>
 
       <form id="buy-form" novalidate>
@@ -156,7 +156,7 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--cora
         </div>
         <div class="field">
           <label for="email">Your email</label>
-          <p class="hint" id="email-hint">So I can reply to you.</p>
+          <p class="hint" id="email-hint">So we can reply to you.</p>
           <input id="email" name="email" type="email" autocomplete="email" maxlength="200" required aria-describedby="email-hint email-err">
           <p class="err" id="email-err"></p>
         </div>
@@ -187,7 +187,7 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--cora
 <footer class="foot">
   <div class="wrap">
     <p>WRA STEM Kits · A student Compass project at Western Reserve Academy.</p>
-    <p>Your answers are only used to reply to you about your order.</p>
+    <p>Your answers are only used to reply to your request.</p>
   </div>
 </footer>
 
@@ -241,6 +241,7 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--cora
       message: form.message.value.trim(),
       website: form.website.value
     };
+    var said = function (m) { var e = new Error(m); e.said = true; return e; };
     send.disabled = true; send.firstChild.textContent = 'Sending… ';
     fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, body: j }; }); })
@@ -258,12 +259,13 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--cora
           thanks.scrollIntoView({ block: 'start' });
           return;
         }
-        if (res.status === 429) throw new Error('That was sent a few times in a row. Wait a minute, then press Send again.');
-        if (res.body && res.body.fields) { res.body.fields.forEach(function (f) { if (rules[f]) check(f); }); throw new Error('Please check the highlighted answers.'); }
-        throw new Error('');
+        if (res.status === 429) throw said('That was sent a few times in a row. Wait a minute, then press Send again.');
+        if (res.body && res.body.fields) { res.body.fields.forEach(function (f) { if (rules[f]) check(f); }); throw said('Please check the highlighted answers.'); }
+        throw said('Something went wrong on our end, so your request wasn’t sent. Please press Send again in a minute.');
       })
       .catch(function (err) {
-        formError.textContent = (err && err.message) || 'Your request couldn’t be sent. Check your internet connection and press Send again.';
+        // our own messages above; anything else means the server couldn't be reached at all
+        formError.textContent = err && err.said ? err.message : 'We couldn’t reach the server, so your request wasn’t sent. Check your internet connection, then press Send again.';
         send.disabled = false; send.firstChild.textContent = 'Send ';
       });
   });

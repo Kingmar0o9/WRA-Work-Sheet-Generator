@@ -208,6 +208,8 @@ The 3D kit model is coloured one distinct flat colour per part so students tell 
 
 **The One Face Rule.** Bricolage only. Hierarchy comes from size and weight (400 body, 600-700 labels, 800 display), never from a second family or from uppercase tracking.
 
+**The Printed Sheet Exception.** The letter-size worksheets and answer keys that the generator prints are the one place outside the chrome with their own type and colour: Poppins (self-hosted in `assets/fonts/poppins-*.woff2`, so it works offline), black-and-grey ink on white paper (#111 text, #555 to #aaa for small print and rules, 8-12px rounded boxes), because they must stay legible for students and photocopy cleanly in black and white. The generator's own tool bar follows the rest of this system (paper stock, ink, Bricolage, pills, sheets shown on the leaf field).
+
 ## Layout
 
 Content sits in a centred column (max 1240px) with a fluid side gutter of clamp(16px, 4vw, 56px). Content sections on paper use an asymmetric 5:7 two-column grid (gap clamp(28px, 5vw, 96px)), collapsing to one column at 960px. Section padding runs clamp(64-72px) to clamp(120-140px) vertically.
