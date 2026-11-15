@@ -16,7 +16,7 @@ Primary: middle school science teachers (grades 6 and 7) deciding whether to use
 
 ## Product Purpose
 
-WRA STEM Kits is a student project by Mark Tang at Western Reserve Academy (Hudson, Ohio): hands-on, 3D printed science kits for middle school classrooms, with free web tools that produce the printed materials that go with each kit. Success means a teacher can understand the kit in a minute and print a ready-to-use worksheet and answer key.
+WRA STEM Kits is a student Compass project at Western Reserve Academy: hands-on, 3D printed science kits for middle school classrooms, with free web tools that produce the printed materials that go with each kit. Success means a teacher can understand the kit in a minute and print a ready-to-use worksheet and answer key.
 
 ## Positioning
 
