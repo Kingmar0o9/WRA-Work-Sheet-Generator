@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Standards AI · WRA STEM Kits</title>
+<meta name="description" content="Ask about any K–12 performance expectation. Answers come only from the text of the Next Generation Science Standards, with every sentence cited.">
+<meta name="theme-color" content="#124A2B">
+<!-- Where the AI server lives. Until it is deployed, the page still works as a standards search. -->
+<meta name="standards-ai-endpoint" content="https://ai.wrastem.com/ask">
+<link rel="preload" href="../assets/fonts/bricolage-wght.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Bricolage";src:url(../assets/fonts/bricolage-wght.woff2) format("woff2");font-weight:200 800;font-display:swap}
+:root{
+  --stock:#F6F7F2; --ink:#13261C; --ink-2:#3E5446; --rule:#13261C;
+  --leaf:#124A2B; --leaf-deep:#0C3520; --on-leaf:#F6F7F2; --on-leaf-2:#D7EDD3;
+  --sun:#F6C343; --plum:#6B3A80;
+  --sans:"Bricolage",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --gutter:clamp(16px,4vw,48px); --ease:cubic-bezier(.16,1,.3,1);
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scrollbar-color:var(--leaf) var(--stock);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--stock);color:var(--ink);font-family:var(--sans);font-size:clamp(16px,.6vw + 13px,18px);line-height:1.55}
+::selection{background:var(--sun);color:var(--ink)}
+a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:2px}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:6px}
+h1,h2,h3{font-weight:800;letter-spacing:-.03em;line-height:1.02;margin:0;text-wrap:balance}
+p{margin:0}
+.wrap{max-width:920px;margin:0 auto;padding:0 var(--gutter)}
+
+.top{background:var(--leaf);color:var(--on-leaf)}
+.top .wrap{max-width:1240px;display:flex;align-items:center;gap:20px;height:64px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.1rem;letter-spacing:-.03em;text-decoration:none}
+.brand svg{width:28px;height:28px}
+.top nav{margin-left:auto;display:flex;gap:18px;font-weight:600;font-size:.95rem}
+.top nav a{text-decoration:none}.top nav a:hover{text-decoration:underline}
+.top :focus-visible{outline-color:var(--sun)}
+
+.hero{background:var(--leaf);color:var(--on-leaf);padding:clamp(36px,6vw,72px) 0 clamp(28px,4vw,44px)}
+.hero h1{font-size:clamp(2.6rem,6vw,4.6rem)}
+.hero .for{margin-top:10px;font-weight:700;color:var(--sun);font-size:1.05rem}
+.hero .lede{margin-top:16px;max-width:58ch;color:var(--on-leaf-2);font-size:1.1rem}
+form{margin-top:26px;display:flex;gap:10px;flex-wrap:wrap}
+form label{position:absolute;left:-9999px}
+#q{flex:1 1 320px;min-height:56px;padding:0 18px;border-radius:14px;border:2px solid var(--on-leaf);background:var(--stock);color:var(--ink);font:500 1.05rem var(--sans)}
+#q::placeholder{color:#6a7a70}
+#q:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.ask{min-height:56px;padding:0 26px;border-radius:14px;border:2px solid var(--sun);background:var(--sun);color:var(--ink);font:800 1.05rem var(--sans);cursor:pointer}
+.ask:hover{background:#ffd35e}
+.ask:disabled{opacity:.6;cursor:progress}
+.tries{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+.tries span{font-size:.85rem;font-weight:700;color:var(--on-leaf-2);margin-right:2px}
+.tries button{min-height:36px;padding:0 12px;border-radius:999px;border:2px solid rgba(246,247,242,.55);background:transparent;color:var(--on-leaf);font:600 .88rem var(--sans);cursor:pointer}
+.tries button:hover{background:rgba(255,255,255,.1);border-color:var(--on-leaf)}
+.status-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:18px}
+.meta{font-size:.85rem;color:var(--on-leaf-2)}
+.ai-toggle{min-height:36px;padding:0 14px;border-radius:999px;border:2px solid var(--on-leaf);background:transparent;color:var(--on-leaf);font:700 .85rem var(--sans);cursor:pointer}
+.ai-toggle:hover{background:var(--on-leaf);color:var(--ink)}
+.ai-toggle[aria-pressed="false"]{border-color:var(--sun);color:var(--sun)}
+.ai-toggle[aria-pressed="false"]:hover{background:var(--sun);color:var(--ink)}
+
+main{padding:clamp(28px,4vw,48px) 0 64px}
+.answer{border-top:2px solid var(--rule);padding-top:18px;margin-bottom:36px}
+.answer[hidden]{display:none}
+.answer h2,.results h2{font-size:1rem;letter-spacing:.01em;font-weight:800;margin-bottom:10px}
+.answer .body{font-size:1.15rem;line-height:1.6;max-width:68ch}
+.answer .body a{font-weight:800;white-space:nowrap}
+.answer .note{margin-top:10px;font-size:.92rem;color:var(--ink-2);max-width:68ch}
+.answer.loading .body{color:var(--ink-2)}
+.answer.loading .body::after{content:"";display:inline-block;width:1.2em;text-align:left;animation:dots 1.2s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+.results{border-top:2px solid var(--rule);padding-top:18px}
+.results .count{font-size:.92rem;color:var(--ink-2);margin-bottom:12px}
+.pe{padding:18px 0 20px;border-bottom:1px solid rgba(19,38,28,.25);scroll-margin-top:16px}
+.pe.best{background:linear-gradient(var(--sun),var(--sun)) 0 0/6px 100% no-repeat;padding-left:16px}
+.pe .bestlabel{display:inline-block;margin-bottom:6px;font-size:.78rem;font-weight:800;background:var(--sun);border-radius:6px;padding:2px 8px}
+.results .heard{font-size:.95rem;margin-bottom:4px}
+.pe:target{background:linear-gradient(var(--sun),var(--sun)) 0 0/6px 100% no-repeat;padding-left:16px}
+.pe h3{font-size:1.25rem;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
+.pe h3 small{font-size:.85rem;font-weight:600;color:var(--ink-2);letter-spacing:0}
+.pe .s{margin-top:6px;font-size:1.05rem;max-width:72ch}
+.pe .cs,.pe .ab{margin-top:6px;font-size:.95rem;color:var(--ink-2);max-width:72ch}
+.pe .cs b,.pe .ab b{color:var(--ink)}
+.pe details{margin-top:8px;font-size:.92rem}
+.pe summary{cursor:pointer;font-weight:700}
+.pe ul{margin:6px 0 0;padding-left:18px;max-width:72ch}
+.pe li{margin:4px 0}
+.pe li b{font-weight:700}
+.pe .src{display:inline-block;margin-top:8px;font-size:.88rem;font-weight:700}
+.empty{color:var(--ink-2)}
+.foot{border-top:2px solid var(--rule);padding:22px 0 40px;font-size:.85rem;color:var(--ink-2)}
+.foot p+p{margin-top:8px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="WRA STEM Kits, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="14" cy="15" r="4.6" fill="currentColor"/><ellipse cx="21.4" cy="20.2" rx="2.6" ry="1.7" fill="currentColor" transform="rotate(-30 21.4 20.2)"/></svg>
+      WRA STEM Kits
+    </a>
+    <nav aria-label="Site"><a href="../">Home</a><a href="../cell-kit-generator/">Worksheet Generator</a></nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>Standards AI</h1>
+    <p class="for">for use with the Next Generation Science Standards*</p>
+    <p class="lede">Ask about any K–12 performance expectation. Answers use only the standards’ own text, and every sentence cites the performance expectation it comes from.</p>
+    <form id="ask-form" autocomplete="off">
+      <label for="q">Your question</label>
+      <input id="q" name="q" type="search" maxlength="300" placeholder="e.g. What does MS-LS1-2 say about the cell membrane?" required>
+      <button class="ask" type="submit">Ask</button>
+    </form>
+    <div class="tries" aria-label="Example questions">
+      <span>Try</span>
+      <button type="button">MS-LS1-2</button>
+      <button type="button">Which middle school standards cover photosynthesis?</button>
+      <button type="button">What is the assessment boundary for HS-LS1-5?</button>
+      <button type="button">Kindergarten weather</button>
+    </div>
+    <div class="status-row">
+      <p class="meta" id="meta">Loading the standards…</p>
+      <button type="button" class="ai-toggle" id="ai-toggle" aria-pressed="true">Turn off AI answers</button>
+    </div>
+  </div>
+</section>
+
+<main class="wrap">
+  <section class="answer" id="answer" aria-live="polite" hidden>
+    <h2>Answer</h2>
+    <p class="body" id="answer-body"></p>
+    <p class="note" id="answer-note" hidden></p>
+  </section>
+  <section class="results" id="results" aria-live="polite">
+    <h2>Standards that match</h2>
+    <p class="empty">Ask a question or type a code such as MS-LS1-2.</p>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>*Next Generation Science Standards is a registered trademark of WestEd. Neither WestEd nor the lead states and partners that developed the Next Generation Science Standards were involved in the production of this product, and do not endorse it.</p>
+    <p>Standards text: NGSS Lead States. 2013. <i>Next Generation Science Standards: For States, By States.</i> Washington, DC: The National Academies Press. Copied from nextgenscience.org.</p>
+    <p>Questions are sent to the WRA STEM Kits server to write an answer and are kept in its logs for up to 7 days. Please don’t type names or other personal information.</p>
+  </div>
+</footer>
+
+<script type="module">
+import { createIndex, search, codesIn, interpret } from './search.js';
+
+const DATA_URL = 'ngss.json';
+const ENDPOINT = document.querySelector('meta[name="standards-ai-endpoint"]').content;
+const NOT_COVERED = 'The NGSS text I have does not address that.';
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const KIND = { SEP: 'Practice', DCI: 'Core idea', CCC: 'Crosscutting concept' };
+
+// The standards file is kept in the browser's cache after the first visit, so the search
+// works again instantly (and offline) on any computer.
+async function loadData() {
+  const v = 'standards-ai-data-1';
+  try {
+    const cache = await caches.open(v);
+    const hit = await cache.match(DATA_URL);
+    if (hit) return hit.json();
+    const res = await fetch(DATA_URL);
+    if (res.ok) { cache.put(DATA_URL, res.clone()).catch(() => {}); return res.json(); }
+  } catch { /* no Cache API (old browser or private window): just download */ }
+  return (await fetch(DATA_URL)).json();
+}
+
+// Answers are remembered on this computer, so asking again costs nothing.
+const saved = {
+  key: (q) => 'sai:' + q.toLowerCase().replace(/\s+/g, ' ').trim(),
+  get(q) { try { return JSON.parse(localStorage.getItem(this.key(q))); } catch { return null; } },
+  set(q, v) { try { localStorage.setItem(this.key(q), JSON.stringify(v)); } catch { /* storage full or blocked */ } },
+};
+
+let data, index;
+const form = $('#ask-form'), input = $('#q'), button = form.querySelector('button');
+
+// Bring the best match into view and mark it, so a search lands right on its standard.
+function routeToBest() {
+  const best = document.querySelector('.pe');
+  if (!best) return;
+  best.classList.add('best');
+  best.insertAdjacentHTML('afterbegin', '<span class="bestlabel">Best match</span>');
+  best.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+}
+
+function renderResults(hits, q, heard) {
+  const box = $('#results');
+  const heardLine = heard ? `<p class="heard">Showing standards for <b>“${esc(heard)}”</b></p>` : '';
+  if (!hits.length) {
+    box.innerHTML = `<h2>Standards that match</h2>${heardLine}<p class="empty">No performance expectation matches “${esc(q)}”. Try other words, or a code such as MS-LS1-2.</p>`;
+    return;
+  }
+  box.innerHTML = `<h2>Standards that match</h2>${heardLine}<p class="count">${hits.length} performance expectation${hits.length > 1 ? 's' : ''}, best match first</p>` +
+    hits.map(({ pe }) => {
+      const els = pe.e.map((j) => data.el[j]);
+      return `<article class="pe" id="pe-${esc(pe.c)}">
+        <h3>${esc(pe.c)} <small>${esc(pe.t)}</small></h3>
+        <p class="s">${esc(pe.s)}</p>
+        ${pe.cs ? `<p class="cs"><b>Clarification statement:</b> ${esc(pe.cs)}</p>` : ''}
+        ${pe.ab ? `<p class="ab"><b>Assessment boundary:</b> ${esc(pe.ab)}</p>` : ''}
+        ${els.length ? `<details><summary>Practices, core ideas and crosscutting concepts</summary><ul>${els.map(([k, h, t]) => `<li><b>${KIND[k]}, ${esc(h)}:</b> ${esc(t)}</li>`).join('')}</ul></details>` : ''}
+        <a class="src" href="https://www.nextgenscience.org/pe/${esc(pe.u)}" target="_blank" rel="noopener">Read ${esc(pe.c)} on nextgenscience.org ↗</a>
+      </article>`;
+    }).join('');
+}
+
+function showAnswer(state, text, note) {
+  const box = $('#answer'), body = $('#answer-body'), n = $('#answer-note');
+  box.hidden = false;
+  box.classList.toggle('loading', state === 'loading');
+  // citation codes become links to the standard below
+  body.innerHTML = esc(text).replace(/\[([A-Z0-9][A-Z0-9-]*\d)\]/g, (_, c) => `[<a href="#pe-${c}">${c}</a>]`);
+  n.hidden = !note; n.textContent = note || '';
+}
+
+// Written answers are on by default; a visitor can turn them off (remembered on this computer).
+let aiWanted = true;
+try { aiWanted = localStorage.getItem('sai-ai') !== 'off'; } catch { /* storage blocked: stays on */ }
+const toggleBtn = $('#ai-toggle');
+function paintToggle() {
+  toggleBtn.textContent = aiWanted ? 'Turn off AI answers' : 'Turn on AI answers';
+  toggleBtn.setAttribute('aria-pressed', String(aiWanted));
+}
+toggleBtn.addEventListener('click', () => {
+  aiWanted = !aiWanted;
+  try { localStorage.setItem('sai-ai', aiWanted ? 'on' : 'off'); } catch { /* not saved; still works this visit */ }
+  paintToggle(); setMeta();
+  if (input.value.trim()) ask(input.value);
+});
+paintToggle();
+
+let pending = null;
+let aiOn = null; // null = still checking, true / false once the server answers (or doesn't)
+// The server's routing (what it understood, and which standards fit best) replaces the
+// quick in-browser match, and the page jumps to the best one.
+function useServer(out, q) {
+  const pes = (out.sources || []).map((c) => data.pe.find((p) => p.c === c)).filter(Boolean);
+  if (pes.length) { renderResults(pes.map((pe) => ({ pe })), q, out.interpreted || ''); routeToBest(); }
+  if (out.answer) showAnswer('done', out.answer); else $('#answer').hidden = true;
+}
+
+async function ask(q) {
+  q = q.trim();
+  if (!q) return;
+  if (!index) { pending = q; $('#meta').textContent = 'Loading the standards… your question will run in a moment.'; return; }
+  const hits = search(index, q, 8);
+  const heard = interpret(index, q);
+  renderResults(hits, q, heard.changed ? heard.text : '');
+  if (hits.length) routeToBest();
+  // nothing found here and no AI to interpret it: say so
+  if (!hits.length && (aiOn === false || !aiWanted)) { showAnswer('done', NOT_COVERED); return; }
+  // a bare code needs no AI: the standard itself is the answer
+  if (codesIn(q).length && q.replace(/[\s-]/g, '').length <= 12) { $('#answer').hidden = true; return; }
+
+  if (!aiWanted) {
+    showAnswer('done', 'AI answers are turned off, so here are the matching standards, word for word.', 'Use “Turn on AI answers” above to get a written answer.');
+    return;
+  }
+  const prior = saved.get(q);
+  if (prior) { useServer(prior, q); return; }
+  if (aiOn === false) {
+    showAnswer('done', 'Written answers are switched off right now, so here are the matching standards, word for word.', 'Everything below is the official NGSS text for your question.');
+    return;
+  }
+
+  showAnswer('loading', 'Reading the standards');
+  button.disabled = true;
+  try {
+    const res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q }) });
+    const out = await res.json().catch(() => ({}));
+    if (res.status === 429) showAnswer('done', 'Too many questions in a minute. Wait a moment and ask again.');
+    else if (out.answer) { useServer(out, q); saved.set(q, out); }
+    else if (out.sources && out.sources.length && out.status !== 'ai_unavailable' && !out.answer && out.status !== 'unsupported') { useServer(out, q); }
+    else if (out.status === 'unsupported') showAnswer('done', 'I couldn’t write an answer that sticks strictly to the standards text for this question.', 'The matching standards are below, word for word.');
+    else showAnswer('done', 'AI answers are resting right now.', 'The free daily allowance may be used up; it resets at midnight UTC. The matching standards are below, word for word.');
+  } catch {
+    aiOn = false; setMeta();
+    showAnswer('done', 'Written answers are switched off right now, so here are the matching standards, word for word.', 'Everything below is the official NGSS text for your question.');
+  } finally {
+    button.disabled = false;
+  }
+}
+
+form.addEventListener('submit', (e) => { e.preventDefault(); ask(input.value); });
+document.querySelectorAll('.tries button').forEach((b) => b.addEventListener('click', () => { input.value = b.textContent; ask(b.textContent); }));
+
+function setMeta() {
+  if (!data) return;
+  const when = new Date(data.retrieved + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const ai = !aiWanted ? ' · AI answers turned off' : aiOn === true ? ' · AI answers on' : aiOn === false ? ' · AI answers unavailable right now (standards search only)' : '';
+  $('#meta').textContent = `${data.count} performance expectations, K–12 · text copied from nextgenscience.org on ${when}${ai}`;
+}
+
+// Is the answer server reachable? (It is not until it has been deployed, and preview pages
+// cannot reach outside servers.) Search works either way.
+const ctl = new AbortController(); setTimeout(() => ctl.abort(), 4000);
+fetch(ENDPOINT.replace(/\/ask$/, '/health'), { signal: ctl.signal })
+  .then((r) => r.json()).then((h) => { aiOn = !!(h && h.ok); })
+  .catch(() => { aiOn = false; })
+  .finally(setMeta);
+
+loadData().then((d) => {
+  data = d; index = createIndex(d);
+  setMeta();
+  const q = pending || new URLSearchParams(location.search).get('q');
+  if (q) { input.value = q; ask(q); }
+}).catch(() => { $('#meta').textContent = 'The standards could not be loaded. Check your connection and reload the page.'; });
+</script>
+</body>
+</html>

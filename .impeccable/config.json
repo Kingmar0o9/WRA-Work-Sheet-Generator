@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-14T23:08:04.920Z",
+        "reason": "builder judged: #stage and .viewer-box hold absolutely positioned canvas/image layers; text sits in .wrap with gutter padding"
+      },
+      {
+        "rule": "buried-raster",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-14T23:08:04.928Z",
+        "reason": "builder judged: exploded still starts at opacity 0 and crossfades in with scroll via --p (intentional)"
+      }
+    ]
+  }
+}
