@@ -36,6 +36,17 @@ This website introduces the kit and the tools that come with it. A teacher can e
 
 ## The kit
 
+<table>
+  <tr>
+    <td width="50%"><img src="assets/img/photos/kit-assembled-1000.jpg" alt="Photo of the assembled 3D printed plant cell kit"></td>
+    <td width="50%"><img src="assets/img/photos/kit-laid-out-1000.jpg" alt="Photo of every piece of the kit laid out"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>The printed kit, assembled</sub></td>
+    <td align="center"><sub>Every piece laid out</sub></td>
+  </tr>
+</table>
+
 | | |
 |---|---|
 | **12 pieces** | Cell wall, cell membrane, cytoplasm tray, nucleus, nucleolus, chloroplast, mitochondrion, Golgi apparatus, endoplasmic reticulum, central vacuole, peroxisome and amyloplast |
@@ -75,12 +86,15 @@ One click prints a new 3-page plant cell worksheet and its answer key.
 ![The worksheet generator: a toolbar with Download worksheet PDF, Answer key PDF and New worksheet above a printable worksheet](docs/screenshots/generator.jpg)
 
 ### Request kits
-A short form (number of sets, school, email). Each request is emailed straight to the kit maker, who replies to the teacher.
+A short form (number of sets, school, email). Each request is emailed straight to the kit maker, who replies to the teacher. A photo of the real kit opens a gallery of eight photos that visitors can swipe through.
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/screenshots/request-section.jpg" alt="The home page's Request a set section with the whole kit laid out"></td>
-    <td width="50%"><img src="docs/screenshots/purchase.jpg" alt="The Request the Plant Cell Kit page and its form"></td>
+    <td width="50%"><img src="docs/screenshots/request-section.jpg" alt="The home page's Request a set section with a photo of every piece laid out"></td>
+    <td width="50%"><img src="docs/screenshots/purchase.jpg" alt="The Request the Plant Cell Kit page with the kit photo"></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="docs/screenshots/gallery.jpg" alt="The photo gallery: one large photo of the kit with a row of thumbnails below"></td>
   </tr>
 </table>
 
@@ -149,7 +163,7 @@ flowchart LR
 | [`cell-kit-generator/`](cell-kit-generator) | Worksheet and answer key generator |
 | [`purchase/`](purchase) | Request kits form |
 | [`worker/`](worker) | Cloudflare Worker for Standards AI answers and purchase requests ([setup notes](worker/README.md)) |
-| [`src/`](src) | Source for the 3D viewer, the model pipeline and the NGSS pipeline ([build notes](src/README.md)) |
+| [`src/`](src) | Source for the 3D viewer, the model pipeline, the NGSS pipeline and the photo rotation script ([build notes](src/README.md)) |
 | [`assets/`](assets) | Fonts, images, the 3D model and the built viewer. Logo files are in [`assets/brand/`](assets/brand) |
 | [`DESIGN.md`](DESIGN.md) | The design system |
 | `9113d54f23e68ee25a1596c5112c4986.txt` | Public IndexNow verification file, so search engines accept page updates from wrastem.com (not a secret) |
