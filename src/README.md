@@ -48,7 +48,7 @@ The scripts in `src/model-pipeline/` turn the STEP files into the web model:
    tray and its rotation (results in `fit.json`)
 3. `assemble.py`, then `find_holes.py SCRATCH STEP_DIR` (finds every magnet hole), then
    `export_glb.py`: build the assembled model with named parts and a silver magnet in each
-   magnet hole (6 x 2 mm and 3 x 3 mm)
+   6 mm magnet hole (6 x 2 mm magnets; the small 3 mm labelling holes stay empty)
 4. `npx gltfpack -i cell_raw.glb -o plant-cell.glb -si 0.5 -cc -kn`: simplify and compress
 5. Serve the site locally, then run `node posters.js OUT_DIR` to re-render the
    still pictures (whole cell and each piece). Convert them to WebP

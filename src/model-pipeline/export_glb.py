@@ -5,7 +5,8 @@ child node named '<part>-accent', so it moves with its part and the viewer can c
 Colours are not stored in the file; the viewer paints each part (see INK in src/cell-viewer.js).
 
 Every magnet hole gets its magnet (holes found by find_holes.py), as a child node named
-'<part>-magnet' that the viewer paints silver. Two magnet sizes: 6 x 2 mm and 3 x 3 mm.
+'<part>-magnet' that the viewer paints silver. Magnets are 6 x 2 mm. The small 3 mm holes are
+labelling holes and stay empty.
 
 usage: export_glb.py <scratch_dir> <out.glb>"""
 import sys, numpy as np, trimesh
@@ -22,7 +23,7 @@ BASE_TOP = {'golgi': 19.81, 'er': 19.75}
 meshes = {k: trimesh.load(f'{S}/asm_{k}.stl') for k in P}
 import json
 HOLES = json.load(open(f'{S}/magnets/holes.json'))
-MAGNET_R = (1.5, 3.0)  # hole radii of the two magnet sizes
+MAGNET_R = (3.0,)  # hole radius of the 6 x 2 mm magnets; 1.5 mm holes are for labels
 
 
 def magnets_for(name):
