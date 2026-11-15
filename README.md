@@ -28,9 +28,9 @@
 
 ## What it is
 
-WRA STEM Kits makes hands-on science kits for middle school classrooms. The first kit is a **plant cell model made of 12 custom-designed, 3D printed pieces**. Students lift each organelle out of its custom-shaped slot, name it, explain its job, and set it back. Magnets hold every piece in place, and nothing gets used up, so one kit serves class after class.
+WRA STEM Kits makes hands-on science kits for middle school classrooms. The first kit is a **plant cell model made of 12 custom-designed, 3D printed pieces**. Students lift each organelle out of its custom-shaped slot, name it, explain its job, and set it back. Magnets hold the pieces in their slots, and nothing gets used up, so one kit serves class after class.
 
-This website introduces the kit and the free tools that go with it. A teacher can explore the kit in 3D, print a worksheet and answer key, ask questions about the science standards, and request kits for their class.
+This website introduces the kit and the tools that come with it. A teacher can explore the kit in 3D, print a worksheet and answer key, ask questions about the science standards, and request kits for their class.
 
 ![The home page: a live 3D model of the plant cell kit beside the headline "A plant cell you can take apart."](docs/screenshots/hero.jpg)
 
@@ -39,7 +39,7 @@ This website introduces the kit and the free tools that go with it. A teacher ca
 | | |
 |---|---|
 | **12 pieces** | Cell wall, cell membrane, cytoplasm tray, nucleus, nucleolus, chloroplast, mitochondrion, Golgi apparatus, endoplasmic reticulum, central vacuole, peroxisome and amyloplast |
-| **Magnets** | 6 × 2 mm magnets hold each piece in its slot. The small 3 mm holes are for labels. |
+| **Magnets** | Magnets hold the pieces in their slots. The small holes are for labels. |
 | **Grades** | Middle school life science, grades 6–8 |
 | **Standard** | Designed to align with NGSS MS-LS1-2: *"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function."* The five parts the standard names (nucleus, chloroplast, mitochondrion, cell membrane, cell wall) use the same names in the kit. |
 | **Reusable** | Nothing gets used up, so one kit lasts for years of classes. |
@@ -152,6 +152,7 @@ flowchart LR
 | [`src/`](src) | Source for the 3D viewer, the model pipeline and the NGSS pipeline ([build notes](src/README.md)) |
 | [`assets/`](assets) | Fonts, images, the 3D model and the built viewer |
 | [`DESIGN.md`](DESIGN.md) | The design system |
+| `9113d54f23e68ee25a1596c5112c4986.txt` | Public IndexNow verification file, so search engines accept page updates from wrastem.com (not a secret) |
 
 ## Run it locally
 
@@ -165,7 +166,7 @@ Then open http://localhost:8000. The server for Standards AI and the request for
 
 ## Status
 
-Built and working: the 3D printed kit, the website, the worksheet generator, Standards AI and the request form are all live. The kit has **not yet been tried in a classroom**, and a science teacher review of the worksheet questions is planned. The kit is designed to align with the NGSS; that is not a certification.
+Built and working: the 3D printed kit, the website, the worksheet generator, Standards AI and the request form are all live. The kit has **not yet been tried in a classroom**, and a science teacher review of the worksheet questions is planned. The kit is designed to align with the NGSS.
 
 ## Why I built it
 

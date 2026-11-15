@@ -24,7 +24,7 @@ The worksheets are built around a physical kit: the labeling drawings are render
 
 ## Operating Context
 
-- Plant Cell Kit: 12 custom-designed, 3D printed pieces (11 cell structures plus the nucleolus), held in place by 6 x 2 mm magnets; the small 3 mm holes are for labels. Reusable for years.
+- Plant Cell Kit: 12 custom-designed, 3D printed pieces (11 cell structures plus the nucleolus), held in their slots by magnets; the small holes are for labels. Reusable for years.
 - Plant Cell Worksheet Generator (`cell-kit-generator/`): one click builds a new 3-page plant cell worksheet plus answer key for middle school (grades 6–8). Designed to align with NGSS MS-LS1-2. Uses only cell wall, cell membrane, nucleus, chloroplast, mitochondrion.
 - Fixed bank of 43 items; every worksheet has the same 6 sections (label, match, how parts work together, think and write, circle the best answer, a second think and write).
 - Each worksheet has a version number 1000–9999 so it can be rebuilt. Download worksheet PDF, answer key PDF, or print. Works offline.
@@ -52,4 +52,4 @@ Name: **WRA STEM Kits**. Domain: wrastem.com. Voice: plain, honest, student-made
 1. Honest about status: say what is built, what is coming, and what is untested.
 2. Teacher time is precious: one click to something printable.
 3. The physical kit is the center; the web tools serve it.
-4. Fast and free on any school device, including offline use.
+4. Fast on any school device, including offline use.
