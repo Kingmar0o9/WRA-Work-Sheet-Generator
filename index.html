@@ -145,13 +145,31 @@ p{margin:0;text-wrap:pretty}
 .label::after{content:"";position:absolute;left:-1px;bottom:0;width:2px;height:var(--lead);background:var(--stock)}
 .label.below::after{bottom:auto;top:0}
 .scroll-cue{position:absolute;left:50%;bottom:16px;width:2px;height:40px;background:linear-gradient(var(--on-leaf),transparent);opacity:calc(.7 - var(--p) * 4);transform:translateX(-50%)}
+.lede .short{display:none}
+/* Phones and small tablets: the model gets the top half of the screen, the words the bottom
+   half, so they never sit on top of each other. Shorter text and smaller buttons here. */
 @media (max-width:900px){
-  .stage-art{bottom:34%}
-  .poster-frame{right:auto;left:50%;top:84px;transform:translateX(-50%);width:min(112%,calc((66svh - 84px) * 4 / 3))}
-  .stage-copy h1{font-size:clamp(2.6rem,11vw,4rem)}
-  .stage-copy h2{font-size:clamp(2.1rem,9vw,3.2rem)}
-  .label span{font-size:.7rem;padding:3px 8px}
+  .stage{--art-h:calc(52vh - 60px);--art-h:calc(52svh - 60px)}
+  .stage-art{top:60px;bottom:auto;height:var(--art-h)}
+  .poster-frame{right:auto;left:50%;top:50%;transform:translate(-50%,-50%);width:min(116%,calc(var(--art-h) * 4 / 3 * 1.14))}
+  .stage-copy{bottom:max(18px,env(safe-area-inset-bottom))}
+  .stage-copy h1{font-size:clamp(2.2rem,10vw,3.4rem)}
+  .stage-copy h2{font-size:clamp(1.9rem,8.4vw,2.9rem)}
+  .stage-copy .lede{margin-top:12px;font-size:1.02rem;max-width:30ch}
+  .lede .long{display:none}.lede .short{display:inline}
+  .actions{margin-top:18px;gap:10px}
+  .actions .btn{min-height:44px;padding:0 16px;font-size:.95rem}
+  .kitline,.scroll-cue{display:none}
+  .copy-b .note{margin-top:14px;font-size:.95rem;line-height:1.35}
 }
+@media (max-width:900px) and (max-height:640px){
+  .stage{--art-h:calc(44vh - 56px);--art-h:calc(44svh - 56px)}
+  .stage-copy h1{font-size:clamp(2rem,9vw,2.6rem)}
+  .stage-copy h2{font-size:clamp(1.7rem,7.6vw,2.2rem)}
+  .copy-b .note{display:none}
+}
+/* Held upright, the part names crowd the model, so only the animation shows. */
+@media (orientation:portrait){.stage .label{display:none}}
 .js-off .stage{height:auto}.js-off .stage-sticky{position:relative;height:auto;min-height:100vh}
 .js-off .copy-b,.js-off .poster-b{display:none}
 .js-off .copy-a{opacity:1;transform:none}
@@ -332,7 +350,7 @@ p{margin:0;text-wrap:pretty}
       <div class="stage-copy copy-a">
         <div class="wrap">
           <h1>A plant cell you can take apart.</h1>
-          <p class="lede">A 12-piece, 3D printed plant cell model for middle school. Students take it apart and rebuild it to explain how each structure contributes to the function of the cell as a whole.</p>
+          <p class="lede"><span class="long">A 12-piece, 3D printed plant cell model for middle school. Students take it apart and rebuild it to explain how each structure contributes to the function of the cell as a whole.</span><span class="short">A 12-piece, 3D printed plant cell model for middle school science.</span></p>
           <div class="actions">
             <a class="btn btn-sun" href="#why">Learn more
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
@@ -346,7 +364,7 @@ p{margin:0;text-wrap:pretty}
       <div class="stage-copy copy-b" id="stage-b-copy">
         <div class="wrap">
           <h2>12 custom-designed, 3D printed pieces.</h2>
-          <p class="lede">Each organelle sits in its own custom-designed slot. Students lift a part out, name it, explain its job, and set it back: a working model of the cell as a system of parts.</p>
+          <p class="lede"><span class="long">Each organelle sits in its own custom-designed slot. Students lift a part out, name it, explain its job, and set it back: a working model of the cell as a system of parts.</span><span class="short">Each organelle sits in its own custom-designed slot, held by magnets.</span></p>
           <p class="note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 20V9l6-5 6 5v11M10 20v-6h4v6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>Reusable by you, and by the classes and students to come.</p>
         </div>
       </div>

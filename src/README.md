@@ -46,8 +46,10 @@ The scripts in `src/model-pipeline/` turn the STEP files into the web model:
 1. `step2mesh.py STEP_DIR MESH_DIR 0.3`: tessellates each STEP file
 2. `heightmap.py` and `fit.py`: find each organelle's pocket in the cytoplasm
    tray and its rotation (results in `fit.json`)
-3. `assemble.py` and `export_glb.py`: build the assembled model with named parts
-4. `npx gltfpack -i cell_raw.glb -o plant-cell.glb -si 0.35 -cc -kn`: simplify and compress
+3. `assemble.py`, then `find_holes.py SCRATCH STEP_DIR` (finds every magnet hole), then
+   `export_glb.py`: build the assembled model with named parts and a silver magnet in each
+   magnet hole (6 x 2 mm and 3 x 3 mm)
+4. `npx gltfpack -i cell_raw.glb -o plant-cell.glb -si 0.5 -cc -kn`: simplify and compress
 5. Serve the site locally, then run `node posters.js OUT_DIR` to re-render the
    still pictures (whole cell and each piece). Convert them to WebP
    (`ffmpeg -i poster-assembled.png -c:v libwebp -quality 80 cell-assembled.webp`;

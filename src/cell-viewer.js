@@ -9,8 +9,9 @@
 import {
   WebGLRenderer, Scene, PerspectiveCamera, HemisphereLight, DirectionalLight,
   MeshStandardMaterial, Color, Raycaster, Vector2, Vector3, Box3, Group, SRGBColorSpace,
-  NeutralToneMapping,
+  NeutralToneMapping, PMREMGenerator,
 } from 'three';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 
@@ -22,6 +23,8 @@ const INK = {
 };
 // Two-tone prints: the raised ribbons on these parts are a second colour.
 const ACCENT = { golgi: '#F27A1F', er: '#F3F1E8' };
+// The magnets pressed into every magnet hole: nickel-plated, so a bright, slightly blue silver.
+const MAGNET = '#9EA6B0';
 // Picking the nucleolus (the insert inside the nucleus) selects the nucleus.
 const GROUP = { nucleolus: 'nucleus' };
 // Exploded-view offsets in model units (mm). Y is up.
@@ -67,7 +70,8 @@ export async function start() {
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.toneMapping = NeutralToneMapping; // keeps the print colours saturated, no washed-out highlights
   renderer.toneMappingExposure = 1.0;
-  let maxDpr = Math.min(window.devicePixelRatio || 1, 1.75);
+  // phones draw at a slightly lower resolution: same look, less work for the battery and GPU
+  let maxDpr = Math.min(window.devicePixelRatio || 1, window.innerWidth <= 900 ? 1.5 : 1.75);
   renderer.setPixelRatio(POSTER ? 1 : maxDpr);
   const canvas = renderer.domElement;
   canvas.setAttribute('aria-hidden', 'true');
@@ -79,6 +83,10 @@ export async function start() {
   const fill = new DirectionalLight('#ffffff', 0.6); fill.position.set(140, 60, 60); scene.add(fill);
 
   const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync('assets/model/plant-cell.glb');
+  // a soft room reflected in the magnets, so they read as metal (only they use it)
+  const pmrem = new PMREMGenerator(renderer);
+  const shine = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  pmrem.dispose();
   const model = new Group(); scene.add(model);
   const parts = {};   // part name -> node that moves (the named glTF node)
   const meshes = [];  // every mesh, tagged with its part name
@@ -89,19 +97,22 @@ export async function start() {
     if (!o.isMesh) return;
     // The part name lives on a parent node (the compressor renames meshes). A '-accent'
     // node on the way up marks the raised ribbons of a two-tone part.
-    let n = o, name = '', accent = false;
+    let n = o, name = '', accent = false, magnet = false;
     while (n) {
       const k = (n.name || '').replace(/_\d+$/, '');
       if (k.endsWith('-accent')) accent = true;
+      if (k.endsWith('-magnet')) magnet = true;
       if (INK[k]) { name = k; break; }
       n = n.parent;
     }
     if (!name) return;
-    const base = new Color(accent ? ACCENT[name] : INK[name]);
-    o.material = new MeshStandardMaterial({
-      color: base, roughness: 0.58, metalness: 0,
-      polygonOffset: !!DEPTH_BIAS[name], polygonOffsetFactor: DEPTH_BIAS[name] || 0, polygonOffsetUnits: DEPTH_BIAS[name] || 0,
-    });
+    const base = new Color(magnet ? MAGNET : accent ? ACCENT[name] : INK[name]);
+    o.material = magnet
+      ? new MeshStandardMaterial({ color: base, roughness: 0.3, metalness: 1, envMap: shine, envMapIntensity: 0.62 })
+      : new MeshStandardMaterial({
+        color: base, roughness: 0.58, metalness: 0,
+        polygonOffset: !!DEPTH_BIAS[name], polygonOffsetFactor: DEPTH_BIAS[name] || 0, polygonOffsetUnits: DEPTH_BIAS[name] || 0,
+      });
     o.userData.part = name;
     o.userData.base = base;
     meshes.push(o);
@@ -188,20 +199,23 @@ export async function start() {
       renderer.setSize(w, h, false);
     }
     camera.aspect = w / h;
-    const narrow = w / h < 0.9;
+    // phones and small tablets (same breakpoint as the page's CSS): the stage canvas is only the
+    // top half of the screen, above the words, so the model is centred and sized to fill it
+    const phone = st.mode === 'stage' && !POSTER && window.innerWidth <= 900;
     // how far apart the model is right now, for framing
     const k = st.mode === 'viewer' ? easeInOut(clamp(st.view)) : easeOut(st.explode);
-    let dist = (st.mode === 'viewer' ? 335 : (narrow ? 430 : 372)) * (1 + 0.22 * k);
+    let dist = (st.mode === 'viewer' ? 335 : 372) * (1 + 0.22 * k);
+    if (phone) dist = Math.max(282 * (1 + 0.2 * k), (158 * (1 + 0.06 * k)) / (0.536 * (w / h)));
     if (POSTER) dist *= 0.86; // stills are framed tight; the page places them
     camera.position.set(0, 0, dist);
     camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
     model.rotation.set(st.pitch, st.yaw, st.roll, 'XYZ');
     // stage puts the model right of the headline on wide screens
-    const offX = POSTER ? 0 : (st.mode === 'stage' && !narrow ? Math.min(78, 30 * (w / h)) : 0);
-    const offY = (st.mode === 'stage' && narrow && !POSTER ? 22 - 16 * k : 0) - (st.mode === 'viewer' ? 16 : LIFT_MID) * k - 2.2 * st.thud;
+    const offX = POSTER || phone ? 0 : (st.mode === 'stage' ? Math.min(78, 30 * (w / h)) : 0);
+    const offY = -(st.mode === 'viewer' ? 16 : LIFT_MID) * k - 2.2 * st.thud;
     model.position.set(offX, offY, 0);
-    model.scale.setScalar(st.mode === 'stage' && narrow ? 1 - 0.15 * k : 1);
+    model.scale.setScalar(1);
     pose();
     looks();
     renderer.render(scene, camera);
