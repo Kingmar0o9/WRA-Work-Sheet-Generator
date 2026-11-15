@@ -200,9 +200,12 @@ function showAnswer(state, text, note) {
   n.hidden = !note; n.textContent = note || '';
 }
 
+let pending = null;
+let aiOn = null; // null = still checking, true / false once the server answers (or doesn't)
 async function ask(q) {
   q = q.trim();
-  if (!q || !index) return;
+  if (!q) return;
+  if (!index) { pending = q; $('#meta').textContent = 'Loading the standards… your question will run in a moment.'; return; }
   const hits = search(index, q, 8);
   renderResults(hits, q);
   if (!hits.length) { showAnswer('done', NOT_COVERED); return; }
@@ -211,6 +214,10 @@ async function ask(q) {
 
   const prior = saved.get(q);
   if (prior) { showAnswer('done', prior.answer); return; }
+  if (aiOn === false) {
+    showAnswer('done', 'Written answers are switched off right now, so here are the matching standards, word for word.', 'Everything below is the official NGSS text for your question.');
+    return;
+  }
 
   showAnswer('loading', 'Reading the standards');
   button.disabled = true;
@@ -222,7 +229,8 @@ async function ask(q) {
     else if (out.status === 'unsupported') showAnswer('done', 'I couldn’t write an answer that sticks strictly to the standards text for this question.', 'The matching standards are below, word for word.');
     else showAnswer('done', 'AI answers are resting right now.', 'The free daily allowance may be used up; it resets at midnight UTC. The matching standards are below, word for word.');
   } catch {
-    showAnswer('done', 'AI answers aren’t available right now.', 'The matching standards are below, word for word.');
+    aiOn = false; setMeta();
+    showAnswer('done', 'Written answers are switched off right now, so here are the matching standards, word for word.', 'Everything below is the official NGSS text for your question.');
   } finally {
     button.disabled = false;
   }
@@ -231,11 +239,25 @@ async function ask(q) {
 form.addEventListener('submit', (e) => { e.preventDefault(); ask(input.value); });
 document.querySelectorAll('.tries button').forEach((b) => b.addEventListener('click', () => { input.value = b.textContent; ask(b.textContent); }));
 
+function setMeta() {
+  if (!data) return;
+  const when = new Date(data.retrieved + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const ai = aiOn === true ? ' · written answers on' : aiOn === false ? ' · written answers off (standards search only)' : '';
+  $('#meta').textContent = `${data.count} performance expectations, K–12 · text copied from nextgenscience.org on ${when}${ai}`;
+}
+
+// Is the answer server reachable? (It is not until it has been deployed, and preview pages
+// cannot reach outside servers.) Search works either way.
+const ctl = new AbortController(); setTimeout(() => ctl.abort(), 4000);
+fetch(ENDPOINT.replace(/\/ask$/, '/health'), { signal: ctl.signal })
+  .then((r) => r.json()).then((h) => { aiOn = !!(h && h.ok); })
+  .catch(() => { aiOn = false; })
+  .finally(setMeta);
+
 loadData().then((d) => {
   data = d; index = createIndex(d);
-  const when = new Date(d.retrieved + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  $('#meta').textContent = `${d.count} performance expectations, K–12 · text copied from nextgenscience.org on ${when}`;
-  const q = new URLSearchParams(location.search).get('q');
+  setMeta();
+  const q = pending || new URLSearchParams(location.search).get('q');
   if (q) { input.value = q; ask(q); }
 }).catch(() => { $('#meta').textContent = 'The standards could not be loaded. Check your connection and reload the page.'; });
 </script>
