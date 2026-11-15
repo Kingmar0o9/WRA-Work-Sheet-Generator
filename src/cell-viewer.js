@@ -60,6 +60,8 @@ const drop = (t) => (t < HIT ? bounce(t) : 1 - (1 - bounce(t)) * 0.4);
 const params = new URLSearchParams(location.search);
 // Used only to render the still pictures: 'assembled' | 'exploded' | 'part:<name>'
 const POSTER = params.get('poster');
+// Change ASSET_VERSION whenever the model file changes, so phones fetch the new one instead of a saved copy.
+const ASSET_VERSION = '20261115b';
 
 export async function start() {
   const stage = $('#stage');
@@ -82,7 +84,7 @@ export async function start() {
   const key = new DirectionalLight('#fffaf0', 2.3); key.position.set(-80, 180, 140); scene.add(key);
   const fill = new DirectionalLight('#ffffff', 0.6); fill.position.set(140, 60, 60); scene.add(fill);
 
-  const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync('assets/model/plant-cell.glb');
+  const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync('assets/model/plant-cell.glb?v=' + ASSET_VERSION);
   // a soft room reflected in the magnets, so they read as metal (only they use it)
   const pmrem = new PMREMGenerator(renderer);
   const shine = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
