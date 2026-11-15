@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
 <title>Standards AI · WRA STEM Kits</title>
-<meta name="description" content="Chat about any K–12 performance expectation. Answers use only the text of the Next Generation Science Standards, and every one links back to its source.">
+<meta name="description" content="Ask what a science idea means, what students learn about it at each grade, or how to teach it. Plain-language answers that link every NGSS standard they use.">
 <meta name="theme-color" content="#124A2B">
 <!-- Where the AI server lives. If it can't be reached, the chat still shows the matching standards. -->
 <meta name="standards-ai-endpoint" content="https://ai.wrastem.com/ask">
@@ -60,6 +60,10 @@ main{flex:1 0 auto;padding:22px 0 12px}
 .ai .who{font-size:.78rem;font-weight:800;letter-spacing:.02em;color:var(--ink-2);margin-bottom:4px}
 .ai .text{font-size:1.06rem;line-height:1.6}
 .ai .text a{font-weight:800;white-space:nowrap}
+.ai .text p+p,.ai .text p+ol,.ai .text p+ul,.ai .text ol+p,.ai .text ul+p{margin-top:.6em}
+.ai .text ol,.ai .text ul{margin:.5em 0 0;padding-left:1.5em}
+.ai .text li+li{margin-top:.35em}
+.ai .key{margin-top:8px;font-size:.8rem;color:var(--ink-2)}
 .ai .note{margin-top:6px;font-size:.88rem;color:var(--ink-2)}
 .ai .heard{font-size:.85rem;color:var(--ink-2);margin-bottom:6px}
 .ai.thinking .text{color:var(--ink-2)}
@@ -113,14 +117,14 @@ form:focus-within{outline:3px solid var(--sun);outline-offset:2px}
 <main>
   <div class="wrap" id="chat" aria-live="polite">
     <section class="intro" id="intro">
-      <h1>Ask the standards.</h1>
+      <h1>Ask anything about teaching science.</h1>
       <p class="for">Standards AI, for use with the Next Generation Science Standards*</p>
-      <p class="lede">Ask anything about the K–12 performance expectations. Answers are short, use only the standards’ own text, and link back to every standard they come from.</p>
+      <p class="lede">Ask what a science idea means, what students learn about it at each grade, or how to teach it. Answers are short and in plain words. Anything taken from the standards has its code in brackets, linked to the official text.</p>
       <div class="starters">
-        <button type="button">What is photosynthesis?</button>
-        <button type="button">What does MS-LS1-2 say about the cell membrane?</button>
+        <button type="button">What are mitochondria?</button>
+        <button type="button">How should I teach photosynthesis in middle school?</button>
+        <button type="button">My students are bored learning about cells. Any ideas?</button>
         <button type="button">What do kindergartners learn about weather?</button>
-        <button type="button">Where is natural selection taught in high school?</button>
       </div>
       <p class="meta" id="meta">Loading the standards…</p>
     </section>
@@ -131,10 +135,10 @@ form:focus-within{outline:3px solid var(--sun);outline-offset:2px}
   <div class="wrap">
     <form id="ask-form" autocomplete="off">
       <label for="q">Your question</label>
-      <textarea id="q" rows="1" maxlength="300" placeholder="Ask about any science standard…" required></textarea>
+      <textarea id="q" rows="1" maxlength="300" placeholder="Ask a science or teaching question…" required></textarea>
       <button class="send" type="submit">Ask</button>
     </form>
-    <p class="fine">Answers come only from the NGSS text and can still be wrong. Check the linked standard. <a href="#about">About</a></p>
+    <p class="fine">Lines with a code come from that NGSS standard. The rest is general science or teaching advice. Answers can be wrong. <a href="#about">About</a></p>
   </div>
 </div>
 
@@ -147,11 +151,11 @@ form:focus-within{outline:3px solid var(--sun);outline-offset:2px}
 </footer>
 
 <script type="module">
-import { createIndex, search, codesIn, interpret } from './search.js';
+import { createIndex, search, codesIn, interpret, smallTalk } from './search.js';
 
 const DATA_URL = 'ngss.json';
 const ENDPOINT = document.querySelector('meta[name="standards-ai-endpoint"]').content;
-const NOT_COVERED = 'The NGSS text I have does not address that.';
+const NO_MATCH = 'I couldn’t find a standard that matches. Try other words, or a code like MS-LS1-2.';
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -203,21 +207,49 @@ function standardCards(pes) {
     <a href="${urlOf(pe.c)}" target="_blank" rel="noopener">Read ${esc(pe.c)} on nextgenscience.org ↗</a>
   </div>`).join('');
 }
+// codes in brackets ([MS-LS1-2]) or written plainly ("as in MS-LS2-1") link to the official standard
+const ANY_CODE = /\[([A-Z0-9][A-Z0-9-]*\d)\]|\b((?:K-2|3-5|K|[1-5]|MS|HS)-(?:PS|LS|ESS|ETS)\d-\d+)\b/g;
 function linkCodes(text) {
-  return esc(text).replace(/\[([A-Z0-9][A-Z0-9-]*\d)\]/g, (_, c) => `[<a href="${urlOf(c)}" target="_blank" rel="noopener" title="Open ${c} on nextgenscience.org">${c}</a>]`);
+  const a = (c) => `<a href="${urlOf(c)}" target="_blank" rel="noopener" title="Open ${c} on nextgenscience.org">${c}</a>`;
+  return esc(text).replace(ANY_CODE, (m, inBrackets, plain) => inBrackets ? `[${a(inBrackets)}]` : peByCode.has(plain) ? a(plain) : m);
 }
-function fill(box, { text, note, heard, pes, open }) {
+// short paragraphs and numbered or bulleted lists, nothing else
+function render(text) {
+  const blocks = []; let list = null;
+  for (const raw of String(text).split('\n')) {
+    const line = raw.trim(), m = line.match(/^(\d+[.)]|[-•])\s+(.*)$/);
+    if (m) {
+      const tag = /\d/.test(m[1]) ? 'ol' : 'ul';
+      if (!list || list.tag !== tag) { list = { tag, items: [] }; blocks.push(list); }
+      list.items.push(m[2]); continue;
+    }
+    list = null;
+    if (line) blocks.push(line);
+  }
+  return blocks.map((b) => typeof b === 'string' ? `<p>${linkCodes(b)}</p>` : `<${b.tag}>${b.items.map((i) => `<li>${linkCodes(i)}</li>`).join('')}</${b.tag}>`).join('');
+}
+// says where an answer came from: lines with a code are NGSS text, the rest is not
+function keyFor(text, kind) {
+  if (kind === 'chat' || kind === 'other') return '';
+  // (no lookbehind in regexes here: older iPads can't read them)
+  const lines = String(text).replace(/([.!?])\s+/g, '$1\n').split('\n').filter((l) => /[a-z]{3}/i.test(l));
+  const coded = lines.filter((l) => /\[[A-Z0-9][A-Z0-9-]*\d\]|\b(K-2|3-5|K|[1-5]|MS|HS)-(PS|LS|ESS|ETS)\d-\d+\b/.test(l)).length;
+  if (coded === lines.length) return '';
+  return coded ? 'Lines with a code come from that standard. The rest is general science or teaching advice.' : 'This is general science and teaching advice, not text from the NGSS.';
+}
+function fill(box, { text, note, heard, pes, open, kind, related }) {
   box.classList.remove('thinking');
-  const src = pes.length ? `<div class="src"><span>From the NGSS:</span>${pes.map((p) => `<a href="${urlOf(p.c)}" target="_blank" rel="noopener">${esc(p.c)} ↗</a>`).join('')}</div>
+  const src = pes.length ? `<div class="src"><span>${related ? 'Related standards:' : 'From the NGSS:'}</span>${pes.map((p) => `<a href="${urlOf(p.c)}" target="_blank" rel="noopener">${esc(p.c)} ↗</a>`).join('')}</div>
     <details${open ? ' open' : ''}><summary>Show the standard${pes.length > 1 ? 's' : ''}, word for word</summary>${standardCards(pes)}</details>` : '';
+  const key = kind ? keyFor(text, kind) : '';
   box.innerHTML = `<p class="who">Standards AI</p>${heard ? `<p class="heard">Looking at: <b>${esc(heard)}</b></p>` : ''}
-    <p class="text">${linkCodes(text)}</p>${note ? `<p class="note">${esc(note)}</p>` : ''}${src}`;
+    <div class="text">${render(text)}</div>${key ? `<p class="key">${esc(key)}</p>` : ''}${note ? `<p class="note">${esc(note)}</p>` : ''}${src}`;
 }
 function addTurn(q) {
   $('#intro')?.remove();
   const t = document.createElement('div');
   t.className = 'turn';
-  t.innerHTML = `<div class="me"><p>${esc(q)}</p></div><div class="ai thinking"><p class="who">Standards AI</p><p class="text">Reading the standards</p></div>`;
+  t.innerHTML = `<div class="me"><p>${esc(q)}</p></div><div class="ai thinking"><p class="who">Standards AI</p><p class="text">Thinking</p></div>`;
   chat.appendChild(t);
   t.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   return t.querySelector('.ai');
@@ -235,13 +267,15 @@ async function ask(q) {
   try {
     // a bare code needs no AI: the standard itself is the answer
     if (codesIn(q).length && q.replace(/[\s-]/g, '').length <= 12) {
-      fill(box, { text: local.length ? `Here is ${local[0].c}, word for word.` : NOT_COVERED, pes: local.slice(0, 1), open: true });
-      turns.push({ q, a: '' });
+      fill(box, { text: local.length ? `Here is ${local[0].c}, word for word [${local[0].c}].` : NO_MATCH, pes: local.slice(0, 1), open: true });
+      turns.push({ q, a: local.length ? `Here is ${local[0].c}, word for word [${local[0].c}].` : '' });
       return;
     }
     if (!aiWanted || aiOn === false) {
+      const hello = smallTalk(q);
+      if (hello) { fill(box, { text: hello, pes: [] }); return; }
       fill(box, {
-        text: local.length ? 'AI answers are off, so here are the standards that match, word for word.' : NOT_COVERED,
+        text: local.length ? 'AI answers are off, so here are the standards that match, word for word.' : NO_MATCH,
         note: aiWanted ? 'The AI server can’t be reached right now.' : 'Use “Turn on AI answers” at the top for a written answer.',
         heard: heard.changed ? heard.text : '', pes: local, open: true,
       });
@@ -254,19 +288,20 @@ async function ask(q) {
       fill(box, { text: 'That’s a lot of questions in one minute. Give it a moment, then ask again.', pes: local });
     } else if (out.answer) {
       // the standards the answer actually cites come first; the rest stay one click away
-      const cited = [...new Set([...out.answer.matchAll(/\[([A-Z0-9][A-Z0-9-]*\d)\]/g)].map((m) => m[1]))];
-      const shown = cited.length ? [...cited.map((c) => peByCode.get(c)).filter(Boolean), ...pes.filter((p) => !cited.includes(p.c))].slice(0, 5) : pes;
-      fill(box, { text: out.answer, heard: out.interpreted || '', pes: out.answer === NOT_COVERED ? pes.slice(0, 3) : shown });
+      const cited = [...new Set([...out.answer.matchAll(ANY_CODE)].map((m) => m[1] || m[2]).filter((c) => peByCode.has(c)))];
+      const shown = cited.length ? [...cited.map((c) => peByCode.get(c)).filter(Boolean), ...pes.filter((p) => !cited.includes(p.c))].slice(0, 5) : pes.slice(0, 3);
+      fill(box, { text: out.answer, heard: out.interpreted || '', pes: shown, kind: out.type || 'science', related: !cited.length });
       turns.push({ q, a: out.answer });
     } else if (out.status === 'unsupported') {
-      fill(box, { text: 'I couldn’t write an answer that sticks strictly to the standards for that one, so here they are, word for word.', heard: out.interpreted || '', pes: pes.length ? pes : local, open: true });
+      fill(box, { text: 'I couldn’t check that answer against the standards, so I won’t guess. Here are the standards that match, word for word. Try asking it another way.', heard: out.interpreted || '', pes: pes.length ? pes : local, open: true });
       turns.push({ q, a: '' });
     } else {
       fill(box, { text: 'AI answers are resting for today, so here are the standards that match, word for word.', note: 'The free daily allowance resets at midnight UTC.', pes: pes.length ? pes : local, open: true });
     }
   } catch {
     aiOn = false; setMeta();
-    fill(box, { text: local.length ? 'I can’t reach the AI right now, so here are the standards that match, word for word.' : NOT_COVERED, heard: heard.changed ? heard.text : '', pes: local, open: true });
+    const hello = smallTalk(q);
+    fill(box, hello ? { text: hello, pes: [] } : { text: local.length ? 'I can’t reach the AI right now, so here are the standards that match, word for word.' : NO_MATCH, heard: heard.changed ? heard.text : '', pes: local, open: true });
   } finally {
     busy = false; send.disabled = false;
     input.focus({ preventScroll: true });

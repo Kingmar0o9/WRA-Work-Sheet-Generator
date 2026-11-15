@@ -1,7 +1,8 @@
 # Standards AI server
 
 The page at `wrastem.com/standards-ai/` works on its own as a search of the full
-NGSS text. This small server adds the written answers. It runs on Cloudflare's
+NGSS text. This small server adds the chat: it explains science ideas in plain words,
+tells teachers what the NGSS expects at each grade, and suggests ways to teach it. It runs on Cloudflare's
 **free** Workers plan, and nothing in it can create a bill.
 
 ## Turn it on (one time, about 5 minutes)
@@ -46,8 +47,8 @@ All of this is in the Cloudflare dashboard (dash.cloudflare.com):
 | **Whether you are paying** | Manage Account → **Billing**. Your plan should say **Workers Free**. You only pay if you upgrade to Workers Paid yourself |
 
 Only questions that need a written answer reach the server. A bare code such as
-`MS-LS1-2`, and a question this browser already asked, are answered on the page
-and do not appear in the logs.
+`MS-LS1-2` is answered on the page and does not appear in the logs. "hi", "thanks" and
+"who are you" get a ready-made reply without using the AI (they show as `small_talk`).
 
 ## What happens when the free allowance runs out
 
@@ -75,21 +76,39 @@ A repeated question is served from a cache for a week and costs nothing.
    first, plus the two best from other grades, so the answer can say where a topic is taught.
 4. The page shows "Showing standards for ..." and jumps to the best match.
 
-## How it stays on the NGSS
+## How it answers
+
+It talks like a helpful colleague. Its main source is the NGSS; it may also use
+well-established general science (what a mitochondrion is) and common teaching ideas
+(group work, models, exit tickets). The two are always kept apart:
 
 1. The server holds its own copy of the NGSS text (`standards-ai/ngss.json`), all
    208 performance expectations with their clarification statements, assessment
    boundaries, practices, core ideas and crosscutting concepts.
 2. For each question it finds the matching performance expectations and gives the
-   model **only that text**, with instructions to use nothing else, cite every
-   sentence, and say "The NGSS text I have does not address that." otherwise.
-3. Before an answer goes out, every citation is checked against the text it was
-   given. An answer that cites anything else, or cites nothing, is thrown away and
-   the page shows the matching standards instead.
+   model that text. Anything the answer says the NGSS says must carry that
+   standard's code, like `[MS-LS1-2]`, which the page links to nextgenscience.org.
+3. Before an answer goes out, every sentence with a code is checked against the
+   standard it cites:
+   - quotes must appear word for word;
+   - assessment boundaries may be quoted, or put in plain words only if nearly every
+     word comes from the boundary itself;
+   - its science words must actually be in that standard. If not, a sentence that
+     claims to be the NGSS is cut, and a plain science sentence keeps its words but
+     loses the code;
+   - a grade that doesn't match the standard ("middle school" on a 4th-grade
+     standard) is corrected;
+   - a quote of NGSS text with no code gets the right code added.
+4. Lines without a code are general science or teaching advice, and the page says so
+   under each answer.
 
-The model itself (Llama, made by Meta) learned language from general text. It is
-not possible to train a model on the NGSS alone for free. These rules make it
-answer from the NGSS alone.
+Follow-up questions ("explain that more simply", "what about high school?") use the
+last three turns of the chat. The model (Llama, made by Meta) knows general science
+from its training; it is told never to make up codes, quotes, studies or links.
+
+The prompt also tells it, when a teacher asks for plant cell activities, that it may
+mention the WRA STEM Kits plant cell model in one sentence. To change that, edit rule
+11 of `SYSTEM` in `src/index.js` and deploy again.
 
 ## Keeping the standards text current
 
