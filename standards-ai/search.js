@@ -5,13 +5,14 @@
 const STOP = new Set(('a an and are as at be been by can could do does doing for from has have how i if in into is it its ' +
   'me my of on or our should so than that the their them then there these they this those to too us was we were what when ' +
   'where which who why will with would you your about tell explain show give list any all also much many more most need want ' +
-  'know does standard standards ngss performance expectation expectations students student teach teaching cover covers ' +
+  'know does standard standards ngss performance expectation expectations students student teach teaching cover covers hs ms ' +
   'assessment boundary boundaries clarification statement say says said mean means grade grades level middle high school ' +
   'elementary kindergarten kinder first second third fourth fifth sixth seventh eighth 1st 2nd 3rd 4th 5th 6th 7th 8th').split(' '));
 
 function stem(w) {
   if (w.length > 4 && w.endsWith('ies')) return w.slice(0, -3) + 'y';
   if (w.length > 4 && /(ches|shes|xes|sses)$/.test(w)) return w.slice(0, -2);
+  if (w.length > 5 && w.endsWith('oes')) return w.slice(0, -2); // volcanoes, potatoes
   if (w.length > 3 && w.endsWith('s') && !w.endsWith('ss') && !w.endsWith('us') && !w.endsWith('is')) return w.slice(0, -1);
   return w;
 }
@@ -36,9 +37,12 @@ const BANDS = [
   [/\b(fourth grade|grade 4|4th grade)\b/i, ['4', '3-5']],
   [/\b(fifth grade|grade 5|5th grade)\b/i, ['5', '3-5']],
   [/\b(elementary)\b/i, ['K', '1', '2', '3', '4', '5', 'K-2', '3-5']],
-  [/\b(middle school|grade [678]|[678]th grade|sixth|seventh|eighth)\b/i, ['MS']],
-  [/\b(high school|grades? (9|10|11|12)|(9|10|11|12)th grade|biology|chemistry|physics)\b/i, ['HS']],
+  [/\b(middle school|grade [678]|[678]th grade|sixth|seventh|eighth|ms)\b/i, ['MS']],
+  [/\b(high school|grades? (9|10|11|12)|(9|10|11|12)th grade|biology|chemistry|physics|hs)\b/i, ['HS']],
 ];
+// Grade bands a question asks for, e.g. ['MS'] for "middle school photosynthesis".
+export function bandsIn(query) { return BANDS.filter(([re]) => re.test(query)).flatMap(([, b]) => b); }
+export { bandOf };
 const bandOf = (code) => (code.startsWith('K-2') ? 'K-2' : code.startsWith('3-5') ? '3-5' : code.split('-')[0]);
 
 export function createIndex(data) {
@@ -116,7 +120,7 @@ export function search(index, query, limit = 8) {
   }
   // 2. ranked text match (BM25)
   const q = [...new Set(tokens(query.replace(CODE, ' ')).map((t) => fixWord(index, t)))];
-  const bands = BANDS.filter(([re]) => re.test(query)).flatMap(([, b]) => b);
+  const bands = bandsIn(query.replace(CODE, ' '));
   if (q.length) {
     const k1 = 1.2, b = 0.75;
     for (const d of docs) {

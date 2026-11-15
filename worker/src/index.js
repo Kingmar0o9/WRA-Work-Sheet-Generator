@@ -12,7 +12,7 @@
 //      page shows the matching standards instead.
 
 import data from '../../standards-ai/ngss.json';
-import { createIndex, search, sourceText, codesIn } from '../../standards-ai/search.js';
+import { createIndex, search, sourceText, codesIn, interpret, bandsIn, bandOf } from '../../standards-ai/search.js';
 
 const index = createIndex(data);
 
@@ -23,7 +23,7 @@ You may use ONLY the NGSS text given under SOURCES. You have no other knowledge,
 Rules:
 1. Every sentence must be supported by SOURCES. Do not add facts, examples, activities, lesson ideas, opinions, or explanations that are not in SOURCES.
 2. End each sentence with the code of the performance expectation it comes from, in square brackets, exactly as written in SOURCES, for example [MS-LS1-2].
-3. Use the standards' own wording where you can. Short quotes are good.
+3. When you say what a standard says, quote its exact words inside quotation marks. Never restate a clarification statement or assessment boundary in your own words, and never apply a sentence to a different part, organelle or grade than the one it names.
 4. If SOURCES do not answer the question, or the question is not about the science standards, reply with exactly this sentence and nothing else: ${NOT_COVERED}
 5. Write plainly for a teacher, in at most 150 words.`;
 
@@ -34,21 +34,38 @@ The text may be misspelled, scrambled, abbreviated or vague. Work out the scienc
 Reply with only one line of JSON and nothing else, in this form:
 {"keywords":"3 to 8 correctly spelled science words for the topic","grade":"K, 1, 2, 3, 4, 5, MS, HS or any"}
 Do not answer the question. Do not invent standard codes.`;
+// Workers AI models reply either as { response } or in the chat-completions shape.
+// A reply that is JSON may arrive already decoded into an object.
+const textOf = (r) => {
+  const v = r && (r.response ?? r.choices?.[0]?.message?.content);
+  return v == null ? '' : typeof v === 'string' ? v : JSON.stringify(v);
+};
+
 const GRADE_WORDS = { K: 'kindergarten', 1: 'first grade', 2: 'second grade', 3: 'third grade', 4: 'fourth grade', 5: 'fifth grade', MS: 'middle school', HS: 'high school' };
 
-async function route(env, q) {
+async function route(env, q, spell) {
   try {
+    // the spelling help (which can unscramble letters) goes along as a hint
+    const user = `Search text: "${q}"` + (spell ? `\nSpell-checked: "${spell}"` : '');
     const r = await env.AI.run(env.ROUTER_MODEL, {
-      messages: [{ role: 'system', content: ROUTER }, { role: 'user', content: q }],
+      messages: [{ role: 'system', content: ROUTER }, { role: 'user', content: user }],
       max_tokens: 60, temperature: 0,
     });
-    const m = String(r.response || '').match(/\{[\s\S]*?\}/);
-    const j = m ? JSON.parse(m[0]) : null;
-    const words = String(j?.keywords || '').replace(/[^a-zA-Z ,-]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120);
-    if (!words) return null;
-    const grade = GRADE_WORDS[String(j.grade || '').toUpperCase()] || '';
-    return { words, search: (words + ' ' + grade).trim() };
-  } catch { return null; }
+    // read the reply leniently: small models sometimes write slightly broken JSON
+    const raw = textOf(r);
+    let j = null;
+    try { j = JSON.parse((raw.match(/\{[\s\S]*\}/) || [''])[0]); } catch {
+      const kw = raw.match(/"keywords"\s*:\s*"([^"]*)/), gr = raw.match(/grade"?\s*:\s*"([^"]*)/);
+      j = kw ? { keywords: kw[1], grade: gr ? gr[1] : '' } : null;
+    }
+    const words = String(Array.isArray(j?.keywords) ? j.keywords.join(', ') : j?.keywords || '')
+      .replace(/\b\d+(st|nd|rd|th)\b/gi, ' ').replace(/[^a-zA-Z ,-]/g, ' ').replace(/\b(grade|grades|level|any|[a-z]{1,2})\b/gi, ' ')
+      .replace(/\s*,\s*(,\s*)*/g, ', ').replace(/\s+/g, ' ').replace(/^[ ,]+|[ ,]+$/g, '').slice(0, 120);
+    if (!words) { console.log(JSON.stringify({ router_unreadable: textOf(r).slice(0, 200) })); return null; }
+    const band = String(j.grade || '').toUpperCase().replace(/^GRADE\s*/, '');
+    const grade = GRADE_WORDS[band] || '';
+    return { words, band: GRADE_WORDS[band] ? band : '', search: (words + ' ' + grade).trim() };
+  } catch (err) { console.log(JSON.stringify({ router_error: String(err).slice(0, 300) })); return null; }
 }
 
 const CORS = {
@@ -82,7 +99,7 @@ export default {
     if (q.length < 3) return json({ error: 'empty' }, 400);
 
     const cache = caches.default;
-    const key = new Request('https://cache.standards-ai/ask?q=' + encodeURIComponent(normal(q)));
+    const key = new Request('https://cache.standards-ai/v6/ask?q=' + encodeURIComponent(normal(q)));
     const cached = await cache.match(key);
     if (cached) {
       console.log(JSON.stringify({ q, status: 'cached' }));
@@ -90,14 +107,28 @@ export default {
     }
 
     // Route: a typed code goes straight to its standard; anything else is interpreted first.
-    const routed = codesIn(q).length ? null : await route(env, q);
-    const seen = new Set(), hits = [];
-    for (const h of [...(routed ? search(index, routed.search, 5) : []), ...search(index, q, 5)]) {
+    const spell = interpret(index, q);
+    const routed = codesIn(q).length ? null : await route(env, q, spell.changed ? spell.text : '');
+    // when the spelling help fixed the words (even unscrambled them), that is the topic
+    const agrees = spell.changed && routed && spell.text.split(' ').every((w) => routed.words.toLowerCase().includes(w));
+    const topic = (spell.changed && (!routed || agrees)) ? spell.text : routed ? routed.words : spell.changed ? spell.text : '';
+    const seen = new Set();
+    let hits = [];
+    for (const h of [...(spell.changed ? search(index, spell.text + ' ' + q, 6) : []),
+      ...(routed ? search(index, routed.search, 6) : []), ...search(index, q, 6)]) {
       if (!seen.has(h.pe.c)) { seen.add(h.pe.c); hits.push(h); }
     }
-    hits.splice(5);
+    // a grade band in the question (or worked out by the router) keeps only that band, if it has matches
+    const bands = [...bandsIn(q), ...(routed && routed.band ? (['K', '1', '2'].includes(routed.band) ? [routed.band, 'K-2'] : ['3', '4', '5'].includes(routed.band) ? [routed.band, '3-5'] : [routed.band]) : [])];
+    if (bands.length) {
+      // that grade's standards first, then the two best from other grades, so the answer can
+      // point to where a topic is actually taught when the asked-for grade doesn't cover it
+      const inBand = hits.filter((h) => bands.includes(bandOf(h.pe.c)));
+      if (inBand.length) hits = [...inBand.slice(0, 4), ...hits.filter((h) => !bands.includes(bandOf(h.pe.c))).slice(0, 2)];
+    }
+    hits.splice(6);
     const sources = hits.map((h) => h.pe.c);
-    const interpreted = routed ? routed.words : null;
+    const interpreted = topic || null;
     if (!hits.length) {
       console.log(JSON.stringify({ q, interpreted, sources, status: 'no_match' }));
       return json({ answer: NOT_COVERED, sources, interpreted, status: 'no_match' });
@@ -109,12 +140,14 @@ export default {
       const r = await env.AI.run(env.MODEL, {
         messages: [
           { role: 'system', content: SYSTEM },
-          { role: 'user', content: `SOURCES (the only text you may use):\n\n${context}\n\nQUESTION: ${q}${interpreted ? `\n(The question is about: ${interpreted})` : ''}` },
+          { role: 'user', content: `SOURCES (the only text you may use):\n\n${context}\n\nQUESTION: ${
+            interpreted && q.split(/\s+/).length <= 3 ? `What do these standards say about ${interpreted}?`
+              : q + (interpreted ? `\n(The question is about: ${interpreted})` : '')}` },
         ],
         max_tokens: 380,
         temperature: 0.1,
       });
-      answer = String(r.response || '').trim();
+      answer = textOf(r).trim();
     } catch (err) {
       // most often the free daily allowance is used up; the page falls back to search results
       status = 'ai_unavailable';
@@ -124,12 +157,14 @@ export default {
 
     // Keep the answer only if every citation points at text it was given.
     const cited = [...answer.matchAll(/\[([A-Z0-9][A-Z0-9-]*\d)\]/g)].map((m) => m[1]);
+    // a cited answer sometimes trails off with the refusal sentence; drop that line
+    if (cited.length && !answer.startsWith(NOT_COVERED)) answer = answer.split(NOT_COVERED).join('').trim();
     if (answer.startsWith(NOT_COVERED)) { answer = NOT_COVERED; status = 'not_covered'; }
     else if (!cited.length || cited.some((c) => !sources.includes(c))) { answer = null; status = 'unsupported'; }
 
     console.log(JSON.stringify({ q, interpreted, sources, status }));
     const res = json({ answer, sources, interpreted, status });
-    if (answer) ctx.waitUntil(cache.put(key, new Response(res.clone().body, { headers: { 'Cache-Control': 'max-age=604800' } })));
+    if (status === 'ok') ctx.waitUntil(cache.put(key, new Response(res.clone().body, { headers: { 'Cache-Control': 'max-age=604800' } })));
     return res;
   },
 };

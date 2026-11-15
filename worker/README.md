@@ -63,6 +63,18 @@ About how many answers a day fit in the free allowance:
 
 A repeated question is served from a cache for a week and costs nothing.
 
+## How it finds the right standard
+
+1. **Spelling help (in the browser and on the server):** a word the standards never use is
+   swapped for the closest one they do, including swapped or fully scrambled letters
+   (`mitocondria`, `mtiochondira`, `aidnorhcotim` all become `mitochondria`).
+2. **Routing (server):** a small, cheap model (`ROUTER_MODEL`) works out what a messy search
+   meant ("the powerhouse thing in cells" -> mitochondria) and which grade band. It does not
+   answer anything.
+3. The search runs on those words. A grade band in the question keeps that band's standards
+   first, plus the two best from other grades, so the answer can say where a topic is taught.
+4. The page shows "Showing standards for ..." and jumps to the best match.
+
 ## How it stays on the NGSS
 
 1. The server holds its own copy of the NGSS text (`standards-ai/ngss.json`), all
