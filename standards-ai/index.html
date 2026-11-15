@@ -188,7 +188,10 @@ function routeToBest() {
   if (!best) return;
   best.classList.add('best');
   best.insertAdjacentHTML('afterbegin', '<span class="bestlabel">Best match</span>');
-  best.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  // land on the written answer when there is one (the best match sits right under it)
+  const answer = $('#answer');
+  const target = answer.hidden ? best : answer;
+  target.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
 }
 
 function renderResults(hits, q, heard) {
@@ -243,8 +246,8 @@ let aiOn = null; // null = still checking, true / false once the server answers 
 // quick in-browser match, and the page jumps to the best one.
 function useServer(out, q) {
   const pes = (out.sources || []).map((c) => data.pe.find((p) => p.c === c)).filter(Boolean);
-  if (pes.length) { renderResults(pes.map((pe) => ({ pe })), q, out.interpreted || ''); routeToBest(); }
   if (out.answer) showAnswer('done', out.answer); else $('#answer').hidden = true;
+  if (pes.length) { renderResults(pes.map((pe) => ({ pe })), q, out.interpreted || ''); routeToBest(); }
 }
 
 async function ask(q) {
@@ -254,7 +257,7 @@ async function ask(q) {
   const hits = search(index, q, 8);
   const heard = interpret(index, q);
   renderResults(hits, q, heard.changed ? heard.text : '');
-  if (hits.length) routeToBest();
+  if (hits.length && (!aiWanted || aiOn === false || codesIn(q).length)) routeToBest();
   // nothing found here and no AI to interpret it: say so
   if (!hits.length && (aiOn === false || !aiWanted)) { showAnswer('done', NOT_COVERED); return; }
   // a bare code needs no AI: the standard itself is the answer
