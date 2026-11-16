@@ -1,8 +1,9 @@
 # Standards AI server
 
 The page at `wrastem.com/standards-ai/` works on its own as a search of the full
-NGSS text. This small server adds the chat: it explains science ideas in plain words,
-tells teachers what the NGSS expects at each grade, and suggests ways to teach it. It runs on Cloudflare's
+NGSS text. This small server adds the chat: a teaching assistant that explains science ideas
+in plain words (and again another way if they don't click), helps teachers explain them to
+students, plans lessons with them, and shows where each idea is in the NGSS. It runs on Cloudflare's
 **free** Workers plan, and nothing in it can create a bill.
 
 ## Turn it on (one time, about 5 minutes)
@@ -80,7 +81,7 @@ About how many answers a day fit in the free allowance:
 
 | Model (in `wrangler.jsonc`) | Answers a day | Notes |
 |---|---|---|
-| `@cf/meta/llama-3.3-70b-instruct-fp8-fast` (current) | about 60 | Follows the rules most strictly |
+| `@cf/meta/llama-3.3-70b-instruct-fp8-fast` (current) | about 50 to 70 | Follows the rules most strictly |
 | `@cf/meta/llama-3.1-8b-instruct-fp8-fast` | about 400 | Less careful; more answers get thrown out by the citation check |
 
 A repeated question is served from a cache for a week and costs nothing.
@@ -99,37 +100,57 @@ A repeated question is served from a cache for a week and costs nothing.
 
 ## How it answers
 
-It talks like a helpful colleague. Its main source is the NGSS; it may also use
-well-established general science (what a mitochondrion is) and common teaching ideas
-(group work, models, exit tickets). The two are always kept apart:
+It talks like a friendly teaching assistant: the answer first, in plain words, then the facts.
+The server picks one of these modes for each message and tells the model which one:
 
-1. The server holds its own copy of the NGSS text (`standards-ai/ngss.json`), all
-   208 performance expectations with their clarification statements, assessment
-   boundaries, practices, core ideas and crosscutting concepts.
-2. For each question it finds the matching performance expectations and gives the
-   model that text. Anything the answer says the NGSS says must carry that
-   standard's code, like `[MS-LS1-2]`, which the page links to nextgenscience.org.
-3. Before an answer goes out, every sentence with a code is checked against the
-   standard it cites:
-   - quotes must appear word for word;
-   - assessment boundaries may be quoted, or put in plain words only if nearly every
-     word comes from the boundary itself;
-   - its science words must actually be in that standard. If not, a sentence that
-     claims to be the NGSS is cut, and a plain science sentence keeps its words but
-     loses the code;
-   - a grade that doesn't match the standard ("middle school" on a 4th-grade
-     standard) is corrected;
-   - a quote of NGSS text with no code gets the right code added.
-4. Lines without a code are general science or teaching advice, and the page says so
-   under each answer.
+| Mode | When | What the answer looks like |
+|---|---|---|
+| explain | "What are mitochondria?" | 1–2 sentence answer, 3–4 bullet facts, an everyday comparison, one sentence on where it is in the NGSS, one offer of a next step |
+| again | "I don't get it", "simpler", "huh?" | The same idea in new, simpler words with a different comparison, then "Does that make more sense?" As many times as asked |
+| students | "How do I explain this to my 6th graders?" | Say it like this / Try this / Ask the class / Watch for |
+| teaching | "My students are bored" | 2–3 concrete ideas, then one question back |
+| plan-ask | "Help me plan an activity on cells" (grade unknown) | 2–3 short questions: grade or age, time, materials |
+| plan-write | after they answer, or "just pick for me" | Goal, You'll need, Steps with times, Questions to ask, Quick check |
 
-Follow-up questions ("explain that more simply", "what about high school?") use the
-last three turns of the chat. The model (Llama, made by Meta) knows general science
-from its training; it is told never to make up codes, quotes, studies or links.
+Follow-ups use the last six turns of the chat.
 
-The prompt also tells it, when a teacher asks for plant cell activities, that it may
-mention the WRA STEM Kits plant cell model in one sentence. To change that, edit rule
-11 of `SYSTEM` in `src/index.js` and deploy again.
+### Where the facts come from
+
+1. **Science notes** (`standards-ai/science.json`): short, checked explanations of about 60
+   common K–12 topics (cells and their parts, photosynthesis, forces, the water cycle,
+   plate tectonics and more), each with key facts, an everyday comparison and common mix-ups.
+   The matching notes go to the model with every question so the science is right. They are
+   general science, never cited as the NGSS. To add or fix a topic, edit the file (`a` is the
+   list of words that find it) and deploy again.
+2. **The NGSS text** (`standards-ai/ngss.json`): all 208 performance expectations with their
+   clarification statements, assessment boundaries, practices, core ideas and crosscutting
+   concepts. For each question the server finds the matching standards and gives the model
+   that text.
+3. The model's own general science knowledge and common teaching ideas fill the gaps. It is
+   told never to make up codes, quotes, studies or links.
+
+### How the NGSS part is checked
+
+Anything the answer says the NGSS says must carry that standard's code, like `[MS-LS1-2]`.
+Before an answer goes out, every sentence with a code is checked against the standard it cites:
+
+- quotes must appear word for word;
+- assessment boundaries may be quoted, or put in plain words only if nearly every word comes
+  from the boundary itself;
+- its science words must actually be in that standard. If not, a sentence that claims to be
+  the NGSS is cut, and a plain science sentence keeps its words but loses the code;
+- a grade that doesn't match the standard ("middle school" on a 4th-grade standard, or
+  "7th grade" where the NGSS says middle school) is corrected;
+- a quote of NGSS text with no code gets the right code added.
+
+The page hides the codes inside the answer, so it reads like normal conversation. Under the
+answer, **Find it in the NGSS** opens the standard it used at the exact spot where the topic
+appears (for mitochondria, the clarification statement of MS-LS1-2), with the word highlighted,
+the whole standard one tap away, and a link to nextgenscience.org.
+
+The prompt also tells it, when a teacher plans something on plant cells, that it may mention
+the WRA STEM Kits plant cell model in one sentence. To change that, edit the last line of
+`SYSTEM` in `src/index.js` and deploy again.
 
 ## Keeping the standards text current
 

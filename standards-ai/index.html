@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
 <title>Standards AI · WRA STEM Kits</title>
-<meta name="description" content="Ask what a science idea means, what students learn about it at each grade, or how to teach it. Plain-language answers that link every NGSS standard they use.">
+<meta name="description" content="A friendly teaching assistant for science teachers: clear answers first, then the facts, plus the exact spot in the NGSS. Ask what something is, how to explain it to students, or for help planning a lesson.">
 <meta name="theme-color" content="#124A2B">
 <link rel="canonical" href="https://wrastem.com/standards-ai/">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="WRA STEM Kits">
 <meta property="og:url" content="https://wrastem.com/standards-ai/">
 <meta property="og:title" content="Standards AI · WRA STEM Kits">
-<meta property="og:description" content="Ask what a science idea means, what students learn about it at each grade, or how to teach it. Plain-language answers that link every NGSS standard they use.">
+<meta property="og:description" content="A friendly teaching assistant for science teachers: clear answers first, then the facts, plus the exact spot in the NGSS. Ask what something is, how to explain it to students, or for help planning a lesson.">
 <meta property="og:image" content="https://wrastem.com/assets/img/social-card.jpg?v=20261115b">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -73,23 +73,46 @@ main{flex:1 0 auto;padding:22px 0 12px}
 .ai{margin-top:12px;max-width:100%}
 .ai .who{font-size:.78rem;font-weight:800;letter-spacing:.02em;color:var(--ink-2);margin-bottom:4px}
 .ai .text{font-size:1.06rem;line-height:1.6}
-.ai .text a{font-weight:800;white-space:nowrap}
+.ai .text strong{font-weight:800}
 .ai .text p+p,.ai .text p+ol,.ai .text p+ul,.ai .text ol+p,.ai .text ul+p{margin-top:.6em}
 .ai .text ol,.ai .text ul{margin:.5em 0 0;padding-left:1.5em}
 .ai .text li+li{margin-top:.35em}
-.ai .key{margin-top:8px;font-size:.8rem;color:var(--ink-2)}
 .ai .note{margin-top:6px;font-size:.88rem;color:var(--ink-2)}
 .ai .heard{font-size:.85rem;color:var(--ink-2);margin-bottom:6px}
 .ai.thinking .text{color:var(--ink-2)}
 .ai.thinking .text::after{content:"";display:inline-block;width:1.2em;text-align:left;animation:dots 1.2s steps(4) infinite}
 @keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
-.src{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.src span{font-size:.78rem;font-weight:800;color:var(--ink-2);margin-right:2px}
-.src a{display:inline-flex;align-items:center;gap:4px;min-height:30px;padding:0 10px;border-radius:999px;background:var(--tint);border:1px solid var(--line);font-size:.82rem;font-weight:700;text-decoration:none}
-.src a:hover{border-color:var(--ink)}
-.ai details{margin-top:8px;font-size:.92rem}
-.ai summary{cursor:pointer;font-weight:700;color:var(--ink-2)}
-.pe{padding:12px 0;border-bottom:1px solid var(--line)}
+.reveal>*{animation:rise .42s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.reveal>*{animation:none}}
+
+/* "Find it in the NGSS": the exact spot in the standard, one tap away */
+.find{margin-top:14px;border:2px solid var(--line);border-radius:16px;background:#fff;overflow:hidden}
+.find-btn{width:100%;display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 14px;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.find-btn:hover{background:var(--tint)}
+.find-btn .pin{flex:none;width:30px;height:30px;border-radius:999px;background:var(--leaf);color:var(--on-leaf);display:grid;place-items:center}
+.find-btn .pin svg{width:16px;height:16px}
+.find-btn .lbl{display:block;font-weight:800;font-size:.95rem;line-height:1.2}
+.find-btn .sub{display:block;font-size:.8rem;color:var(--ink-2);line-height:1.3;margin-top:2px}
+.find-btn .chev{flex:none;margin-left:auto;width:18px;height:18px;transition:transform .2s}
+.find-btn[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.find:has(.find-btn:hover){border-color:var(--ink)}
+.spot{border-top:1px solid var(--line);padding:4px 16px 14px}
+.spot-pe{padding:12px 0}
+.spot-pe+.spot-pe{border-top:1px dashed var(--line)}
+.spot-head{font-size:.82rem;color:var(--ink-2)}
+.spot-head b{color:var(--ink);font-size:.95rem;margin-right:4px}
+.spot-where{margin-top:10px;font-size:.74rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--leaf)}
+.spot blockquote{margin:4px 0 0;padding:8px 12px;border-left:4px solid var(--sun);background:var(--stock);border-radius:0 10px 10px 0;font-size:.95rem;line-height:1.5}
+.spot mark{background:rgba(246,195,67,.55);color:inherit;padding:0 2px;border-radius:3px;font-weight:700}
+.spot .none{margin-top:8px;font-size:.85rem;color:var(--ink-2)}
+.spot details{margin-top:10px;font-size:.9rem}
+.spot summary{cursor:pointer;font-weight:700;color:var(--ink-2)}
+.spot .official{display:inline-block;margin-top:10px;font-size:.85rem;font-weight:700}
+.chips{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.chips button{min-height:38px;padding:6px 14px;border-radius:999px;border:2px solid var(--line);background:transparent;color:var(--ink);font:700 .86rem/1.25 var(--sans);cursor:pointer;text-align:left}
+.chips button:hover{border-color:var(--ink);background:#fff}
+.pe{padding:12px 0}
 .pe h3{margin:0;font-size:1rem;font-weight:800}
 .pe h3 small{font-weight:600;color:var(--ink-2);margin-left:6px}
 .pe .s{margin-top:4px}
@@ -131,14 +154,14 @@ form:focus-within{outline:3px solid var(--sun);outline-offset:2px}
 <main>
   <div class="wrap" id="chat" aria-live="polite">
     <section class="intro" id="intro">
-      <h1>Ask anything about teaching science.</h1>
+      <h1>Your science teaching assistant.</h1>
       <p class="for">Standards AI, for use with the Next Generation Science Standards*</p>
-      <p class="lede">Ask what a science idea means, what students learn about it at each grade, or how to teach it. Answers are short and in plain words. Anything taken from the standards has its code in brackets, linked to the official text.</p>
+      <p class="lede">Ask what something is, how to explain it to your students, or for help planning a lesson. You get a clear answer first, then the facts. If it doesn’t click, just say so and it will explain it another way. Under each answer, “Find it in the NGSS” shows the exact spot in the standard.</p>
       <div class="starters">
         <button type="button">What are mitochondria?</button>
-        <button type="button">How should I teach photosynthesis in middle school?</button>
+        <button type="button">How do I explain photosynthesis to 6th graders?</button>
+        <button type="button">Help me plan a fun activity about cells</button>
         <button type="button">My students are bored learning about cells. Any ideas?</button>
-        <button type="button">What do kindergartners learn about weather?</button>
       </div>
       <p class="meta" id="meta">Loading the standards…</p>
     </section>
@@ -149,10 +172,10 @@ form:focus-within{outline:3px solid var(--sun);outline-offset:2px}
   <div class="wrap">
     <form id="ask-form" autocomplete="off">
       <label for="q">Your question</label>
-      <textarea id="q" rows="1" maxlength="300" placeholder="Ask a science or teaching question…" required></textarea>
+      <textarea id="q" rows="1" maxlength="300" placeholder="Ask anything, or say “I don’t get it”…" required></textarea>
       <button class="send" type="submit">Ask</button>
     </form>
-    <p class="fine">Lines with a code come from that NGSS standard. The rest is general science or teaching advice. Answers can be wrong. <a href="#about">About</a></p>
+    <p class="fine">Science explanations are general science. What it says about the NGSS is checked against the standard. Answers can be wrong. <a href="#about">About</a></p>
   </div>
 </div>
 
@@ -165,16 +188,16 @@ form:focus-within{outline:3px solid var(--sun);outline-offset:2px}
 </footer>
 
 <script type="module">
-import { createIndex, search, codesIn, interpret, smallTalk } from './search.js';
+import { createIndex, search, codesIn, interpret, smallTalk, tokens } from './search.js';
 
 const DATA_URL = 'ngss.json';
 const ENDPOINT = document.querySelector('meta[name="standards-ai-endpoint"]').content;
-const NO_MATCH = 'I couldn’t find a standard that matches. Try other words, or a code like MS-LS1-2.';
+const NO_MATCH = 'I couldn’t find a standard that matches that. Try other words, or a code like MS-LS1-2.';
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-let data, index, aiOn = null, pending = null, busy = false;
+let data, index, aiOn = null, pending = null, busy = false, spotN = 0;
 const turns = []; // { q, a } for follow-up questions
 const chat = $('#chat'), form = $('#ask-form'), input = $('#q'), send = form.querySelector('.send');
 const peByCode = new Map();
@@ -211,23 +234,14 @@ function setMeta() {
   const m = $('#meta'); if (m) m.textContent = `${data.count} performance expectations, K–12, copied from nextgenscience.org on ${when} · ${ai}`;
 }
 
-// ---- rendering one turn of the chat
-function standardCards(pes) {
-  return pes.map((pe) => `<div class="pe">
-    <h3>${esc(pe.c)}<small>${esc(pe.t)}</small></h3>
-    <p class="s">${esc(pe.s)}</p>
-    ${pe.cs ? `<p class="cs"><b>Clarification statement:</b> ${esc(pe.cs)}</p>` : ''}
-    ${pe.ab ? `<p class="ab"><b>Assessment boundary:</b> ${esc(pe.ab)}</p>` : ''}
-    <a href="${urlOf(pe.c)}" target="_blank" rel="noopener">Read ${esc(pe.c)} on nextgenscience.org ↗</a>
-  </div>`).join('');
-}
-// codes in brackets ([MS-LS1-2]) or written plainly ("as in MS-LS2-1") link to the official standard
+// ---- the answer text: short paragraphs, lists and bold labels. Standard codes in brackets are
+// left out of the words (the "Find it in the NGSS" button under the answer holds them).
 const ANY_CODE = /\[([A-Z0-9][A-Z0-9-]*\d)\]|\b((?:K-2|3-5|K|[1-5]|MS|HS)-(?:PS|LS|ESS|ETS)\d-\d+)\b/g;
-function linkCodes(text) {
-  const a = (c) => `<a href="${urlOf(c)}" target="_blank" rel="noopener" title="Open ${c} on nextgenscience.org">${c}</a>`;
-  return esc(text).replace(ANY_CODE, (m, inBrackets, plain) => inBrackets ? `[${a(inBrackets)}]` : peByCode.has(plain) ? a(plain) : m);
-}
-// short paragraphs and numbered or bulleted lists, nothing else
+const words = (t) => String(t)
+  // "...the standard [MS-LS1-2]" reads wrong without its code, so a code that is part of the sentence stays, plainly
+  .replace(/\b(in|by|see|under|standard|from|of|to|per|with)\s+\[([A-Z0-9][A-Z0-9-]*\d)\]/g, '$1 $2')
+  .replace(/\s*\[[A-Z0-9][A-Z0-9-]*\d\]/g, '').replace(/\s+([.,;:!?])/g, '$1');
+const inline = (t) => esc(words(t)).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*\*/g, '');
 function render(text) {
   const blocks = []; let list = null;
   for (const raw of String(text).split('\n')) {
@@ -240,27 +254,99 @@ function render(text) {
     list = null;
     if (line) blocks.push(line);
   }
-  return blocks.map((b) => typeof b === 'string' ? `<p>${linkCodes(b)}</p>` : `<${b.tag}>${b.items.map((i) => `<li>${linkCodes(i)}</li>`).join('')}</${b.tag}>`).join('');
+  return blocks.map((b, i) => (typeof b === 'string' ? `<p style="--i:${i}">${inline(b)}</p>`
+    : `<${b.tag} style="--i:${i}">${b.items.map((it) => `<li>${inline(it)}</li>`).join('')}</${b.tag}>`)).join('');
 }
-// says where an answer came from: lines with a code are NGSS text, the rest is not
-function keyFor(text, kind) {
-  if (kind === 'chat' || kind === 'other') return '';
-  // (no lookbehind in regexes here: older iPads can't read them)
-  const lines = String(text).replace(/([.!?])\s+/g, '$1\n').split('\n').filter((l) => /[a-z]{3}/i.test(l));
-  const coded = lines.filter((l) => /\[[A-Z0-9][A-Z0-9-]*\d\]|\b(K-2|3-5|K|[1-5]|MS|HS)-(PS|LS|ESS|ETS)\d-\d+\b/.test(l)).length;
-  if (coded === lines.length) return '';
-  return coded ? 'Lines with a code come from that standard. The rest is general science or teaching advice.' : 'This is general science and teaching advice, not text from the NGSS.';
+
+// ---- "Find it in the NGSS": the place in each standard where the topic appears, highlighted
+const KIND = { SEP: 'Science and engineering practice', DCI: 'Disciplinary core idea', CCC: 'Crosscutting concept' };
+const BAND = { K: 'Kindergarten', 1: '1st grade', 2: '2nd grade', 3: '3rd grade', 4: '4th grade', 5: '5th grade', 'K-2': 'Grades K–2', '3-5': 'Grades 3–5', MS: 'Middle school', HS: 'High school' };
+const bandName = (c) => BAND[c.startsWith('K-2') ? 'K-2' : c.startsWith('3-5') ? '3-5' : c.split('-')[0]] || '';
+const partsOf = (pe) => [['The performance expectation', pe.s], pe.cs && ['Clarification statement', pe.cs], pe.ab && ['Assessment boundary', pe.ab],
+  ...pe.e.map((j) => { const [k, h, t] = data.el[j]; return [`${KIND[k]}: ${h}`, t]; })].filter(Boolean);
+const root = (w) => (w.length >= 6 ? w.slice(0, 6) : w);
+function matcher(focus) {
+  const roots = new Set(focus.map(root));
+  return (w) => { const t = tokens(w)[0]; return !!t && roots.has(root(t)); };
 }
-function fill(box, { text, note, heard, pes, open, kind, related }) {
+const highlight = (text, match) => String(text).split(/([A-Za-z]+)/).map((p, i) => (i % 2 && match(p) ? `<mark>${esc(p)}</mark>` : esc(p))).join('');
+// topic words of a question: words the standards use, but not in so many standards that they say nothing
+const topical = (text) => [...new Set(tokens(text))].filter((w) => index.df.has(w) && index.df.get(w) <= 30);
+
+function standardCard(pe) {
+  return `<div class="pe">
+    <p class="s">${esc(pe.s)}</p>
+    ${pe.cs ? `<p class="cs"><b>Clarification statement:</b> ${esc(pe.cs)}</p>` : ''}
+    ${pe.ab ? `<p class="ab"><b>Assessment boundary:</b> ${esc(pe.ab)}</p>` : ''}
+  </div>`;
+}
+// The standards to show: the ones the answer used, then any other match that actually uses the topic's words.
+function spotsFor(cited, others, focus) {
+  const match = matcher(focus);
+  const found = (pe) => partsOf(pe).filter(([, t]) => t.split(/[^A-Za-z]+/).some(match));
+  const list = [...cited.map((pe) => ({ pe, hits: found(pe), cited: true })),
+    ...others.filter((pe) => !cited.includes(pe)).map((pe) => ({ pe, hits: focus.length ? found(pe) : [], cited: false })).filter((x) => x.hits.length)];
+  return { list: list.slice(0, 3), match };
+}
+function findPanel({ cited, others, focus, open }) {
+  const { list, match } = spotsFor(cited, others, focus);
+  if (!list.length) return '';
+  const id = `spot-${++spotN}`;
+  const term = focus.length && list.some((x) => x.hits.length) ? focus[0] : '';
+  const sub = `${list.map((x) => x.pe.c).join(', ')}${term ? ` · where it talks about “${esc(term)}”` : ''}`;
+  const body = list.map(({ pe, hits }) => {
+    const shown = hits.length ? hits.slice(0, 2) : [partsOf(pe)[0]];
+    return `<div class="spot-pe">
+      <p class="spot-head"><b>${esc(pe.c)}</b> ${esc(bandName(pe.c))} · ${esc(pe.t)}</p>
+      ${shown.map(([where, t]) => `<p class="spot-where">${esc(where)}</p><blockquote>${highlight(t, match)}</blockquote>`).join('')}
+      ${!hits.length && focus.length ? `<p class="none">This standard covers the bigger idea; it doesn’t use the word “${esc(focus[0])}”.</p>` : ''}
+      <details><summary>Read the whole standard</summary>${standardCard(pe)}</details>
+      <a class="official" href="${urlOf(pe.c)}" target="_blank" rel="noopener">Open ${esc(pe.c)} on nextgenscience.org ↗</a>
+    </div>`;
+  }).join('');
+  return `<div class="find">
+    <button type="button" class="find-btn" aria-expanded="${open ? 'true' : 'false'}" aria-controls="${id}">
+      <span class="pin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z" fill="currentColor"/><circle cx="12" cy="10" r="2.6" fill="var(--leaf)"/></svg></span>
+      <span><span class="lbl">Find it in the NGSS</span><span class="sub">${sub}</span></span>
+      <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="spot" id="${id}"${open ? '' : ' hidden'}>${body}</div>
+  </div>`;
+}
+chat.addEventListener('click', (e) => {
+  const btn = e.target.closest('.find-btn');
+  if (btn) {
+    const open = btn.getAttribute('aria-expanded') !== 'true';
+    btn.setAttribute('aria-expanded', String(open));
+    document.getElementById(btn.getAttribute('aria-controls')).hidden = !open;
+    return;
+  }
+  const chip = e.target.closest('.chips button');
+  if (chip && !busy) ask(chip.textContent);
+});
+
+// ---- follow-ups the teacher can tap, so the conversation keeps going
+const CHIPS = {
+  explain: ['I don’t get it. Explain it more simply', 'How do I explain this to my students?', 'Give me a fun activity for this'],
+  again: ['Still confused. Try another way', 'Got it! How do I explain it to my students?'],
+  students: ['Turn this into a lesson plan', 'Give me 3 quiz questions on this'],
+  teaching: ['Help me plan a lesson', 'Give me a quick game idea'],
+  'plan-ask': ['Just pick for me'],
+  'plan-write': ['Make it shorter', 'Turn it into a game', 'Make it harder'],
+};
+const chipsFor = (mode) => (CHIPS[mode] || []).map((c) => `<button type="button">${esc(c)}</button>`).join('');
+
+// ---- one turn of the chat
+function fill(box, { text, note, heard, cited = [], others = [], focus = [], open = false, mode = '' }) {
   box.classList.remove('thinking');
-  const src = pes.length ? `<div class="src"><span>${related ? 'Related standards:' : 'From the NGSS:'}</span>${pes.map((p) => `<a href="${urlOf(p.c)}" target="_blank" rel="noopener">${esc(p.c)} ↗</a>`).join('')}</div>
-    <details${open ? ' open' : ''}><summary>Show the standard${pes.length > 1 ? 's' : ''}, word for word</summary>${standardCards(pes)}</details>` : '';
-  const key = kind ? keyFor(text, kind) : '';
+  const chips = chipsFor(mode);
   box.innerHTML = `<p class="who">Standards AI</p>${heard ? `<p class="heard">Looking at: <b>${esc(heard)}</b></p>` : ''}
-    <div class="text">${render(text)}</div>${key ? `<p class="key">${esc(key)}</p>` : ''}${note ? `<p class="note">${esc(note)}</p>` : ''}${src}`;
+    <div class="text${reduceMotion ? '' : ' reveal'}">${render(text)}</div>${note ? `<p class="note">${esc(note)}</p>` : ''}
+    ${mode === 'plan-ask' ? '' : findPanel({ cited, others, focus, open })}${chips ? `<div class="chips" aria-label="Ask next">${chips}</div>` : ''}`;
 }
 function addTurn(q) {
   $('#intro')?.remove();
+  chat.querySelectorAll('.chips').forEach((c) => c.remove()); // only the latest answer offers next steps
   const t = document.createElement('div');
   t.className = 'turn';
   t.innerHTML = `<div class="me"><p>${esc(q)}</p></div><div class="ai thinking"><p class="who">Standards AI</p><p class="text">Thinking</p></div>`;
@@ -278,44 +364,46 @@ async function ask(q) {
   const box = addTurn(q);
   const local = search(index, q, 5).map((h) => h.pe);
   const heard = interpret(index, q);
+  const localFocus = topical(heard.changed ? heard.text : q).slice(0, 3);
   try {
     // a bare code needs no AI: the standard itself is the answer
     if (codesIn(q).length && q.replace(/[\s-]/g, '').length <= 12) {
-      fill(box, { text: local.length ? `Here is ${local[0].c}, word for word [${local[0].c}].` : NO_MATCH, pes: local.slice(0, 1), open: true });
+      const text = local.length ? `Here’s ${local[0].c}, word for word. Tap below to read it, or ask me what it means in plain words.` : NO_MATCH;
+      fill(box, { text, cited: local.slice(0, 1), open: true });
       turns.push({ q, a: local.length ? `Here is ${local[0].c}, word for word [${local[0].c}].` : '' });
       return;
     }
     if (!aiWanted || aiOn === false) {
       const hello = smallTalk(q);
-      if (hello) { fill(box, { text: hello, pes: [] }); return; }
+      if (hello) { fill(box, { text: hello }); return; }
       fill(box, {
         text: local.length ? 'AI answers are off, so here are the standards that match, word for word.' : NO_MATCH,
         note: aiWanted ? 'The AI server can’t be reached right now.' : 'Use “Turn on AI answers” at the top for a written answer.',
-        heard: heard.changed ? heard.text : '', pes: local, open: true,
+        heard: heard.changed ? heard.text : '', cited: local.slice(0, 3), focus: localFocus, open: true,
       });
       return;
     }
-    const res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q, history: turns.slice(-3) }) });
+    const res = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q, history: turns.slice(-6) }) });
     const out = await res.json().catch(() => ({}));
     const pes = (out.sources || []).map((c) => peByCode.get(c)).filter(Boolean);
+    const focus = (out.focus && out.focus.length ? out.focus : localFocus);
     if (res.status === 429) {
-      fill(box, { text: 'That’s a lot of questions in one minute. Give it a moment, then ask again.', pes: local });
+      fill(box, { text: 'That’s a lot of questions in one minute. Give it a moment, then ask again.' });
     } else if (out.answer) {
-      // the standards the answer actually cites come first; the rest stay one click away
-      const cited = [...new Set([...out.answer.matchAll(ANY_CODE)].map((m) => m[1] || m[2]).filter((c) => peByCode.has(c)))];
-      const shown = cited.length ? [...cited.map((c) => peByCode.get(c)).filter(Boolean), ...pes.filter((p) => !cited.includes(p.c))].slice(0, 5) : pes.slice(0, 3);
-      fill(box, { text: out.answer, heard: out.interpreted || '', pes: shown, kind: out.type || 'science', related: !cited.length });
+      // the standards the answer actually used; other matches show only if they use the topic's words
+      const cited = [...new Set([...out.answer.matchAll(ANY_CODE)].map((m) => m[1] || m[2]).filter((c) => peByCode.has(c)))].map((c) => peByCode.get(c));
+      fill(box, { text: out.answer, heard: out.interpreted || '', cited, others: pes, focus, mode: out.mode || (out.type === 'chat' ? '' : 'explain') });
       turns.push({ q, a: out.answer });
     } else if (out.status === 'unsupported') {
-      fill(box, { text: 'I couldn’t check that answer against the standards, so I won’t guess. Here are the standards that match, word for word. Try asking it another way.', heard: out.interpreted || '', pes: pes.length ? pes : local, open: true });
+      fill(box, { text: 'I couldn’t check that answer against the standards, so I won’t guess. Try asking it another way. Here’s where the topic shows up in the NGSS.', heard: out.interpreted || '', cited: (pes.length ? pes : local).slice(0, 2), focus, open: true });
       turns.push({ q, a: '' });
     } else {
-      fill(box, { text: 'AI answers are resting for today, so here are the standards that match, word for word.', note: 'The free daily allowance resets at midnight UTC.', pes: pes.length ? pes : local, open: true });
+      fill(box, { text: 'AI answers are resting for today, so here are the standards that match, word for word.', note: 'The free daily allowance resets at midnight UTC.', cited: (pes.length ? pes : local).slice(0, 3), focus, open: true });
     }
   } catch {
     aiOn = false; setMeta();
     const hello = smallTalk(q);
-    fill(box, hello ? { text: hello, pes: [] } : { text: local.length ? 'I can’t reach the AI right now, so here are the standards that match, word for word.' : NO_MATCH, heard: heard.changed ? heard.text : '', pes: local, open: true });
+    fill(box, hello ? { text: hello } : { text: local.length ? 'I can’t reach the AI right now, so here are the standards that match, word for word.' : NO_MATCH, heard: heard.changed ? heard.text : '', cited: local.slice(0, 3), focus: localFocus, open: true });
   } finally {
     busy = false; send.disabled = false;
     input.focus({ preventScroll: true });

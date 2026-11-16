@@ -1,54 +1,103 @@
 // Standards AI server (Cloudflare Worker, free plan).
 //
 // POST /ask {"q": "...", "history": [{q, a}]}
-//   ->  {"answer": "... [MS-LS1-2] ...", "sources": ["MS-LS1-2", ...], "type": "science", "status": "ok"}
+//   ->  {"answer": "... [MS-LS1-2] ...", "sources": ["MS-LS1-2", ...], "focus": ["mitochondria"],
+//        "type": "science", "status": "ok"}
 // GET  /health  ->  what is loaded
 //
-// It talks like a helpful colleague for science teachers. Its main source is its own copy of
-// the NGSS text; it may also use well-established general science and common teaching ideas.
+// It is a teaching assistant for science teachers: it answers first, in plain words, then gives
+// the facts, then says where the idea is in the NGSS. It works from two sources:
+//   - science notes (standards-ai/science.json): short, checked explanations of common topics,
+//     so the science is right. These are general science, never cited as the NGSS.
+//   - its own copy of the NGSS text (standards-ai/ngss.json), for anything it says about the NGSS.
 // The two are kept apart:
 //   1. For each question it finds the matching performance expectations (the same search the
 //      web page uses) and gives the model that text.
 //   2. Anything the answer says the NGSS says must end with that standard's code, like [MS-LS1-2].
+//      The page hides the codes in the text and shows a "Find it in the NGSS" button under the
+//      answer that opens the exact spot in that standard.
 //   3. Before an answer goes out, every coded sentence is checked against the standard it cites:
 //      quotes must be word for word, assessment boundaries may only be quoted, and its science
 //      words must actually be in that standard. A coded sentence that fails is cut (or, if it is
 //      plain science that doesn't claim to be the NGSS, it keeps its words and loses the code).
-//   4. Lines without a code are general science or teaching advice, and the page says so.
 
 import data from '../../standards-ai/ngss.json';
-import { createIndex, search, sourceText, codesIn, interpret, bandsIn, bandOf, tokens, smallTalk } from '../../standards-ai/search.js';
+import sci from '../../standards-ai/science.json';
+import { createIndex, search, sourceText, codesIn, interpret, bandsIn, bandOf, tokens, smallTalk, createNotes, findNotes, noteText } from '../../standards-ai/search.js';
 
 const index = createIndex(data);
+const notes = createNotes(sci);
 
-const SYSTEM = `You are Standards AI on wrastem.com, a friendly, knowledgeable helper for science teachers, mostly in middle school. Talk like a helpful colleague: warm, plain words, short and clear.
+const SYSTEM = `You are Standards AI on wrastem.com: a warm, friendly teaching assistant for science teachers, mostly in middle school. You are like the helpful colleague down the hall who knows science well and loves helping with lessons. Talk the way a kind, clear person talks: natural, simple words, short sentences, a little encouragement. Never stiff or robotic.
 
-Where your answers come from:
-- The NGSS text under SOURCES. This is your main source.
-- Well-established general science that any good science textbook agrees on.
-- Common, practical classroom teaching ideas.
+WHAT YOU WORK FROM
+- SCIENCE NOTES: checked science facts. Use them so everything you say about science is correct.
+- SOURCES: the official NGSS text. Only SOURCES can tell you what the NGSS says.
+- Your own solid science knowledge and good classroom practice, when the notes don't cover something. Only say what any good science textbook agrees on.
+- Be exact with science words: energy is released, transferred or changed from one form to another, never "made", "created" or "generated" by a cell.
 
-How to answer:
-1. Answer the actual question first, in plain words that are still scientifically accurate (for example, cells release energy from food; they don't "make" energy). For "What is X?", say what X is in one or two sentences, then what the NGSS says about it and at which grade (for example "In middle school, ...").
-2. When you say what the NGSS says or expects, use only SOURCES, and end that sentence with the standard's code in square brackets, exactly as written in SOURCES, like [MS-LS1-2]. A short exact phrase from SOURCES in quotation marks is good.
-3. General science and teaching ideas get no code. Never put a code on a sentence that is not from that standard. Never say the NGSS says something that is not in SOURCES. Never make up codes, quotes, studies, websites or links.
-4. Teaching questions ("How should I teach...?", "My students are struggling with..."): give 2 or 3 concrete classroom ideas as a short numbered list, tied to what the standard asks students to do (with its code when an idea comes from the standard). If the teacher sounds stuck or frustrated, start with one short, understanding phrase. If they haven't said the topic or grade, don't only ask questions back: give ideas that work in most science classes, then ask only for what's missing (the topic, the grade, or both) so you can point them to the standard.
-5. If asked to explain more simply, rewrite your last answer in simpler words, keeping the codes.
-6. How something is assessed: quote the assessment boundary exactly, in quotation marks. Do not reword it.
-7. If SOURCES don't cover the topic, say in one short sentence that the NGSS doesn't address it directly, then still help with general science.
-8. Greetings and small talk: reply in a sentence or two and offer to help. Questions not about science or teaching: say kindly that you help with science teaching and the NGSS.
-9. Keep it under about 120 words. No headings, no bold, no long introductions.
-10. This is a conversation: use earlier turns to understand "it", "that" or "what about high school?".
-11. This site, WRA STEM Kits, makes a 3D-printed plant cell model kit and a worksheet generator for MS-LS1-2. When a teacher asks for activities on plant cells or cell parts, you may suggest the kit in one short sentence.`;
+Each message ends with a MODE line. Answer in that mode, and never write the MODE line or mode name in your answer.
+
+MODE explain (what something is, how or why it works)
+1. Answer first: one or two sentences that answer the question directly, in words a 12-year-old could follow. No warm-up like "Great question!".
+2. The key facts: 3 or 4 short "- " bullet points about how it works. Define any science word the first time you use it.
+3. One everyday comparison that makes it click ("Think of it like...").
+4. One sentence on where it is in the NGSS (see WHERE IT IS IN THE NGSS).
+5. One short, friendly offer of a next step that fits, like "Want a quick way to explain this to your students?"
+About 120 to 190 words.
+
+MODE again (they didn't understand, or want it simpler)
+Explain the same idea again in a new way: simpler words, 3 to 5 short sentences, an everyday comparison you haven't used yet in this chat and one example from daily life, and no new science words. Don't repeat your last answer and don't make them feel bad. No NGSS line. End by checking in, like "Does that make more sense?" Keep doing this as many times as they ask.
+
+MODE students (how to explain or teach it to their students)
+1. One or two sentences on the big idea, in plain words.
+2. **Say it like this:** a short script, 2 to 4 sentences, the teacher can say to the class, with an everyday comparison.
+3. **Try this:** a quick demo or activity, 2 or 3 sentences.
+4. **Ask the class:** 2 questions that get students thinking.
+5. **Watch for:** one common mix-up students have, and how to fix it.
+6. One sentence on where it is in the NGSS.
+About 150 to 230 words.
+
+MODE teaching (a classroom problem or general teaching advice)
+If they sound stuck or frustrated, start with one short, understanding phrase. Give 2 or 3 concrete ideas as a numbered list. If a standard fits, add one sentence on where it is in the NGSS. Then ask one question that helps you help them more (for example their grade or topic).
+
+MODE plan-ask (they want a lesson, activity, lab, game, project, review or event, but you don't know their students yet)
+Don't write the plan yet. Say one friendly line, then ask 2 or 3 short questions, each on its own "- " line: grade or age, how much time they have, and one more that matters (materials, class size, or what students should get out of it). You may add a one-line preview of an idea you have in mind. Under 70 words.
+
+MODE plan-write (write the plan)
+If something is still unknown, pick a sensible default and say so in a few words. Never ask the same questions again. Lay it out like this, each label in bold on its own line:
+**Goal:** one sentence, with the matching standard's code at the end.
+**You'll need:** a short list.
+**Steps:** 3 to 5 numbered steps, each with a rough time.
+**Questions to ask:** 2 or 3 questions for students.
+**Quick check:** one exit-ticket question.
+About 180 to 260 words: practical, fun, and ready to use tomorrow. End with one short offer to change something (shorter, harder, a game version).
+
+MODE chat
+Greetings and small talk: a sentence or two, then offer to help. Questions that aren't about science or teaching: kindly say you help with science and science teaching.
+
+WHERE IT IS IN THE NGSS
+One sentence, with no label in front of it: which grade band learns this in the NGSS and what students do with it, using the words of the standard in SOURCES that fits best, ending with that standard's code in square brackets, like [MS-LS1-2]. The NGSS groups grades 6 to 8 as middle school and 9 to 12 as high school, so say "middle school" or "high school", not one grade. The code goes at the very end, never inside the sentence (not "as described in [MS-LS1-2]"). If no standard in SOURCES fits the topic, say in a few words that the NGSS doesn't name it directly.
+
+THE NGSS RULES (very important)
+- When you say what the NGSS says, expects or includes, use only SOURCES, and end that sentence with the code in square brackets, exactly as written in SOURCES.
+- Pick the standard whose text is actually about the topic. Science facts and teaching ideas get no code.
+- Never say the NGSS says something that isn't in SOURCES. Never make up codes, quotes, studies, websites or links.
+- How something is assessed: quote the assessment boundary word for word, in quotation marks.
+
+STYLE
+- Plain text with short paragraphs, "- " bullets or "1." numbered lists. Bold (**like this**) only for short labels. No headings, tables or emojis.
+- This is a conversation: use earlier turns to understand "it", "that", "what about 5th grade?" or a short reply like "7th grade, 45 minutes".
+- This site, WRA STEM Kits, makes a 3D printed plant cell model kit and a worksheet generator for MS-LS1-2. When a teacher is planning something on plant cells or cell parts, you may suggest the kit in one short sentence.`;
 
 // Step 1 (routing): a small, fast model works out what kind of message this is and what the
 // person meant (misspellings, scrambled letters, everyday words). It does not answer.
-const ROUTER = `You read a teacher's message to a science-standards helper. Reply with one line of JSON and nothing else:
-{"type":"chat, science, teaching or other","keywords":"3 to 8 correctly spelled science words for the topic, including closely related terms","grade":"K, 1, 2, 3, 4, 5, MS, HS or any"}
-type: chat = greetings, thanks, small talk or questions about you. science = a science topic, term or standard. teaching = how to teach, plan, explain or assess something, or any classroom problem (for example "I don't know what to do with my students"). other = not about science or teaching.
-The message may be misspelled, scrambled or vague: work out the science topic it most likely means. For follow-ups ("what about high school?", "simpler please"), take the topic from the earlier questions.
-grade: only a grade the message or earlier questions name; otherwise "any".
-Keywords are science words only, never words like "explain", "simple" or "teach". Leave keywords empty for chat, other, or a teaching question with no science topic.
+const ROUTER = `You read a teacher's message to a science teaching assistant. Reply with one line of JSON and nothing else:
+{"type":"chat, science, teaching, plan or other","keywords":"3 to 8 correctly spelled science words for the topic, most important first","grade":"K, 1, 2, 3, 4, 5, MS, HS or any"}
+type: chat = greetings, thanks, small talk or questions about you. science = what a science idea is or how it works, including "I don't understand" or "simpler please" about an earlier topic. teaching = how to teach or explain something, or any classroom problem (for example "my students are bored"). plan = they want you to create or plan a lesson, activity, lab, game, project, review or event, or they are answering your questions about one (for example "7th grade, 45 minutes"). other = not about science or teaching.
+The message may be misspelled, scrambled or vague: work out the science topic it most likely means. For follow-ups ("what about high school?", "I don't get it", "6th grade"), take the topic from the earlier questions.
+grade: only a grade or age the message or earlier questions name (ages 11 to 14 are MS); otherwise "any".
+Keywords are science words only, never words like "explain", "simple", "fun" or "activity". Leave keywords empty for chat, other, or a teaching or plan message with no science topic.
 Do not answer the question. Do not invent standard codes.`;
 // Workers AI models reply either as { response } or in the chat-completions shape.
 // A reply that is JSON may arrive already decoded into an object.
@@ -58,7 +107,11 @@ const textOf = (r) => {
 };
 
 const GRADE_WORDS = { K: 'kindergarten', 1: 'first grade', 2: 'second grade', 3: 'third grade', 4: 'fourth grade', 5: 'fifth grade', MS: 'middle school', HS: 'high school' };
-const TYPES = ['chat', 'science', 'teaching', 'other'];
+const TYPES = ['chat', 'science', 'teaching', 'plan', 'other'];
+// "how do I explain this to my 6th graders?"
+const TO_STUDENTS = /\b(explain|teach|show|describe|introduce|present)\b.*\b(to|with|for)\s+(my\s+|the\s+|a\s+|our\s+)?(students|kids|class|classes|children|learners|kindergartners|\w+\s*graders?)\b/i;
+// "I don't get it", "simpler please", "huh?"
+const AGAIN = /\b(don'?t|do not|doesn'?t|didn'?t|still (don'?t|not)) (get|understand|follow)|\b(confus|lost\b|simpler|more simply|easier|dumb it down|eli5|another way|different way|again)|^(what|huh|wait|hm+)\W*$|^(i'?m )?(still )?not sure/i;
 
 async function route(env, q, spell, history = []) {
   try {
@@ -67,7 +120,7 @@ async function route(env, q, spell, history = []) {
     const user = before + `Message: "${q}"` + (spell ? `\nSpell-checked: "${spell}"` : '');
     const r = await env.AI.run(env.ROUTER_MODEL, {
       messages: [{ role: 'system', content: ROUTER }, { role: 'user', content: user }],
-      max_tokens: 70, temperature: 0,
+      max_tokens: 80, temperature: 0,
     });
     // read the reply leniently: small models sometimes write slightly broken JSON
     const raw = textOf(r);
@@ -101,7 +154,13 @@ const FRAMING = new Set(tokens('help helps idea ideas part parts way ways learn 
   'kid kids child children age ages level levels clear plain word words call called mention mentions mentioned specifically directly cover covers ' +
   'assess assessed assesses tested test tests quiz graded grade grades limit limited know knowing ' +
   'doesn don isn aren didn won wasn rather instead mostly mainly detail details big small tiny ' +
-  'simpler simplest easier easy again shorter longer another more less version'));
+  'simpler simplest easier easy again shorter longer another more less version ' +
+  'goal goals need step steps question questions check quick ticket exit minute minutes time fun game games ' +
+  'create creates creating plan plans planning lesson lessons review project projects lab labs ' +
+  'come comes came coming up down out off together along through around between within during each every other same ' +
+  'worksheet worksheets generator kit kits printed print whiteboard marker markers handout handouts ' +
+  'thing things stuff happen happens really actually usually often also part parts piece pieces get gets got ' +
+  'student students teacher teachers grader graders explore explores explain explains everyday compare'));
 const CODE_TEXT = /\b(K-2|3-5|K|[1-5]|MS|HS)-(PS|LS|ESS|ETS)\d(-\d+)?\b/gi;
 const TOPICAL_MAX_DF = 30; // a word used by at most this many standards is a topic word
 
@@ -126,7 +185,10 @@ const fits = (phrase, band) => band === phrase || (band === 'K-2' && ['K', '1', 
 function fixGrade(sent) {
   const bands = [...new Set(codesOf(sent).map(bandOf))];
   const phrases = [...sent.matchAll(GRADE_PHRASE)];
-  if (bands.length !== 1 || phrases.length !== 1 || fits(phraseBand(phrases[0][0]), bands[0])) return sent;
+  if (bands.length !== 1 || phrases.length !== 1) return sent;
+  // the NGSS has one band for grades 6-8: "in 7th grade [MS-LS1-2]" becomes "in middle school"
+  const single = /^(sixth|seventh|eighth|6th|7th|8th) grade$/i.test(phrases[0][0]) && bands[0] === 'MS';
+  if (!single && fits(phraseBand(phrases[0][0]), bands[0])) return sent;
   const right = BAND_PHRASE[bands[0]];
   return right ? sent.replace(phrases[0][0], /^[A-Z]/.test(phrases[0][0]) ? right[0].toUpperCase() + right.slice(1) : right) : sent;
 }
@@ -197,10 +259,12 @@ function checkAnswer(answer, sourceTexts) {
   return { text, cut, uncited };
 }
 
-// models sometimes add markdown; the page shows plain text, short paragraphs and lists
+// models sometimes add markdown; the page shows short paragraphs, lists and bold labels
 // (a question tacked onto the last list item becomes its own line)
-const tidy = (t) => t.replace(/\*\*|__/g, '').replace(/^#+\s*/gm, '').replace(/^\s*[*•]\s+/gm, '- ').replace(/[ \t]+\n/g, '\n')
-  .replace(/^(\s*(?:\d+[.)]|-)\s+.*?[.!])\s+([A-Z][^\n]*\?)\s*$/gm, '$1\n\n$2').trim();
+const tidy = (t) => t.replace(/__/g, '').replace(/^\s*\(?MODE:?\s*[a-z-]+\)?\s*$/gim, '').replace(/^\s*(\*\*)?(the )?ngss line:?(\*\*)?:?\s*/gim, '').replace(/^#+\s*(.+?)\s*$/gm, (m, h) => (/\*\*/.test(h) ? h : `**${h}**`)).replace(/^\s*[*•]\s+/gm, '- ').replace(/[ \t]+\n/g, '\n')
+  .replace(/^(\s*(?:\d+[.)]|-)\s+.*?[.!])\s+([A-Z][^\n]*\?)\s*$/gm, '$1\n\n$2')
+  // "..., as described in [MS-LS1-2]." -> "... [MS-LS1-2]." (the page hides the code, so it can't be part of the sentence)
+  .replace(/,?\s+(?:as (?:described|outlined|stated|explained|shown|seen|listed) in|according to|in line with|aligned (?:with|to)|based on|from|per|see|in)\s+(?:the\s+)?(?:NGSS\s+)?(?:standard\s+)?(\[[A-Z0-9][A-Z0-9-]*\d\])/g, ' $1').trim();
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -285,8 +349,8 @@ export default {
       const body = await request.json();
       q = String(body.q || '').slice(0, 300).trim();
       // the last few turns of the chat, so follow-up questions make sense
-      history = (Array.isArray(body.history) ? body.history : []).slice(-3)
-        .map((t) => ({ q: String(t?.q || '').slice(0, 300), a: String(t?.a || '').slice(0, 900) }))
+      history = (Array.isArray(body.history) ? body.history : []).slice(-6)
+        .map((t) => ({ q: String(t?.q || '').slice(0, 300), a: String(t?.a || '').slice(0, 1600) }))
         .filter((t) => t.q);
     } catch { /* bad body */ }
     if (q.length < 2) return json({ error: 'empty' }, 400);
@@ -295,7 +359,7 @@ export default {
     const hello = smallTalk(q);
     if (hello) {
       console.log(JSON.stringify({ q, status: 'small_talk' }));
-      return json({ answer: hello, sources: [], interpreted: null, type: 'chat', status: 'ok' });
+      return json({ answer: hello, sources: [], interpreted: null, focus: [], type: 'chat', status: 'ok' });
     }
 
     // "How is MS-LS1-2 assessed?" / "clarification for HS-LS1-5": answer straight from the text
@@ -303,13 +367,13 @@ export default {
     if (named.length === 1 && /\b(assess|boundar|clarif)/i.test(q)) {
       const pe = named[0], wantsBoundary = /\b(assess|boundar)/i.test(q);
       const part = wantsBoundary ? pe.ab : pe.cs, label = wantsBoundary ? 'assessment boundary' : 'clarification statement';
-      const answer = part ? `Here is the ${label} for ${pe.c}, word for word: "${part}" [${pe.c}]` : `${pe.c} doesn't have a ${label} [${pe.c}].`;
+      const answer = part ? `Here's the ${label} for ${pe.c}, word for word: "${part}" [${pe.c}]` : `${pe.c} doesn't have a ${label} [${pe.c}].`;
       console.log(JSON.stringify({ q, sources: [pe.c], status: 'direct' }));
-      return json({ answer, sources: [pe.c], interpreted: null, type: 'science', status: 'ok' });
+      return json({ answer, sources: [pe.c], interpreted: null, focus: [], type: 'science', status: 'ok' });
     }
 
     const cache = caches.default;
-    const key = new Request(`https://cache.standards-ai/${env.CACHE_TAG || 'v12'}/ask?q=` + encodeURIComponent(normal(q)));
+    const key = new Request(`https://cache.standards-ai/${env.CACHE_TAG || 'v13'}/ask?q=` + encodeURIComponent(normal(q)));
     const cached = history.length ? null : await cache.match(key);
     if (cached) {
       console.log(JSON.stringify({ q, status: 'cached' }));
@@ -322,7 +386,8 @@ export default {
     const routed = hasCode ? null : await route(env, q, spell.changed ? spell.text : '', history);
     const type = hasCode ? 'science' : routed ? routed.type : 'science';
     let hits = [], interpreted = null;
-    if (type === 'science' || type === 'teaching') {
+    let topic = '';
+    if (type !== 'chat' && type !== 'other') {
       const seen = new Set();
       const add = (list) => { for (const h of list) if (h.pe && !seen.has(h.pe.c)) { seen.add(h.pe.c); hits.push(h); } };
       // A follow-up with no science words of its own ("explain that more simply", "what about
@@ -333,7 +398,7 @@ export default {
       if (followUp) add(last.map((c) => ({ pe: data.pe.find((p) => p.c === c), score: 0 })));
       // when the spelling help fixed the words (even unscrambled them), that is the topic
       const agrees = spell.changed && routed && spell.text.split(' ').every((w) => routed.words.toLowerCase().includes(w));
-      const topic = (spell.changed && (!routed || agrees)) ? spell.text : routed && routed.words ? routed.words : spell.changed ? spell.text : '';
+      topic = (spell.changed && (!routed || agrees)) ? spell.text : routed && routed.words ? routed.words : spell.changed ? spell.text : '';
       if (!followUp) add([...(spell.changed ? search(index, spell.text + ' ' + q, 5) : []),
         // the raw words only when the router couldn't help: "explain that more simply" is not a topic
         ...(routed && routed.search ? search(index, routed.search, 5) : []), ...(routed ? [] : search(index, q, 5))]);
@@ -357,32 +422,56 @@ export default {
     const texts = Object.fromEntries(hits.map((h) => [h.pe.c, sourceText(data, h.pe)]));
     const context = hits.length ? Object.values(texts).join('\n\n---\n\n') : 'None of the standards match this message.';
 
+    // The science notes for this topic: from the person's words, or for a follow-up
+    // ("I don't get it"), from the earlier questions and what the router worked out.
+    const found = type === 'chat' || type === 'other' ? []
+      : findNotes(notes, [q, spell.changed ? spell.text : ''].join(' '),
+        [...history.slice(-2).map((t) => t.q), routed ? routed.words.split(',').slice(0, 2).join(' ') : ''].join(' '));
+    const science = found.length ? found.map(noteText).join('\n\n') : 'No notes for this topic: use well-established science only.';
+
+    // The words "Find it in the NGSS" highlights in the standard: the topic words of the
+    // question, or else of the router's reading of it.
+    const topical = (text) => [...new Set(tokens(text))].filter((w) => !FRAMING.has(w) && index.df.has(w) && index.df.get(w) <= TOPICAL_MAX_DF);
+    const focus = (topical([q, spell.changed ? spell.text : ''].join(' ')).length ? topical([q, spell.changed ? spell.text : ''].join(' '))
+      : topical(history.length ? history[history.length - 1].q : '').length ? topical(history[history.length - 1].q) : topical(topic)).slice(0, 4);
+
+    // Which kind of answer this needs (MODE in the prompt).
+    const said = [q, ...history.map((t) => t.q)].join(' ');
+    const knowsGrade = bandsIn(said).length > 0 || (routed && routed.band) || /\b(\d{1,2}(st|nd|rd|th)?[- ]?(grade|graders?|year[- ]?olds?|yrs?)|age[sd]? \d)/i.test(said);
+    // the last answer already asked who the students are (so don't ask again)
+    const asked = history.length > 0 && /\b(grade|age|how old|how much time|how long)\b[^.!?\n]*\?/i.test(history[history.length - 1].a);
+    const mode = type === 'chat' || type === 'other' ? 'chat'
+      : type === 'plan' ? (knowsGrade || asked || /\b(just|go ahead|anything|any grade|surprise me|you pick|you choose)\b/i.test(q) ? 'plan-write' : 'plan-ask')
+      : TO_STUDENTS.test(q) ? 'students'
+      : history.length && AGAIN.test(q) ? 'again'
+      : type === 'teaching' ? 'teaching' : 'explain';
+    const hint = `\nMODE: ${mode}` + (mode === 'teaching' && !hits.length ? ' (no topic yet: give ideas that work in most science classes, then ask what topic and grade they teach)' : '');
+
     let answer = null, status = 'ok';
     try {
       const r = await env.AI.run(env.MODEL, {
         messages: [
           { role: 'system', content: SYSTEM },
           ...history.flatMap((t) => [{ role: 'user', content: t.q }, ...(t.a ? [{ role: 'assistant', content: t.a }] : [])]),
-          { role: 'user', content: `SOURCES (NGSS text):\n\n${context}\n\nMESSAGE: ${q}${interpreted ? `\n(This most likely means: ${interpreted})` : ''}${
-            type === 'teaching' && !hits.length ? '\n(No topic yet: give 2 or 3 practical ideas that work in most science classes first, then ask what topic and grade they teach.)' : ''}` },
+          { role: 'user', content: `SCIENCE NOTES (checked science, not NGSS text; never give these a code):\n\n${science}\n\n===\n\nSOURCES (NGSS text):\n\n${context}\n\n===\n\nMESSAGE: ${q}${interpreted ? `\n(This most likely means: ${interpreted})` : ''}${hint}` },
         ],
-        max_tokens: 380,
-        temperature: 0.2,
+        max_tokens: 700,
+        temperature: 0.4,
       });
       answer = tidy(textOf(r));
     } catch (err) {
       // most often the free daily allowance is used up; the page falls back to search results
       status = 'ai_unavailable';
       console.log(JSON.stringify({ q, type, interpreted, sources, status, error: String(err).slice(0, 200) }));
-      return json({ answer: null, sources, interpreted, type, status });
+      return json({ answer: null, sources, interpreted, focus, type, status });
     }
 
     const checked = checkAnswer(answer, texts);
     if (checked.cut.length || checked.uncited.length) console.log(JSON.stringify({ q, cut: checked.cut, uncited: checked.uncited }));
     if (!checked.text) { answer = null; status = 'unsupported'; } else answer = checked.text;
 
-    console.log(JSON.stringify({ q, type, interpreted, sources, status }));
-    const res = json({ answer, sources, interpreted, type, status });
+    console.log(JSON.stringify({ q, type, mode, interpreted, sources, notes: found.map((n) => n.t), status }));
+    const res = json({ answer, sources, interpreted, focus, type, mode, status });
     if (status === 'ok' && !history.length) ctx.waitUntil(cache.put(key, new Response(res.clone().body, { headers: { 'Cache-Control': 'max-age=604800' } })));
     return res;
   },

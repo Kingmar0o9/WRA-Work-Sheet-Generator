@@ -71,9 +71,9 @@ On the website, the kit comes apart as you scroll, and every part is labeled. Fu
 ## Tools for teachers
 
 ### Standards AI
-A chat assistant for science teachers. It explains a science idea in plain words, says what students learn about it at each grade, and suggests ways to teach it. Anything it takes from the Next Generation Science Standards\* carries the standard's code, linked to the official text. Everything else is labeled as general science or teaching advice.
+A teaching assistant for science teachers that talks like a helpful colleague. It answers first in plain words, then gives the facts and an everyday comparison. If something doesn't click, just say "I don't get it" and it explains it another way. It also helps teachers explain an idea to students, and plans lessons and activities, asking about the class first. Its science comes from a set of checked science notes; anything it says about the Next Generation Science Standards\* is checked against the standard's text, and **Find it in the NGSS** under each answer opens the exact spot in the standard with the topic highlighted.
 
-![Standards AI answering "How should I teach photosynthesis in middle school?" with ideas and a linked citation to MS-LS1-6](docs/screenshots/standards-ai.jpg)
+![Standards AI answering "What are mitochondria?" with a plain answer, key facts, an everyday comparison and a "Find it in the NGSS" button for MS-LS1-2](docs/screenshots/standards-ai.jpg)
 
 ### Worksheet Generator
 One click prints a new 3-page plant cell worksheet and its answer key.

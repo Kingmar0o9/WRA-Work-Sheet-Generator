@@ -7,7 +7,9 @@ const STOP = new Set(('a an and are as at be been by can could do does doing for
   'where which who why will with would you your about tell explain show give list any all also much many more most need want ' +
   'know does standard standards ngss performance expectation expectations students student teach teaching cover covers hs ms ' +
   'assessment boundary boundaries clarification statement say says said mean means grade grades level middle high school ' +
-  'elementary kindergarten kinder first second third fourth fifth sixth seventh eighth 1st 2nd 3rd 4th 5th 6th 7th 8th').split(' '));
+  'elementary kindergarten kinder first second third fourth fifth sixth seventh eighth 1st 2nd 3rd 4th 5th 6th 7th 8th ' +
+  // "I'm still confused", "huh?": talk about understanding, never a science topic
+  'confused confusing confuse confusion understand understood get got dont don didnt doesnt huh still again simpler simply please').split(' '));
 
 function stem(w) {
   if (w.length > 4 && w.endsWith('ies')) return w.slice(0, -3) + 'y';
@@ -151,21 +153,44 @@ export function search(index, query, limit = 8, onlyBands = null) {
 // Greetings, thanks and "who are you" get a friendly reply straight away: no search, no AI.
 const SMALL_TALK = [
   [/^(hi+|hello+|hey+|heya|hiya|howdy|yo|sup|what'?s up|good (morning|afternoon|evening|day)|greetings)( there| everyone| all| standards ai)?$/,
-    'Hi! I’m Standards AI. Ask me what a science idea means, what students learn about it at each grade, or how to teach it. I’ll keep it simple and show you which NGSS standard it comes from.'],
+    'Hi! I’m Standards AI, your science teaching assistant. Ask me what something is, how to explain it to your students, or for help planning a lesson. What are you working on?'],
   [/^(how are you|how are you doing|how's it going|how is it going)( today)?$/,
-    'Doing well, thanks for asking! What are you teaching right now? I can find the standard for it and suggest a few ways to teach it.'],
+    'Doing well, thanks for asking! What are you teaching right now? I can explain it, help you plan it, and show you where it is in the NGSS.'],
   [/^(thanks|thank you|thank u|thx|ty|cheers)( so much| a lot| very much)?$/,
-    'You’re welcome! Ask me anything else about a science topic, a standard or a lesson.'],
+    'You’re welcome! Happy to help any time. Anything else you want to dig into?'],
   [/^(ok|okay|cool|great|nice|awesome|perfect|got it|sounds good)$/,
-    'Great. What would you like to look at next?'],
+    'Great! What would you like to look at next?'],
   [/^(who are you|what are you|what can you do|what do you do|help)$/,
-    'I’m Standards AI, a helper for science teachers. I can explain a science idea in plain words, tell you what the NGSS expects students to learn at each grade, and suggest ways to teach it. Anything I take from the NGSS has its code in brackets, linked to the official standard.'],
-  [/^(bye|goodbye|see you|see ya)$/, 'Bye! Come back any time.'],
+    'I’m Standards AI, a teaching assistant for science teachers. I can explain a science idea in simple words (and again a different way if it doesn’t click), help you explain it to your students, and plan lessons and activities with you. Whenever I talk about the NGSS, you can tap “Find it in the NGSS” to see the exact spot in the standard.'],
+  [/^(bye|goodbye|see you|see ya)$/, 'Bye! Good luck with your class. Come back any time.'],
 ];
 export function smallTalk(q) {
   const t = String(q).toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, ' ').replace(/^[\s!.,?]+|[\s!.,?:)(]+$/g, '');
   const hit = SMALL_TALK.find(([re]) => re.test(t));
   return hit ? hit[1] : null;
+}
+
+// ---- Science notes (science.json): short, checked explanations of common topics.
+// They help the AI get the science right. They are general science, not NGSS text.
+export function createNotes(sci) {
+  return sci.notes.map((n) => ({ n, keys: n.a.concat(n.t).map((a) => tokens(a)).filter((k) => k.length) }));
+}
+// The notes a question is about: first from the person's own words; if none match, from the
+// fallback words (the topic of earlier questions, or what the router worked out).
+export function findNotes(noteIndex, words, fallback = '', limit = 2) {
+  const pick = (text) => {
+    const have = new Set(tokens(text));
+    return noteIndex
+      .map(({ n, keys }) => [Math.max(0, ...keys.filter((k) => k.every((w) => have.has(w))).map((k) => k.length)), n])
+      .filter(([s]) => s > 0).sort((a, b) => b[0] - a[0]).slice(0, limit).map(([, n]) => n);
+  };
+  const own = pick(words);
+  return own.length ? own : pick(fallback);
+}
+// One note as plain text for the AI.
+export function noteText(n) {
+  return [`${n.t}: ${n.w}`, ...n.f.map((f) => `- ${f}`), n.x ? `Everyday comparison: ${n.x}` : '',
+    n.m.length ? `Common mix-ups: ${n.m.join(' ')}` : ''].filter(Boolean).join('\n');
 }
 
 const KIND = { SEP: 'Science and engineering practice', DCI: 'Disciplinary core idea', CCC: 'Crosscutting concept' };
