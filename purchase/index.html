@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Request the Plant Cell Kit · WRA STEM Kits</title>
-<meta name="description" content="Request the 3D printed plant cell kit for your classroom. Tell us how many sets you need, and we'll get back to you as soon as possible.">
+<meta name="description" content="Request the 3D printed plant cell kit for your middle school classroom. Say how many sets you need, and I'll reply by email.">
 <meta name="theme-color" content="#124A2B">
 <link rel="canonical" href="https://wrastem.com/purchase/">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="WRA STEM Kits">
 <meta property="og:url" content="https://wrastem.com/purchase/">
 <meta property="og:title" content="Request the Plant Cell Kit · WRA STEM Kits">
-<meta property="og:description" content="Request the 3D printed plant cell kit for your classroom. Tell us how many sets you need, and we'll get back to you as soon as possible.">
+<meta property="og:description" content="Request the 3D printed plant cell kit for your middle school classroom. Say how many sets you need, and I'll reply by email.">
 <meta property="og:image" content="https://wrastem.com/assets/img/social-card.jpg?v=20261115b">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -133,7 +133,7 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--cora
     <div class="wrap">
       <div>
         <h1>Request the Plant Cell Kit.</h1>
-        <p class="lede">12 custom-designed, 3D printed pieces, reusable for years. Every kit comes with Standards AI and the worksheet generator.</p>
+        <p class="lede">12 custom-designed, 3D printed pieces for students to take apart, name and rebuild, year after year. Every kit comes with the worksheet generator and Standards AI.</p>
       </div>
       <figure>
         <a class="kit-photo" href="../assets/img/photos/kit-laid-out.jpg?v=20261115c" data-gallery data-index="0">
@@ -146,8 +146,8 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--cora
 
   <div class="form-wrap">
     <section id="ask" aria-labelledby="ask-h">
-      <h2 id="ask-h">Tell us what you need.</h2>
-      <p class="sub">Fill this in and press Send. We’ll get back to you as soon as possible about how to proceed.</p>
+      <h2 id="ask-h">Tell me what you need.</h2>
+      <p class="sub">Fill this in and press Send. I’ll email you back about next steps.</p>
 
       <form id="buy-form" novalidate>
         <div class="field">
@@ -170,7 +170,7 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--cora
         </div>
         <div class="field">
           <label for="email">Your email</label>
-          <p class="hint" id="email-hint">So we can reply to you.</p>
+          <p class="hint" id="email-hint">So I can reply to you.</p>
           <input id="email" name="email" type="email" autocomplete="email" maxlength="200" required aria-describedby="email-hint email-err">
           <p class="err" id="email-err"></p>
         </div>
@@ -183,7 +183,7 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--cora
         <div class="send-row">
           <button class="btn" type="submit" id="send">Send
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-          <p>Nothing is charged here. This only sends your request.</p>
+          <p>You won’t be charged. This form only sends your request.</p>
         </div>
         <p class="form-error" id="form-error" role="alert"></p>
       </form>
@@ -191,7 +191,7 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--cora
 
     <section class="thanks" id="thanks" hidden tabindex="-1" aria-labelledby="thanks-h">
       <h2 id="thanks-h">Thank you!</h2>
-      <p>Your request is sent. We’ll get back to you as soon as possible about how to proceed.</p>
+      <p>Your request is sent. I’ll reply to the email address below about next steps.</p>
       <dl class="recap" id="recap"></dl>
       <p class="links"><a href="../">Back to the kit</a><a href="../standards-ai/">Try Standards AI</a><a href="../cell-kit-generator/">Make a worksheet</a></p>
     </section>
@@ -275,11 +275,11 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--cora
         }
         if (res.status === 429) throw said('That was sent a few times in a row. Wait a minute, then press Send again.');
         if (res.body && res.body.fields) { res.body.fields.forEach(function (f) { if (rules[f]) check(f); }); throw said('Please check the highlighted answers.'); }
-        throw said('Something went wrong on our end, so your request wasn’t sent. Please press Send again in a minute.');
+        throw said('Something went wrong on the server, so your request wasn’t sent. Please press Send again in a minute.');
       })
       .catch(function (err) {
         // our own messages above; anything else means the server couldn't be reached at all
-        formError.textContent = err && err.said ? err.message : 'We couldn’t reach the server, so your request wasn’t sent. Check your internet connection, then press Send again.';
+        formError.textContent = err && err.said ? err.message : 'The server couldn’t be reached, so your request wasn’t sent. Check your internet connection, then press Send again.';
         send.disabled = false; send.firstChild.textContent = 'Send ';
       });
   });
