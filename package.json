@@ -1,0 +1,29 @@
+{
+  "name": "wra-work-sheet-generator",
+  "version": "1.0.0",
+  "description": "<p align=\"center\">   <img src=\"docs/screenshots/come-apart.gif\" width=\"520\" alt=\"The 3D plant cell kit coming apart into its labeled parts: cell wall, cell membrane, cytoplasm tray and every organelle\"> </p>",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kingmar0o9/WRA-Work-Sheet-Generator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kingmar0o9/WRA-Work-Sheet-Generator/issues"
+  },
+  "homepage": "https://github.com/Kingmar0o9/WRA-Work-Sheet-Generator#readme",
+  "dependencies": {
+    "@astryxdesign/cli": "^0.7.16",
+    "@astryxdesign/core": "^0.7.16",
+    "@astryxdesign/theme-neutral": "^0.7.16",
+    "@stylexjs/stylex": "^0.19.2"
+  }
+}
