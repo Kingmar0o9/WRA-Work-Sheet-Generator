@@ -32,7 +32,7 @@ The worksheets are built around a physical kit: the labeling drawings are render
 
 ## Capabilities and Constraints
 
-- Live: home page with the interactive 3D kit; plant cell worksheet generator; Standards AI (a chat that answers from the NGSS text and links every standard it cites); Request kits form (emails each request to the kit maker).
+- Live: home page with the interactive 3D kit; plant cell worksheet generator; Standards AI (a teaching-assistant chat: plain answers first, re-explains on request, helps plan lessons; its science comes from checked science notes, and "Find it in the NGSS" shows the exact spot in each standard it uses); Request kits form (emails each request to the kit maker).
 - Coming soon, not built: Instruction sheet editor (a worksheet editor).
 - Status: built and tested in software, **not yet tested with students**; teacher review not done yet.
 - Never claim NGSS certification, classroom results, or teacher endorsement. Say "designed to align with the NGSS".

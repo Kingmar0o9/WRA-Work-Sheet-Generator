@@ -1,0 +1,1461 @@
+{
+ "about": "Science notes for Standards AI: short, checked explanations of common K-12 science topics, written to match standard middle and high school textbooks. They help the AI get the science right. They are not NGSS text and never carry a standard's code.",
+ "updated": "2026-11-15",
+ "notes": [
+  {
+   "t": "Mitochondria",
+   "a": [
+    "mitochondria",
+    "mitochondrion",
+    "mitochondrial",
+    "powerhouse of the cell",
+    "powerhouse"
+   ],
+   "w": "Mitochondria (one is a mitochondrion) are tiny parts inside a cell that release the energy stored in food so the cell can use it. They do this through cellular respiration: sugar (glucose) and oxygen go in; carbon dioxide, water and usable energy come out.",
+   "f": [
+    "Both plant and animal cells have mitochondria. Plants have chloroplasts too, but they still need mitochondria to use the sugar they make.",
+    "They pack the released energy into a molecule called ATP, the cell's energy currency, which the cell spends to move, grow and repair itself.",
+    "Cells that work hard have more of them: a muscle or heart cell can have thousands.",
+    "A mitochondrion has two membranes. The inner one is folded, which gives more surface for the reactions.",
+    "Mitochondria have their own small loop of DNA. Scientists think they came from bacteria that started living inside other cells long ago."
+   ],
+   "x": "Like a power plant that burns fuel to make electricity the town can use: food is the fuel, ATP is the electricity. Or like a phone charger turning wall power into a charged battery.",
+   "m": [
+    "They don't 'make' energy out of nothing; they release energy that was stored in food.",
+    "Plant cells have mitochondria too, not only chloroplasts."
+   ]
+  },
+  {
+   "t": "Chloroplasts",
+   "a": [
+    "chloroplast",
+    "chloroplasts",
+    "chlorophyll"
+   ],
+   "w": "Chloroplasts are the green parts inside plant and algae cells where photosynthesis happens. They use energy from light to turn carbon dioxide and water into sugar, and they give off oxygen.",
+   "f": [
+    "They are green because of chlorophyll, a pigment that absorbs mostly red and blue light and reflects green.",
+    "Animal cells don't have chloroplasts; animals get their sugar by eating.",
+    "Leaf cells, where most light lands, have the most chloroplasts. Root cells usually have none.",
+    "Like mitochondria, chloroplasts have their own DNA and probably came from bacteria long ago."
+   ],
+   "x": "Like a solar-powered kitchen: sunlight is the power, carbon dioxide and water are the ingredients, sugar is the meal.",
+   "m": [
+    "Plants don't get their food from the soil; they make sugar in chloroplasts. Soil gives water and minerals."
+   ]
+  },
+  {
+   "t": "Nucleus",
+   "a": [
+    "nucleus",
+    "nuclei",
+    "nucleolus",
+    "nuclear envelope",
+    "nuclear membrane"
+   ],
+   "w": "The nucleus is the control center of a plant or animal cell. It holds the cell's DNA, the instructions for making the proteins that run the cell and build its parts.",
+   "f": [
+    "A double membrane called the nuclear envelope surrounds it, with pores that let messages in and out.",
+    "The nucleolus, a dark spot inside the nucleus, makes ribosomes.",
+    "Bacteria have no nucleus; their DNA floats in the cytoplasm.",
+    "Mature red blood cells in humans lose their nucleus to make room for oxygen-carrying hemoglobin."
+   ],
+   "x": "Like a school's main office that keeps the master copy of the rules and sends out instructions, or a recipe library: it keeps the recipes and sends copies to the kitchen (the ribosomes).",
+   "m": [
+    "The nucleus doesn't think or decide; it holds instructions that get used.",
+    "In biology, 'nucleus' here is not the same as the nucleus of an atom."
+   ]
+  },
+  {
+   "t": "Cell membrane",
+   "a": [
+    "cell membrane",
+    "plasma membrane",
+    "membrane",
+    "selectively permeable",
+    "semipermeable"
+   ],
+   "w": "The cell membrane is the thin, flexible layer around every cell. It holds the cell together and controls what goes in and out.",
+   "f": [
+    "Every living cell has one: plant, animal, fungus and bacteria.",
+    "It is made of two layers of fat-like molecules (lipids) with proteins in it that act as doors and pumps.",
+    "It is selectively permeable: some things pass easily (water, oxygen), others need a protein door or energy.",
+    "In plant cells it sits just inside the cell wall."
+   ],
+   "x": "Like a security guard at a school entrance, or a window screen that lets air through but keeps bugs out.",
+   "m": [
+    "The cell membrane is not the same as the cell wall; plant cells have both.",
+    "It isn't a solid wall; it is flexible and always moving."
+   ]
+  },
+  {
+   "t": "Cell wall",
+   "a": [
+    "cell wall",
+    "cell walls",
+    "cellulose"
+   ],
+   "w": "The cell wall is a stiff layer outside the cell membrane in plants, fungi and bacteria. It gives the cell shape and support and protects it.",
+   "f": [
+    "Plant cell walls are made mostly of cellulose, the fiber in paper, cotton and wood.",
+    "Animal cells have no cell wall, which is why they can have many shapes.",
+    "Water pushing out against the wall (turgor pressure) keeps plants firm. When a plant is short of water it wilts.",
+    "Water and small molecules can pass through the wall; the membrane inside does the choosing."
+   ],
+   "x": "Like a cardboard box around a water balloon: the balloon is the membrane, the box is the wall.",
+   "m": [
+    "The wall doesn't control what enters the cell; the membrane does."
+   ]
+  },
+  {
+   "t": "Vacuole",
+   "a": [
+    "vacuole",
+    "vacuoles",
+    "central vacuole"
+   ],
+   "w": "A vacuole is a storage sac in a cell. Plant cells have one large central vacuole that stores water and helps keep the plant firm.",
+   "f": [
+    "In a plant cell the central vacuole can fill most of the cell.",
+    "It also stores food, waste and the pigments that color some flowers.",
+    "Animal cells have smaller vacuoles, or none."
+   ],
+   "x": "Like a water tank or a backpack that holds supplies.",
+   "m": []
+  },
+  {
+   "t": "Cytoplasm",
+   "a": [
+    "cytoplasm",
+    "cytosol"
+   ],
+   "w": "Cytoplasm is the jelly-like material that fills a cell around its parts. The organelles sit in it, and many of the cell's chemical reactions happen there.",
+   "f": [
+    "It is mostly water with salts and proteins dissolved in it.",
+    "It moves and flows, carrying materials around the cell."
+   ],
+   "x": "Like the gel in a jelly cup that holds the fruit pieces in place.",
+   "m": []
+  },
+  {
+   "t": "Ribosomes",
+   "a": [
+    "ribosome",
+    "ribosomes",
+    "endoplasmic reticulum",
+    "golgi"
+   ],
+   "w": "Ribosomes are tiny structures that build proteins by following instructions copied from DNA. Every cell has them.",
+   "f": [
+    "Some float in the cytoplasm; others sit on the rough endoplasmic reticulum.",
+    "The Golgi apparatus packages and ships many of those proteins.",
+    "Proteins do most of the work in a cell: they build parts, carry things and speed up reactions."
+   ],
+   "x": "Like cooks in a kitchen who follow a recipe copied from the library (the nucleus).",
+   "m": []
+  },
+  {
+   "t": "Cells",
+   "a": [
+    "cell",
+    "cells",
+    "cell theory",
+    "organelle",
+    "organelles",
+    "plant cell",
+    "animal cell",
+    "plant cells",
+    "animal cells",
+    "parts of a cell",
+    "cell parts",
+    "unicellular",
+    "multicellular",
+    "prokaryote",
+    "eukaryote"
+   ],
+   "w": "A cell is the smallest unit of life: the tiny building block that all living things are made of. Some living things are just one cell; you are made of tens of trillions.",
+   "f": [
+    "Cell theory: all living things are made of cells, the cell is the basic unit of life, and new cells come only from existing cells.",
+    "Cells have parts called organelles that each do a job, and the parts work together to keep the cell alive.",
+    "Plant cells have a cell wall, chloroplasts and a large central vacuole; animal cells don't.",
+    "Both have a cell membrane, cytoplasm, a nucleus and mitochondria.",
+    "Bacteria are simpler cells with no nucleus (prokaryotes). Plant, animal and fungus cells have a nucleus (eukaryotes).",
+    "Most cells are too small to see without a microscope."
+   ],
+   "x": "Like a tiny factory, or a school: each part has a job, and the whole thing only works when they work together.",
+   "m": [
+    "Plant cells have mitochondria too.",
+    "Cells aren't flat circles like textbook drawings; they are 3D."
+   ]
+  },
+  {
+   "t": "Photosynthesis",
+   "a": [
+    "photosynthesis",
+    "photosynthesize",
+    "photosynthetic",
+    "how plants make food"
+   ],
+   "w": "Photosynthesis is how plants, algae and some bacteria make their own food. In their chloroplasts they use light energy to turn carbon dioxide (from the air) and water into sugar, and they release oxygen.",
+   "f": [
+    "In words: carbon dioxide + water + light energy → sugar (glucose) + oxygen.",
+    "The energy from sunlight ends up stored in the sugar's chemical bonds.",
+    "Most of a tree's mass comes from carbon dioxide in the air, not from the soil.",
+    "The oxygen released comes from the water molecules that get split.",
+    "The sugar is used for energy (through cellular respiration) and to build the plant's body.",
+    "Almost all food chains start with photosynthesis."
+   ],
+   "x": "Like baking with solar power: light is the oven's power, carbon dioxide and water are the ingredients, sugar is the cake and oxygen is the leftover steam.",
+   "m": [
+    "Plants don't eat soil.",
+    "Plants also do cellular respiration, day and night; they don't only 'breathe in' carbon dioxide."
+   ]
+  },
+  {
+   "t": "Cellular respiration",
+   "a": [
+    "cellular respiration",
+    "respiration",
+    "atp",
+    "glucose",
+    "aerobic",
+    "anaerobic",
+    "fermentation"
+   ],
+   "w": "Cellular respiration is how cells release the energy stored in food. In the mitochondria, sugar (glucose) and oxygen react to make carbon dioxide, water and ATP, the energy the cell can use.",
+   "f": [
+    "In words: glucose + oxygen → carbon dioxide + water + usable energy (ATP).",
+    "Almost all living things do it, including plants, all the time.",
+    "It is roughly the reverse of photosynthesis.",
+    "Without oxygen, some cells use fermentation, which releases much less energy (and makes lactic acid in tired muscles).",
+    "Breathing brings in the oxygen respiration needs and gets rid of the carbon dioxide it makes."
+   ],
+   "x": "Like slowly burning fuel in an engine: fuel and oxygen go in, energy and exhaust come out, but in small controlled steps instead of a fire.",
+   "m": [
+    "Breathing and cellular respiration aren't the same thing: breathing moves air, cellular respiration happens inside cells.",
+    "Energy isn't created; it is released from food."
+   ]
+  },
+  {
+   "t": "Diffusion and osmosis",
+   "a": [
+    "diffusion",
+    "osmosis",
+    "passive transport",
+    "active transport",
+    "concentration"
+   ],
+   "w": "Diffusion is particles spreading out from where there are more of them to where there are fewer. Osmosis is the diffusion of water across a membrane, like a cell membrane.",
+   "f": [
+    "Both happen on their own, with no energy from the cell (passive transport).",
+    "Moving things the other way, from fewer to more, takes energy (active transport).",
+    "A raisin in water swells and a slice of potato in salty water goes floppy because of osmosis.",
+    "Diffusion is faster when it is warmer, because particles move faster."
+   ],
+   "x": "Like the smell of popcorn spreading from the kitchen into the whole house, or students spreading out from a crowded doorway into an empty gym.",
+   "m": [
+    "Particles don't 'want' to spread out; they move randomly and end up spread out."
+   ]
+  },
+  {
+   "t": "DNA",
+   "a": [
+    "dna",
+    "double helix",
+    "genetic code",
+    "genome"
+   ],
+   "w": "DNA is the molecule that holds the instructions for building and running a living thing. It is found in almost every cell and is passed from parents to offspring.",
+   "f": [
+    "It is shaped like a twisted ladder, called a double helix.",
+    "The instructions are written in four chemical 'letters': A, T, C and G.",
+    "A gene is a section of DNA that holds the instructions for one protein.",
+    "In plant and animal cells, DNA is packed into chromosomes inside the nucleus.",
+    "If you stretched out the DNA from one human cell it would be about 2 meters long."
+   ],
+   "x": "Like a cookbook: the whole book is your DNA, each recipe is a gene, and the dishes (proteins) build and run your body.",
+   "m": [
+    "DNA isn't only in some cells; nearly every cell has a full copy."
+   ]
+  },
+  {
+   "t": "Genes and heredity",
+   "a": [
+    "gene",
+    "genes",
+    "heredity",
+    "inheritance",
+    "inherited",
+    "inherit",
+    "traits",
+    "trait",
+    "dominant",
+    "recessive",
+    "allele",
+    "alleles",
+    "punnett square",
+    "genetics",
+    "mutation",
+    "mutations"
+   ],
+   "w": "Heredity is how traits pass from parents to offspring. Traits are carried by genes, sections of DNA, and offspring from two parents get half their genes from each.",
+   "f": [
+    "Genes code for proteins, and proteins affect traits like eye color or leaf shape.",
+    "Different versions of a gene are called alleles. A dominant allele shows up even with one copy; a recessive one shows only with two copies.",
+    "A Punnett square predicts the chances of each combination in the offspring.",
+    "Mutations are changes in DNA. Most have no effect, some are harmful, and a few are helpful.",
+    "Many traits are also shaped by the environment, like height and nutrition.",
+    "Offspring from asexual reproduction get the same genes as their single parent."
+   ],
+   "x": "Like getting half your playing cards from each parent: you get a new mix every time, which is why siblings look alike but not identical.",
+   "m": [
+    "Dominant doesn't mean more common or better.",
+    "Traits you gain in your lifetime, like strong muscles, aren't passed on in your genes."
+   ]
+  },
+  {
+   "t": "Chromosomes and cell division",
+   "a": [
+    "chromosome",
+    "chromosomes",
+    "mitosis",
+    "meiosis",
+    "cell division",
+    "cell cycle",
+    "sex cells",
+    "gametes"
+   ],
+   "w": "Cells make new cells by dividing. In mitosis one cell becomes two identical cells, for growth and repair. In meiosis cells make sex cells (egg and sperm) with half the usual number of chromosomes.",
+   "f": [
+    "Chromosomes are long, tightly packed strands of DNA. Humans have 46 in most cells, in 23 pairs.",
+    "Before a cell divides it copies all its DNA.",
+    "Meiosis shuffles genes, so every egg or sperm is different. That is part of why siblings differ.",
+    "When egg and sperm join, the new cell has a full set again."
+   ],
+   "x": "Mitosis is like photocopying a whole book; meiosis is like making a book with one chapter from each pair, picked at random.",
+   "m": []
+  },
+  {
+   "t": "Proteins and enzymes",
+   "a": [
+    "protein",
+    "proteins",
+    "enzyme",
+    "enzymes",
+    "amino acid",
+    "amino acids"
+   ],
+   "w": "Proteins are large molecules that do most of the work in living things. Enzymes are proteins that speed up chemical reactions, like breaking food down.",
+   "f": [
+    "Proteins are chains of smaller building blocks called amino acids, folded into special shapes.",
+    "Each enzyme works on specific molecules, like a key fits a lock.",
+    "Heat or strong acid can change an enzyme's shape so it stops working.",
+    "Muscle, hair, and the hemoglobin that carries oxygen are proteins."
+   ],
+   "x": "An enzyme is like a pair of scissors: it cuts paper fast and is not used up, so it can cut again and again.",
+   "m": []
+  },
+  {
+   "t": "Bacteria",
+   "a": [
+    "bacteria",
+    "bacterium",
+    "microbe",
+    "microbes",
+    "microorganism",
+    "microorganisms",
+    "germs"
+   ],
+   "w": "Bacteria are living things made of just one simple cell, with no nucleus. They are everywhere: in soil, water, and inside your body.",
+   "f": [
+    "Most bacteria are harmless or helpful: they help digest food in your gut, make yogurt and cheese, and break down dead things.",
+    "A few cause diseases, like strep throat.",
+    "Antibiotics kill bacteria but don't work on viruses.",
+    "Some bacteria can divide every 20 minutes when conditions are good."
+   ],
+   "x": "Like the tiniest one-room houses, each a complete living thing on its own.",
+   "m": [
+    "Not all bacteria are germs; most are harmless or useful."
+   ]
+  },
+  {
+   "t": "Viruses",
+   "a": [
+    "virus",
+    "viruses",
+    "vaccine",
+    "vaccines",
+    "immune system",
+    "immunity"
+   ],
+   "w": "A virus is a tiny packet of genetic material inside a protein coat. It isn't a cell and can only make copies of itself by getting inside a living cell.",
+   "f": [
+    "Viruses are much smaller than bacteria.",
+    "Many scientists don't call viruses alive, because they can't grow or reproduce on their own.",
+    "Antibiotics don't work on viruses.",
+    "Vaccines train the immune system to recognize a germ before you meet it, so your body can fight it off faster."
+   ],
+   "x": "Like a USB stick with a bad program: it does nothing alone, but plugged into a computer (a cell), it makes the computer copy the program.",
+   "m": [
+    "Colds and flu are caused by viruses, so antibiotics won't help them."
+   ]
+  },
+  {
+   "t": "Levels of organization and body systems",
+   "a": [
+    "tissue",
+    "tissues",
+    "organ",
+    "organs",
+    "organ system",
+    "organ systems",
+    "body system",
+    "body systems",
+    "levels of organization",
+    "human body"
+   ],
+   "w": "Living things are organized in levels: cells form tissues, tissues form organs, organs form organ systems, and the systems together make the organism.",
+   "f": [
+    "Example: muscle cells → muscle tissue → the heart → the circulatory system → you.",
+    "Body systems work together: the respiratory system brings in oxygen, the circulatory system carries it, the digestive system supplies sugar, and cells use both in cellular respiration.",
+    "The nervous system sends signals that coordinate the others."
+   ],
+   "x": "Like a sports league: players (cells) form teams (tissues), teams form divisions (organs), and the whole league (organism) only works when they cooperate.",
+   "m": []
+  },
+  {
+   "t": "Digestive system",
+   "a": [
+    "digestive system",
+    "digestion",
+    "digest",
+    "stomach",
+    "intestine",
+    "intestines",
+    "small intestine"
+   ],
+   "w": "The digestive system breaks food down into small molecules the body can absorb and use for energy and building materials.",
+   "f": [
+    "Digestion starts in the mouth, with chewing and saliva.",
+    "The stomach mixes food with acid and enzymes.",
+    "Most nutrients are absorbed into the blood through the small intestine, which is about 6 meters long and lined with tiny finger-like villi.",
+    "The large intestine absorbs water."
+   ],
+   "x": "Like a recycling plant that takes apart big items into pieces small enough to reuse.",
+   "m": []
+  },
+  {
+   "t": "Circulatory and respiratory systems",
+   "a": [
+    "circulatory system",
+    "circulation",
+    "heart",
+    "blood",
+    "blood vessels",
+    "respiratory system",
+    "lungs",
+    "breathing",
+    "alveoli"
+   ],
+   "w": "The respiratory system brings oxygen into the body and removes carbon dioxide. The circulatory system, the heart and blood vessels, carries that oxygen and food to every cell and takes wastes away.",
+   "f": [
+    "In the lungs, oxygen moves into the blood through millions of tiny air sacs called alveoli.",
+    "The heart is a muscle that pumps blood through arteries, capillaries and veins.",
+    "Red blood cells carry oxygen using a protein called hemoglobin.",
+    "Cells use the oxygen for cellular respiration and make carbon dioxide, which you breathe out."
+   ],
+   "x": "Like a delivery service: the lungs are the warehouse dock, the blood is the trucks, the vessels are the roads and the cells are the houses.",
+   "m": [
+    "Blood is never blue; it is darker red when it carries less oxygen."
+   ]
+  },
+  {
+   "t": "Nervous system",
+   "a": [
+    "nervous system",
+    "brain",
+    "nerve",
+    "nerves",
+    "neuron",
+    "neurons",
+    "spinal cord",
+    "senses",
+    "reflex"
+   ],
+   "w": "The nervous system is the body's message network. The brain, spinal cord and nerves send signals that let you sense, think, move and react.",
+   "f": [
+    "Nerve cells (neurons) carry electrical and chemical signals.",
+    "Sense organs like eyes and ears send information to the brain.",
+    "A reflex, like pulling your hand from something hot, is handled by the spinal cord before the brain even notices."
+   ],
+   "x": "Like a school's phone and intercom system, carrying messages between the office and every classroom.",
+   "m": []
+  },
+  {
+   "t": "Ecosystems",
+   "a": [
+    "ecosystem",
+    "ecosystems",
+    "habitat",
+    "biotic",
+    "abiotic",
+    "population",
+    "populations",
+    "community",
+    "biome",
+    "biomes",
+    "ecology"
+   ],
+   "w": "An ecosystem is all the living things in an area plus the nonliving things they depend on, like water, sunlight, soil and air, all interacting.",
+   "f": [
+    "Living parts are biotic; nonliving parts are abiotic.",
+    "A population is all of one species in an area; a community is all the populations together.",
+    "Organisms compete for limited resources like food, water and space.",
+    "Relationships include predator and prey, competition, and partnerships where both benefit (like bees and flowers).",
+    "A change to one part, like losing a predator, can ripple through the whole ecosystem."
+   ],
+   "x": "Like a town: the people, pets and plants are the living parts, the buildings, weather and water supply are the nonliving parts, and everything affects everything else.",
+   "m": []
+  },
+  {
+   "t": "Food chains and food webs",
+   "a": [
+    "food chain",
+    "food chains",
+    "food web",
+    "food webs",
+    "producer",
+    "producers",
+    "consumer",
+    "consumers",
+    "decomposer",
+    "decomposers",
+    "herbivore",
+    "carnivore",
+    "omnivore",
+    "predator",
+    "prey",
+    "energy pyramid",
+    "trophic"
+   ],
+   "w": "A food chain shows who eats whom, and so how energy and matter move through an ecosystem. A food web is many food chains linked together.",
+   "f": [
+    "Producers (plants, algae) make food with sunlight. Consumers eat other living things. Decomposers (fungi, bacteria, worms) break down dead things and return nutrients to the soil.",
+    "Arrows point from the thing eaten to the thing that eats it: the direction energy flows.",
+    "Only about 10% of the energy at one level is passed to the next; the rest is used for living or lost as heat.",
+    "That is why there are fewer top predators than plants.",
+    "Matter, like carbon atoms, is recycled; energy flows through and is not recycled."
+   ],
+   "x": "Like passing a bucket of water down a line where each person spills most of it: only a little reaches the end.",
+   "m": [
+    "Arrows mean 'is eaten by' (energy goes to), not 'eats'.",
+    "Decomposers are not optional; without them nutrients would stay locked in dead things."
+   ]
+  },
+  {
+   "t": "Cycling of matter and the carbon cycle",
+   "a": [
+    "carbon cycle",
+    "nitrogen cycle",
+    "cycling of matter",
+    "matter cycle",
+    "cycle of matter",
+    "nutrient cycle"
+   ],
+   "w": "Matter, the atoms that make up everything, is used again and again in an ecosystem. The carbon cycle is how carbon moves between the air, living things, oceans and rocks.",
+   "f": [
+    "Plants take carbon dioxide from the air in photosynthesis and build it into sugar.",
+    "Animals eat plants, and living things release carbon dioxide in cellular respiration.",
+    "Decomposers return carbon from dead things to the air and soil.",
+    "Burning fossil fuels releases carbon that was stored underground for millions of years."
+   ],
+   "x": "Like LEGO bricks: the same bricks get taken apart and built into new things over and over.",
+   "m": [
+    "Energy flows one way; matter cycles."
+   ]
+  },
+  {
+   "t": "Natural selection",
+   "a": [
+    "natural selection",
+    "survival of the fittest",
+    "selection"
+   ],
+   "w": "Natural selection is how a population changes over generations: individuals with traits that help them survive and reproduce in their environment have more offspring, so those traits become more common.",
+   "f": [
+    "It needs four things: variation (individuals differ), inheritance (traits pass on), more offspring than can survive, and differences in survival and reproduction.",
+    "Populations change; individual animals don't evolve during their lives.",
+    "'Fittest' means best suited to that environment at that time, not the strongest.",
+    "Antibiotic-resistant bacteria and peppered moths are well-known examples.",
+    "Artificial selection is when people choose which plants or animals breed, like dog breeds."
+   ],
+   "x": "Like a game where the rules (the environment) decide who gets to stay in; over many rounds, the players left all share the traits that work with those rules.",
+   "m": [
+    "Organisms don't change because they need to or try to.",
+    "A useful trait has to already exist in some individuals; natural selection doesn't create it on demand."
+   ]
+  },
+  {
+   "t": "Adaptations",
+   "a": [
+    "adaptation",
+    "adaptations",
+    "adapt",
+    "adapted",
+    "camouflage",
+    "structural adaptation",
+    "behavioral adaptation"
+   ],
+   "w": "An adaptation is an inherited trait that helps a living thing survive and reproduce in its environment, like a cactus's spines or a polar bear's thick fur.",
+   "f": [
+    "Adaptations can be body parts (structural) or behaviors (like migrating or hibernating).",
+    "They build up over many generations through natural selection.",
+    "A trait that helps in one place may not help in another."
+   ],
+   "x": "Like the right gear for a sport: a polar bear's fur is its winter coat, and a duck's webbed feet are its swim fins.",
+   "m": [
+    "An animal can't grow an adaptation in its own lifetime because it needs it."
+   ]
+  },
+  {
+   "t": "Evolution and common ancestry",
+   "a": [
+    "evolution",
+    "evolve",
+    "evolved",
+    "common ancestor",
+    "common ancestry",
+    "speciation",
+    "species"
+   ],
+   "w": "Evolution is the change in the inherited traits of populations over many generations. Over long times it has produced all the different kinds of living things, which share common ancestors.",
+   "f": [
+    "Evidence includes fossils, similar body structures (your arm, a bat's wing and a whale's flipper have the same bones), similar early embryos, and DNA.",
+    "The more DNA two species share, the more closely related they are.",
+    "Evolution usually happens over thousands to millions of years, though bacteria and insects can change quickly."
+   ],
+   "x": "Like a family tree that keeps branching: cousins share grandparents, and all living things share very distant ancestors.",
+   "m": [
+    "Humans didn't evolve from today's chimpanzees; we share a common ancestor.",
+    "In science, 'theory' means a well-tested explanation, not a guess."
+   ]
+  },
+  {
+   "t": "Fossils",
+   "a": [
+    "fossil",
+    "fossils",
+    "fossil record",
+    "paleontology"
+   ],
+   "w": "Fossils are the preserved remains or traces of living things from long ago, like bones, shells, footprints or leaf prints, usually found in sedimentary rock.",
+   "f": [
+    "Most fossils form when a living thing is buried quickly by sediment and minerals slowly replace it.",
+    "In undisturbed rock layers, deeper layers are older.",
+    "The fossil record shows that life has changed over time and that many species have gone extinct.",
+    "Fossils of sea creatures on mountaintops show that land has moved and changed."
+   ],
+   "x": "Like pages in a stack of newspapers: the ones on the bottom were put down first.",
+   "m": []
+  },
+  {
+   "t": "Biodiversity",
+   "a": [
+    "biodiversity",
+    "extinction",
+    "endangered",
+    "invasive species",
+    "wildlife conservation"
+   ],
+   "w": "Biodiversity is the variety of life in an area: how many different kinds of living things there are and how varied they are.",
+   "f": [
+    "Ecosystems with more biodiversity usually recover better from changes like drought or disease.",
+    "Habitat loss, pollution, invasive species and climate change all reduce biodiversity.",
+    "People depend on biodiversity for food, medicine, clean water and pollination."
+   ],
+   "x": "Like a team with lots of different skills: if one player is out, someone else can step in.",
+   "m": []
+  },
+  {
+   "t": "Atoms",
+   "a": [
+    "atom",
+    "atoms",
+    "proton",
+    "protons",
+    "neutron",
+    "neutrons",
+    "electron",
+    "electrons",
+    "atomic"
+   ],
+   "w": "Atoms are the tiny particles that everything is made of. Each atom has a center (the nucleus) made of protons and neutrons, with electrons moving around it.",
+   "f": [
+    "Protons have a positive charge, electrons a negative charge, and neutrons none.",
+    "The number of protons decides which element an atom is: every carbon atom has 6.",
+    "Atoms are mostly empty space.",
+    "They are so small that one drop of water holds billions of trillions of atoms."
+   ],
+   "x": "Like LEGO bricks: about 100 kinds of bricks (elements) build everything in the world.",
+   "m": [
+    "Atoms aren't alive and don't 'want' anything."
+   ]
+  },
+  {
+   "t": "Molecules, elements and compounds",
+   "a": [
+    "molecule",
+    "molecules",
+    "element",
+    "elements",
+    "compound",
+    "compounds",
+    "periodic table",
+    "substance",
+    "substances",
+    "chemical formula"
+   ],
+   "w": "An element is a pure substance made of one kind of atom, like oxygen or gold. A molecule is two or more atoms joined together, and a compound is a substance made of two or more different elements joined together, like water.",
+   "f": [
+    "Water (H2O) is two hydrogen atoms joined to one oxygen atom.",
+    "There are 118 known elements, listed on the periodic table by their number of protons.",
+    "Elements in the same column of the periodic table behave in similar ways.",
+    "A compound can be very different from its elements: sodium is a reactive metal and chlorine a poisonous gas, but together they make table salt."
+   ],
+   "x": "Letters are elements, words are molecules: a few letters make countless words.",
+   "m": []
+  },
+  {
+   "t": "States of matter",
+   "a": [
+    "states of matter",
+    "state of matter",
+    "solid",
+    "solids",
+    "liquid",
+    "liquids",
+    "gas",
+    "gases",
+    "melting",
+    "freezing",
+    "boiling",
+    "evaporation",
+    "condensation",
+    "particles",
+    "phase change"
+   ],
+   "w": "Matter is usually found as a solid, a liquid or a gas. What changes between them is how much the particles move and how close together they are.",
+   "f": [
+    "Solid: particles packed tight, vibrating in place, so it keeps its shape.",
+    "Liquid: particles close but sliding past each other, so it takes the shape of its container.",
+    "Gas: particles far apart and moving fast, filling any space.",
+    "Adding thermal energy makes particles move faster and can melt or boil a substance; removing it can freeze or condense it.",
+    "Changing state is a physical change: ice, water and steam are all still H2O.",
+    "Mass stays the same when a substance changes state."
+   ],
+   "x": "Like students in a school: sitting at desks (solid), walking the halls (liquid), running around the playground (gas).",
+   "m": [
+    "The bubbles in boiling water are water vapor, not air or oxygen.",
+    "Water on the outside of a cold glass came from the air (condensation), not through the glass."
+   ]
+  },
+  {
+   "t": "Chemical reactions",
+   "a": [
+    "chemical reaction",
+    "chemical reactions",
+    "chemical change",
+    "physical change",
+    "reactant",
+    "reactants",
+    "conservation of mass",
+    "chemical properties",
+    "physical properties"
+   ],
+   "w": "In a chemical reaction, atoms rearrange to make new substances with new properties. In a physical change, like melting or cutting, the substance stays the same.",
+   "f": [
+    "Signs of a reaction: a gas forms (bubbles), color changes, temperature changes, light is given off, or a solid forms in a liquid.",
+    "Atoms are not created or destroyed, only rearranged, so the total mass stays the same (conservation of mass).",
+    "If mass seems to disappear, a gas usually escaped.",
+    "Examples: baking soda and vinegar, rusting iron, burning wood, cooking an egg."
+   ],
+   "x": "Like taking apart a LEGO car and building a plane with the same bricks: same bricks, new thing.",
+   "m": [
+    "Burning doesn't destroy matter; the atoms go into gases like carbon dioxide and water vapor."
+   ]
+  },
+  {
+   "t": "Density",
+   "a": [
+    "density",
+    "dense",
+    "float",
+    "floats",
+    "sink",
+    "sinks",
+    "buoyancy",
+    "mass and volume"
+   ],
+   "w": "Density is how much matter is packed into a given space: mass divided by volume. Something less dense than water floats; something more dense sinks.",
+   "f": [
+    "Water's density is about 1 gram per cubic centimeter.",
+    "Ice is less dense than liquid water, which is why it floats and lakes freeze from the top.",
+    "A huge steel ship floats because its shape holds lots of air, so the ship as a whole is less dense than water.",
+    "Density doesn't depend on how much you have: a drop of water and a pool of water have the same density."
+   ],
+   "x": "Like a crowded elevator versus a nearly empty one: same size box, different amount of stuff packed in.",
+   "m": [
+    "Heavy things don't always sink; it's density, not weight, that matters."
+   ]
+  },
+  {
+   "t": "Energy",
+   "a": [
+    "energy",
+    "kinetic energy",
+    "potential energy",
+    "energy transfer",
+    "energy transformation",
+    "conservation of energy",
+    "thermal energy",
+    "chemical energy",
+    "forms of energy"
+   ],
+   "w": "Energy is the ability to make things move or change. It comes in different forms and is never used up; it changes from one form to another or moves from one object to another.",
+   "f": [
+    "Kinetic energy is the energy of motion; faster and heavier objects have more.",
+    "Potential energy is stored energy, like a stretched rubber band, a book on a high shelf, or the chemical energy in food and batteries.",
+    "Conservation of energy: the total amount stays the same, it just changes form.",
+    "When energy seems 'used up', it has usually spread out as heat.",
+    "Energy is measured in joules (food energy in calories)."
+   ],
+   "x": "Like money moving between accounts: it can go from savings (potential) to spending (kinetic), but the total doesn't vanish.",
+   "m": [
+    "Energy is not a substance or a force.",
+    "Batteries don't store electricity; they store chemical energy."
+   ]
+  },
+  {
+   "t": "Heat transfer",
+   "a": [
+    "heat",
+    "heat transfer",
+    "conduction",
+    "convection",
+    "radiation",
+    "temperature",
+    "thermal",
+    "insulator",
+    "insulators",
+    "conductor",
+    "thermal conductor"
+   ],
+   "w": "Heat is thermal energy moving from something warmer to something cooler. It moves in three ways: conduction (by touch), convection (by moving liquids or gases) and radiation (as light and other waves).",
+   "f": [
+    "Temperature measures how fast particles are moving on average.",
+    "Heat always flows from hot to cold, until both are the same temperature.",
+    "Metals are good conductors; wood, plastic, foam and air are insulators.",
+    "Convection makes warm air rise and drives wind and ocean currents.",
+    "Sunlight warms Earth by radiation across empty space."
+   ],
+   "x": "Like a crowd: fast-moving particles bump into slow ones and speed them up, passing the energy along.",
+   "m": [
+    "Cold doesn't flow in; heat flows out.",
+    "A blanket doesn't make heat; it slows heat from leaving."
+   ]
+  },
+  {
+   "t": "Forces and motion",
+   "a": [
+    "force",
+    "forces",
+    "motion",
+    "newton's laws",
+    "newtons laws",
+    "newton",
+    "inertia",
+    "balanced forces",
+    "unbalanced forces",
+    "acceleration",
+    "speed",
+    "velocity",
+    "net force",
+    "momentum",
+    "collision",
+    "collisions"
+   ],
+   "w": "A force is a push or a pull. Forces can start something moving, stop it, speed it up, slow it down or change its direction.",
+   "f": [
+    "Newton's first law (inertia): an object keeps doing what it's doing, still or moving straight at a steady speed, unless an unbalanced force acts on it.",
+    "Newton's second law: a bigger force gives more acceleration, and a heavier object needs more force (force = mass × acceleration).",
+    "Newton's third law: forces come in pairs; when you push on something, it pushes back on you equally.",
+    "Balanced forces cancel out, so motion doesn't change; unbalanced forces change motion.",
+    "Speed is distance divided by time; velocity is speed in a direction.",
+    "Forces are measured in newtons."
+   ],
+   "x": "Like a shopping cart: it won't move until you push (first law), an empty cart speeds up faster than a full one (second law), and you feel the cart push back on your hands (third law).",
+   "m": [
+    "A moving object doesn't need a force to keep moving; it slows down because of friction.",
+    "The pair forces in the third law act on different objects, so they don't cancel."
+   ]
+  },
+  {
+   "t": "Gravity",
+   "a": [
+    "gravity",
+    "gravitational",
+    "weight",
+    "mass",
+    "free fall",
+    "orbit",
+    "orbits"
+   ],
+   "w": "Gravity is the pull that every object with mass has on every other object. The more mass, and the closer the objects, the stronger the pull. Earth's gravity is what gives you weight and makes things fall.",
+   "f": [
+    "Mass is how much matter something has; weight is how hard gravity pulls on it.",
+    "On the Moon you'd weigh about one sixth as much, but your mass would be the same.",
+    "Without air resistance, heavy and light objects fall at the same rate.",
+    "Gravity keeps the Moon orbiting Earth and the planets orbiting the Sun.",
+    "Astronauts on the space station feel weightless because they are falling around Earth, not because there's no gravity."
+   ],
+   "x": "Like an invisible rope between every pair of objects: the bigger the objects, the stronger the rope.",
+   "m": [
+    "There is gravity in space.",
+    "Heavier objects don't fall faster (without air)."
+   ]
+  },
+  {
+   "t": "Friction",
+   "a": [
+    "friction",
+    "air resistance",
+    "drag"
+   ],
+   "w": "Friction is a force that pushes against motion when two surfaces rub. It slows things down and turns motion energy into heat.",
+   "f": [
+    "Rough surfaces have more friction than smooth ones.",
+    "Air resistance is friction with the air.",
+    "Friction is useful: it lets shoes grip, brakes stop cars and pencils write.",
+    "Rubbing your hands together warms them because of friction."
+   ],
+   "x": "Like trying to slide across carpet in socks versus across a smooth floor.",
+   "m": []
+  },
+  {
+   "t": "Waves",
+   "a": [
+    "wave",
+    "waves",
+    "wavelength",
+    "frequency",
+    "amplitude",
+    "transverse",
+    "longitudinal",
+    "electromagnetic",
+    "electromagnetic spectrum"
+   ],
+   "w": "A wave is a repeating disturbance that carries energy from one place to another without carrying matter along with it.",
+   "f": [
+    "Amplitude is the wave's height (how much energy it carries); wavelength is the distance from one peak to the next; frequency is how many waves pass each second.",
+    "Mechanical waves like sound and water waves need something to travel through.",
+    "Electromagnetic waves, like light, radio and X-rays, can travel through empty space.",
+    "Waves can reflect (bounce), refract (bend), or be absorbed or transmitted."
+   ],
+   "x": "Like a stadium wave: the energy travels around the stadium, but each fan only stands up and sits down in place.",
+   "m": [
+    "The water in an ocean wave mostly moves up and down, not across the ocean."
+   ]
+  },
+  {
+   "t": "Sound",
+   "a": [
+    "sound",
+    "sounds",
+    "vibration",
+    "vibrations",
+    "pitch",
+    "loudness",
+    "echo",
+    "hearing"
+   ],
+   "w": "Sound is a vibration that travels as a wave through air, water or solids. When it reaches your ear, your eardrum vibrates and your brain hears it.",
+   "f": [
+    "Sound needs something to travel through, so it can't travel in empty space.",
+    "Pitch (high or low) depends on frequency, how fast the vibrations are.",
+    "Loudness depends on amplitude, how big the vibrations are.",
+    "Sound travels about 343 meters per second in air, faster in water and faster still in solids.",
+    "An echo is sound reflecting off a surface."
+   ],
+   "x": "Like a Slinky: push one end and a squeeze travels along it, even though each coil just moves back and forth.",
+   "m": [
+    "In movies, space explosions are loud; in real space they'd be silent."
+   ]
+  },
+  {
+   "t": "Light",
+   "a": [
+    "light",
+    "reflection",
+    "refraction",
+    "absorption",
+    "color",
+    "colors",
+    "lens",
+    "lenses",
+    "mirror",
+    "mirrors",
+    "prism",
+    "rainbow",
+    "shadow",
+    "shadows"
+   ],
+   "w": "Light is energy that travels as electromagnetic waves. We see things when light from them, given off or bounced off, reaches our eyes.",
+   "f": [
+    "Light travels about 300,000 kilometers per second; sunlight takes about 8 minutes to reach Earth.",
+    "Objects can reflect light (mirror), let it through (glass) or absorb it (dark cloth).",
+    "Refraction is light bending as it passes from one material to another, like a straw looking bent in water.",
+    "White light is all colors mixed; a prism or raindrops spread it into a rainbow.",
+    "A red apple looks red because it reflects red light and absorbs the other colors.",
+    "Shadows form where an object blocks light."
+   ],
+   "x": "Like a bouncy ball: light bounces off things and travels into your eyes, and that's how you see them.",
+   "m": [
+    "Eyes don't send anything out to see; light comes into them."
+   ]
+  },
+  {
+   "t": "Electricity and circuits",
+   "a": [
+    "electricity",
+    "electric",
+    "circuit",
+    "circuits",
+    "voltage",
+    "battery",
+    "batteries",
+    "series circuit",
+    "parallel circuit",
+    "static electricity",
+    "conductors",
+    "electric current",
+    "electric charge"
+   ],
+   "w": "Electricity is the flow of electric charge, usually electrons, through a material. It only flows when there is a complete loop, called a circuit.",
+   "f": [
+    "A simple circuit needs an energy source (battery), wires, and something that uses the energy (a bulb).",
+    "Conductors like copper let charge flow easily; insulators like plastic and rubber don't.",
+    "In a series circuit there is one path, so if one bulb goes out they all do. In a parallel circuit there are several paths.",
+    "Static electricity is charge that builds up on a surface and jumps, like a shock from a doorknob.",
+    "Like charges repel and opposite charges attract."
+   ],
+   "x": "Like water in a loop of pipes with a pump: the battery is the pump, the wire is the pipe, and the bulb is a water wheel. Break the pipe and the flow stops.",
+   "m": [
+    "A battery doesn't hold electrons that get used up; it pushes charges that are already in the wire."
+   ]
+  },
+  {
+   "t": "Magnetism",
+   "a": [
+    "magnet",
+    "magnets",
+    "magnetism",
+    "magnetic",
+    "magnetic field",
+    "electromagnet",
+    "electromagnets",
+    "compass",
+    "poles"
+   ],
+   "w": "Magnetism is a force that magnets exert on each other and on some metals, like iron. Every magnet has a north and a south pole.",
+   "f": [
+    "Opposite poles attract; like poles repel.",
+    "Magnets can push or pull without touching, through a magnetic field.",
+    "Only some metals are attracted: iron, nickel and cobalt. Aluminum and copper aren't.",
+    "An electric current makes a magnetic field; a coil of wire around an iron nail makes an electromagnet you can switch on and off.",
+    "Earth acts like a giant magnet, which is why a compass works."
+   ],
+   "x": "Like an invisible force field around the magnet, strongest near the poles.",
+   "m": [
+    "Not all metals are magnetic."
+   ]
+  },
+  {
+   "t": "Water cycle",
+   "a": [
+    "water cycle",
+    "hydrologic cycle",
+    "precipitation",
+    "transpiration",
+    "runoff",
+    "groundwater"
+   ],
+   "w": "The water cycle is how water moves around Earth, again and again: it evaporates, forms clouds, falls as rain or snow, and flows back to oceans, lakes and underground.",
+   "f": [
+    "The Sun's energy drives evaporation; gravity brings water back down and makes it flow downhill.",
+    "Water vapor cools high in the air and condenses into tiny droplets that make clouds.",
+    "Plants release water vapor from their leaves (transpiration).",
+    "Some water soaks into the ground and becomes groundwater.",
+    "The water you drink today has been cycling for billions of years."
+   ],
+   "x": "Like a never-ending trip: ocean → sky → land → back to the ocean, powered by the Sun.",
+   "m": [
+    "Clouds are tiny liquid droplets or ice, not water vapor (vapor is invisible)."
+   ]
+  },
+  {
+   "t": "Weather and climate",
+   "a": [
+    "weather",
+    "climate",
+    "air pressure",
+    "humidity",
+    "air mass",
+    "air masses",
+    "forecast",
+    "storm",
+    "storms",
+    "hurricane",
+    "tornado",
+    "wind",
+    "weather front",
+    "cold front",
+    "warm front"
+   ],
+   "w": "Weather is what the air is doing right now or this week: temperature, rain, wind, clouds. Climate is the usual weather of a place averaged over many years, about 30 or more.",
+   "f": [
+    "The Sun's uneven heating of Earth drives the weather.",
+    "Wind is air moving from high pressure to low pressure.",
+    "When different air masses meet at a front, the weather often changes, with clouds and storms.",
+    "Climate depends on latitude, elevation, nearness to oceans and ocean currents.",
+    "Meteorologists use patterns in data to forecast the weather."
+   ],
+   "x": "Weather is your mood today; climate is your personality.",
+   "m": [
+    "A cold day doesn't disprove a warming climate; climate is about long-term averages."
+   ]
+  },
+  {
+   "t": "Seasons",
+   "a": [
+    "season",
+    "seasons",
+    "axis",
+    "tilt",
+    "solstice",
+    "equinox"
+   ],
+   "w": "We have seasons because Earth's axis is tilted (about 23.5 degrees). As Earth orbits the Sun, first one half and then the other tilts toward the Sun and gets more direct sunlight and longer days. That half has summer.",
+   "f": [
+    "Direct sunlight is more concentrated, so it heats the ground more.",
+    "The Northern and Southern Hemispheres have opposite seasons.",
+    "Earth is actually closest to the Sun in early January, during northern winter.",
+    "The solstices have the longest and shortest days; at the equinoxes day and night are about equal."
+   ],
+   "x": "Shine a flashlight straight down on paper and the spot is small and bright; tilt it and the light spreads out and is weaker. That's summer versus winter sunlight.",
+   "m": [
+    "Seasons are not caused by Earth being closer to or farther from the Sun."
+   ]
+  },
+  {
+   "t": "Moon phases and eclipses",
+   "a": [
+    "moon",
+    "moon phases",
+    "phases of the moon",
+    "lunar",
+    "eclipse",
+    "eclipses",
+    "tides",
+    "tide",
+    "full moon",
+    "new moon"
+   ],
+   "w": "The Moon doesn't make its own light; the Sun always lights half of it. As the Moon orbits Earth, about once a month, we see different amounts of that sunlit half. Those are the phases.",
+   "f": [
+    "A full cycle of phases takes about 29.5 days.",
+    "New moon: the lit side faces away from us. Full moon: we see the whole lit side.",
+    "Phases are not caused by Earth's shadow; that only happens in a lunar eclipse.",
+    "A solar eclipse is when the Moon blocks the Sun; a lunar eclipse is when Earth's shadow falls on the Moon.",
+    "The Moon's gravity pulls on the oceans and causes tides.",
+    "We always see the same side of the Moon."
+   ],
+   "x": "Walk a ball around your head next to a lamp in a dark room, and you'll see the lit part of the ball grow and shrink.",
+   "m": [
+    "Earth's shadow does not cause the phases."
+   ]
+  },
+  {
+   "t": "The solar system",
+   "a": [
+    "solar system",
+    "planet",
+    "planets",
+    "sun",
+    "asteroid",
+    "asteroids",
+    "comet",
+    "comets",
+    "dwarf planet"
+   ],
+   "w": "The solar system is the Sun and everything that orbits it, held together by the Sun's gravity: eight planets and their moons, dwarf planets like Pluto, asteroids and comets.",
+   "f": [
+    "The Sun is a star, about 109 times as wide as Earth, and holds over 99% of the solar system's mass.",
+    "The four inner planets (Mercury, Venus, Earth, Mars) are small and rocky; the four outer ones (Jupiter, Saturn, Uranus, Neptune) are giants made mostly of gas or ice.",
+    "Planets farther from the Sun take longer to orbit it: Earth takes one year, Neptune about 165.",
+    "The solar system formed about 4.6 billion years ago from a spinning cloud of gas and dust."
+   ],
+   "x": "If the Sun were as tall as a front door, Earth would be the size of a small coin about 200 meters away.",
+   "m": []
+  },
+  {
+   "t": "Stars and galaxies",
+   "a": [
+    "star",
+    "stars",
+    "galaxy",
+    "galaxies",
+    "milky way",
+    "universe",
+    "light year",
+    "big bang",
+    "constellation",
+    "constellations"
+   ],
+   "w": "Stars are huge, hot balls of gas that make light and heat by fusing hydrogen into helium. Billions of stars are grouped into galaxies; ours is the Milky Way.",
+   "f": [
+    "The Sun is a medium-sized star; it looks bigger and brighter than others only because it is much closer.",
+    "A light-year is the distance light travels in a year, about 9.5 trillion kilometers.",
+    "The Milky Way has hundreds of billions of stars, and the universe has billions of galaxies.",
+    "Stars look like they move across the night sky because Earth spins."
+   ],
+   "x": "The Sun is like a streetlight next to you, and other stars are streetlights in towns far away.",
+   "m": []
+  },
+  {
+   "t": "Plate tectonics",
+   "a": [
+    "plate tectonics",
+    "tectonic plates",
+    "tectonic",
+    "continental drift",
+    "plate boundary",
+    "plate boundaries",
+    "pangaea",
+    "seafloor spreading",
+    "crust",
+    "mantle",
+    "earth's layers",
+    "layers of the earth",
+    "inner core",
+    "outer core"
+   ],
+   "w": "Earth's outer shell is broken into huge pieces called plates that slowly move, a few centimeters a year, about as fast as your fingernails grow. Where plates meet, we get mountains, volcanoes and earthquakes.",
+   "f": [
+    "Earth's layers: crust, mantle, outer core (liquid) and inner core (solid).",
+    "The plates ride on hot, slowly flowing rock in the mantle.",
+    "Plates pull apart (divergent), push together (convergent) or slide past each other (transform).",
+    "The continents were once joined in a supercontinent called Pangaea, roughly 300 to 200 million years ago.",
+    "Evidence: matching fossils and rocks on different continents, the fit of coastlines, and new seafloor forming at mid-ocean ridges."
+   ],
+   "x": "Like the cracked shell of a hard-boiled egg, with the pieces slowly sliding around.",
+   "m": [
+    "Continents don't float on a liquid ocean of lava; the mantle is mostly solid rock that flows very slowly."
+   ]
+  },
+  {
+   "t": "Earthquakes and volcanoes",
+   "a": [
+    "earthquake",
+    "earthquakes",
+    "volcano",
+    "volcanoes",
+    "volcanic",
+    "eruption",
+    "magma",
+    "lava",
+    "fault",
+    "faults",
+    "seismic",
+    "tsunami",
+    "natural hazard",
+    "natural hazards"
+   ],
+   "w": "An earthquake is the shaking when rocks along a crack in Earth (a fault) suddenly slip. A volcano is an opening where melted rock (magma) comes up to the surface; once it's out, it's called lava.",
+   "f": [
+    "Most earthquakes and volcanoes happen along plate boundaries, like the Ring of Fire around the Pacific.",
+    "Some volcanoes, like Hawaii's, form over hot spots in the middle of a plate.",
+    "Earthquake energy travels as seismic waves, which scientists record with seismometers.",
+    "Undersea earthquakes can cause tsunamis.",
+    "Scientists can't predict the exact time of an earthquake, but they map where they're likely and design safer buildings."
+   ],
+   "x": "Bend a stick slowly and it suddenly snaps: stress builds up in rocks the same way until they slip.",
+   "m": []
+  },
+  {
+   "t": "Rocks and the rock cycle",
+   "a": [
+    "rock cycle",
+    "rock",
+    "rocks",
+    "igneous",
+    "sedimentary",
+    "metamorphic",
+    "minerals",
+    "mineral"
+   ],
+   "w": "The rock cycle is how rocks slowly change from one type to another. There are three types: igneous (cooled melted rock), sedimentary (layers of sediment pressed and cemented together) and metamorphic (changed by heat and pressure).",
+   "f": [
+    "Any type of rock can become any other type, given enough time.",
+    "Granite and basalt are igneous; sandstone and limestone are sedimentary; marble and slate are metamorphic.",
+    "Most fossils are found in sedimentary rock.",
+    "Rocks are made of minerals, natural solids with a set chemical makeup.",
+    "The rock cycle takes thousands to millions of years."
+   ],
+   "x": "Like recycling crayons: melt them (igneous), shave them into flakes and press them together (sedimentary), or squish and warm them into a new shape (metamorphic).",
+   "m": []
+  },
+  {
+   "t": "Weathering, erosion and deposition",
+   "a": [
+    "weathering",
+    "erosion",
+    "deposition",
+    "sediment",
+    "sediments",
+    "landforms",
+    "glacier",
+    "glaciers",
+    "canyon",
+    "soil"
+   ],
+   "w": "Weathering breaks rocks into smaller pieces. Erosion carries those pieces away, by water, wind, ice or gravity. Deposition is when they're dropped somewhere new.",
+   "f": [
+    "Weathering can be physical (ice wedging, roots, rubbing) or chemical (acid rain dissolving limestone).",
+    "Moving water is the biggest cause of erosion; it carved the Grand Canyon over millions of years.",
+    "Soil forms from weathered rock mixed with decaying plants and animals.",
+    "Plant roots help hold soil and slow erosion."
+   ],
+   "x": "Weathering is breaking a cookie; erosion is the crumbs being blown off the table; deposition is where they land.",
+   "m": []
+  },
+  {
+   "t": "Greenhouse effect and climate change",
+   "a": [
+    "greenhouse effect",
+    "greenhouse gas",
+    "greenhouse gases",
+    "climate change",
+    "global warming",
+    "carbon dioxide",
+    "fossil fuels",
+    "fossil fuel"
+   ],
+   "w": "The greenhouse effect is how some gases in the air, like carbon dioxide and methane, trap heat and keep Earth warm enough for life. Burning fossil fuels adds more of these gases, which traps more heat and is warming Earth's climate.",
+   "f": [
+    "Without any greenhouse effect, Earth would average well below freezing.",
+    "Carbon dioxide in the air has risen from about 280 parts per million before the 1800s to over 420 today, mostly from burning coal, oil and gas.",
+    "Effects include rising sea levels, melting ice, more heat waves, and changes in rainfall.",
+    "Ways to reduce it include clean energy, efficiency, and protecting forests."
+   ],
+   "x": "Like a blanket around Earth: a thin one keeps you comfortable, but piling on more makes you too hot.",
+   "m": [
+    "The ozone hole is a different problem from climate change.",
+    "Weather on one day isn't climate."
+   ]
+  },
+  {
+   "t": "Natural resources",
+   "a": [
+    "natural resource",
+    "natural resources",
+    "renewable",
+    "nonrenewable",
+    "renewable energy",
+    "solar energy",
+    "wind energy",
+    "recycling",
+    "pollution",
+    "human impact"
+   ],
+   "w": "Natural resources are materials from Earth that people use, like water, soil, minerals, wood and fuels. Renewable resources, like sunlight and wind, are replaced naturally; nonrenewable ones, like oil and coal, take millions of years to form.",
+   "f": [
+    "Resources are spread unevenly around Earth because of how they formed, for example oil where ancient sea life was buried.",
+    "As the human population grows, we use more resources.",
+    "Reducing, reusing and recycling, plus cleaner technologies, lower our impact."
+   ],
+   "x": "Renewable is like a well that refills with rain; nonrenewable is like a jar of cookies that won't be refilled.",
+   "m": []
+  },
+  {
+   "t": "Engineering design process",
+   "a": [
+    "engineering",
+    "engineering design",
+    "design process",
+    "prototype",
+    "criteria",
+    "constraints",
+    "design challenge",
+    "engineer",
+    "engineers"
+   ],
+   "w": "The engineering design process is how engineers solve problems: define the problem, brainstorm ideas, pick one and build a prototype, test it, and improve it, over and over.",
+   "f": [
+    "Criteria are what the solution must do to succeed; constraints are its limits, like time, cost and materials.",
+    "Testing and failing is part of the process; each test shows what to improve.",
+    "Comparing several designs with the same test helps pick the best one.",
+    "Classic classroom challenges: egg drop, paper bridges, spaghetti towers, solar ovens."
+   ],
+   "x": "Like baking a new recipe: try it, taste it, adjust it, and bake again until it's right.",
+   "m": [
+    "Failing a test isn't failing the project; it is data."
+   ]
+  },
+  {
+   "t": "Scientific models",
+   "a": [
+    "scientific model",
+    "modeling",
+    "diagram",
+    "simulation"
+   ],
+   "w": "A scientific model is a simplified version of something real, like a drawing, a 3D object, a diagram, an equation or a computer simulation, used to explain or predict how it works.",
+   "f": [
+    "Every model leaves something out; good ones keep the parts that matter for the question.",
+    "Scientists change models when new evidence comes in.",
+    "Students can test a model by asking: what does it show well, and what does it get wrong?"
+   ],
+   "x": "Like a map: it isn't the real city, but it helps you understand and get around it.",
+   "m": [
+    "A model isn't wrong because it's simplified; it's wrong if it doesn't fit the evidence."
+   ]
+  },
+  {
+   "t": "Investigations and variables",
+   "a": [
+    "experiment",
+    "experiments",
+    "scientific method",
+    "hypothesis",
+    "variable",
+    "variables",
+    "independent variable",
+    "dependent variable",
+    "controlled variables",
+    "fair test",
+    "investigation",
+    "data",
+    "control group"
+   ],
+   "w": "In an investigation, scientists ask a question, make a prediction, and test it by changing one thing (the independent variable) and measuring what happens (the dependent variable), while keeping everything else the same (controlled variables).",
+   "f": [
+    "A fair test changes only one thing at a time.",
+    "Repeating trials makes the results more trustworthy.",
+    "Scientists use evidence and data to support claims, and other scientists check the work.",
+    "There isn't one single 'scientific method'; scientists use many practices, like modeling, investigating and arguing from evidence."
+   ],
+   "x": "Like testing which paper airplane flies farthest: change only the wing shape, throw each the same way, measure, and repeat.",
+   "m": []
+  }
+ ]
+}
