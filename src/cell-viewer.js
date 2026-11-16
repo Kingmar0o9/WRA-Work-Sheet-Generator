@@ -194,6 +194,18 @@ export async function start() {
     }
   }
 
+  // the content column of the stage (inside the gutters), measured once per resize
+  let column = null;
+  window.addEventListener('resize', () => { column = null; });
+  function stageColumn() {
+    if (column) return column;
+    const wrap = document.querySelector('.stage-copy .wrap');
+    if (!wrap) return null;
+    const r = wrap.getBoundingClientRect(), cs = getComputedStyle(wrap);
+    column = { left: r.left + parseFloat(cs.paddingLeft), right: r.right - parseFloat(cs.paddingRight), canvasLeft: canvas.getBoundingClientRect().left };
+    return column;
+  }
+
   function frame() {
     const w = canvas.clientWidth, h = canvas.clientHeight;
     if (!w || !h) return;
@@ -213,8 +225,15 @@ export async function start() {
     camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
     model.rotation.set(st.pitch, st.yaw, st.roll, 'XYZ');
-    // stage puts the model right of the headline on wide screens
-    const offX = POSTER || phone ? 0 : (st.mode === 'stage' ? Math.min(78, 30 * (w / h)) : 0);
+    // stage puts the model right of the headline on wide screens, centred over the right part of
+    // the page's content column, so on a big monitor it lines up with the header instead of
+    // drifting toward the screen edge
+    let offX = 0;
+    if (!POSTER && !phone && st.mode === 'stage') {
+      const col = stageColumn();
+      const halfW = Math.tan((camera.fov * Math.PI) / 360) * dist * (w / h);
+      offX = col ? ((col.left + (col.right - col.left) * 0.69) - col.canvasLeft - w / 2) / (w / 2) * halfW : Math.min(78, 30 * (w / h));
+    }
     const offY = -(st.mode === 'viewer' ? 16 : LIFT_MID) * k - 2.2 * st.thud;
     model.position.set(offX, offY, 0);
     model.scale.setScalar(1);
@@ -343,6 +362,7 @@ export async function start() {
 
   // ---- move the canvas between the stage and the viewer --------------------
   function mount(mode) {
+    column = null;
     if (st.mode === mode && canvas.parentNode) return;
     st.mode = mode;
     (mode === 'viewer' ? viewerSlot : stageSlot).appendChild(canvas);

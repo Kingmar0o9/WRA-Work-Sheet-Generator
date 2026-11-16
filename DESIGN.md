@@ -225,6 +225,15 @@ The resource column and the viewer column sit side by side; the viewer is sticky
 
 **The Fixed Cell Rule.** Facts live in ruled cells or ruled rows, never as floating stat blocks.
 
+### Big Screens
+Above 1680x860 the root type steps to 106.25% and the column to 1400px; above 2200x1100 to 118.75% and 1640px. Everything in rem scales with it, so a large monitor reads like a laptop rather than a narrow strip. The stage model (3D and stills) is centred over the right part of the content column, so its right edge lines up with the header button at any width.
+
+### Motion
+- **Hero entrance:** once on load, the headline, lede, buttons and kitline rise 16px and fade in on the expo-out ease, 90ms apart; the still picture scales in from 0.96.
+- **Hover:** buttons lift 2px and their arrow nudges 3px toward where it goes (right, or down for in-page jumps); press scales to 0.98. Header links draw a 2px underline from the left, and the link for the section on screen keeps it (`aria-current="location"`). Part tiles lift their picture slightly.
+- **Part details:** when a part is picked, its title and lines settle in with a short stagger.
+- **Never:** no fade-in on scroll for sections or cards; everything rests under `prefers-reduced-motion`.
+
 ## Elevation & Depth
 
 The system is flat. Depth comes from the two grounds and from 2px rules, not from shadow. Two soft shadows exist, each tied to a specific job: the header gains a hairline and soft drop only once it turns solid over paper, and the model's floating part labels carry a soft drop so they read over the 3D render.

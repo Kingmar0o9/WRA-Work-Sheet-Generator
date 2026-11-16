@@ -71,7 +71,11 @@
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:smooth;scrollbar-color:var(--leaf) var(--stock);-webkit-text-size-adjust:100%}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-body{margin:0;background:var(--stock);color:var(--ink);font-family:var(--sans);font-size:clamp(17px,1.05vw + 12px,19px);line-height:1.55;font-weight:400;-webkit-font-smoothing:antialiased}
+/* Big monitors: the whole page steps up in size and the column widens, so a 27-inch screen
+   reads like a laptop does instead of a small strip in the middle. */
+@media (min-width:1680px) and (min-height:860px){html{font-size:106.25%}:root{--max:1400px}}
+@media (min-width:2200px) and (min-height:1100px){html{font-size:118.75%}:root{--max:1640px}}
+body{margin:0;background:var(--stock);color:var(--ink);font-family:var(--sans);font-size:clamp(1.0625rem,1.05vw + .75rem,1.1875rem);line-height:1.55;font-weight:400;-webkit-font-smoothing:antialiased}
 ::selection{background:var(--sun);color:var(--ink)}
 a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:2px}
 :focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:6px}
@@ -86,8 +90,10 @@ p{margin:0;text-wrap:pretty}
 /* ---------- buttons ---------- */
 .btn{display:inline-flex;align-items:center;gap:.55em;min-height:48px;padding:0 22px;border-radius:999px;font:700 1rem/1 var(--sans);letter-spacing:-.01em;text-decoration:none;border:2px solid currentColor;cursor:pointer;transition:transform .3s var(--ease),background-color .2s,color .2s}
 .btn:hover{transform:translateY(-2px)}
-.btn:active{transform:translateY(0)}
-.btn svg{width:18px;height:18px;flex:none}
+.btn:active{transform:translateY(0) scale(.98);transition-duration:.08s}
+.btn svg{width:18px;height:18px;flex:none;transition:transform .35s var(--ease)}
+.btn:hover svg{transform:translateX(3px)}
+.btn.down:hover svg{transform:translateY(3px)}
 .btn-sun{background:var(--sun);border-color:var(--sun);color:var(--ink)}
 .btn-sun:hover{background:#ffd35e;border-color:#ffd35e}
 .btn-line{background:transparent;color:inherit}
@@ -104,8 +110,10 @@ p{margin:0;text-wrap:pretty}
 .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.15rem;letter-spacing:-.03em;text-decoration:none;white-space:nowrap}
 .brand svg{width:30px;height:30px}
 .top nav{display:flex;gap:22px;margin-left:auto;font-weight:600;font-size:.95rem}
-.top nav a{text-decoration:none;opacity:.9}
-.top nav a:hover{text-decoration:underline;opacity:1}
+.top nav a{position:relative;text-decoration:none;opacity:.9;transition:opacity .2s}
+.top nav a::after{content:"";position:absolute;left:0;right:0;bottom:-5px;height:2px;border-radius:2px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease)}
+.top nav a:hover,.top nav a[aria-current]{opacity:1}
+.top nav a:hover::after,.top nav a[aria-current]::after{transform:scaleX(1)}
 .top .btn{min-height:42px;padding:0 18px;font-size:.92rem;white-space:nowrap}
 .top.solid{background:rgba(246,247,242,.94);color:var(--ink);box-shadow:0 1px 0 rgba(19,38,28,.18),0 8px 24px -16px rgba(19,38,28,.4);backdrop-filter:saturate(1.2) blur(8px)}
 .top.solid .btn-sun{background:var(--ink);border-color:var(--ink);color:var(--stock)}
@@ -115,11 +123,11 @@ p{margin:0;text-wrap:pretty}
 .stage{position:relative;height:260vh;height:260svh;background:var(--leaf);color:var(--on-leaf);--p:0}
 .stage-sticky{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
 .stage-art{position:absolute;inset:0}
-.poster-frame{position:absolute;right:var(--gutter);top:52%;transform:translateY(-50%);width:min(calc(100% - 540px),112vh,1000px);aspect-ratio:4/3}
+.poster-frame{position:absolute;right:max(var(--gutter),calc((100% - var(--max)) / 2 + var(--gutter)));top:52%;transform:translateY(-50%);width:min(calc(100% - 540px),112vh,62.5rem);aspect-ratio:4/3}
 .poster-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
 .poster-frame .label{left:var(--lx);top:var(--ly);opacity:calc((var(--p) - .75) * 4)}
-.poster-b{opacity:var(--p)}
-.poster-a{opacity:calc(1 - var(--p))}
+.poster-b{opacity:calc((var(--p) - .3) * 2.5)}
+.poster-a{opacity:calc(1 - (var(--p) - .3) * 2.5)}
 #stage-canvas,#viewer-canvas{position:absolute;inset:0}
 #stage-canvas canvas,#viewer-canvas canvas{width:100%!important;height:100%!important;display:block;opacity:0;animation:fadein .8s var(--ease) .05s forwards}
 @keyframes fadein{to{opacity:1}}
@@ -145,7 +153,9 @@ p{margin:0;text-wrap:pretty}
 .label::before{content:"";position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;background:var(--stock);box-shadow:0 0 0 3px var(--ink)}
 .label::after{content:"";position:absolute;left:-1px;bottom:0;width:2px;height:var(--lead);background:var(--stock)}
 .label.below::after{bottom:auto;top:0}
-.scroll-cue{position:absolute;left:50%;bottom:16px;width:2px;height:40px;background:linear-gradient(var(--on-leaf),transparent);opacity:calc(.7 - var(--p) * 4);transform:translateX(-50%)}
+.scroll-cue{position:absolute;left:50%;bottom:16px;width:2px;height:40px;background:rgba(246,247,242,.28);opacity:calc(.8 - var(--p) * 4);transform:translateX(-50%);overflow:hidden;border-radius:2px}
+.scroll-cue::after{content:"";position:absolute;left:0;top:0;width:100%;height:45%;background:var(--on-leaf);border-radius:2px;animation:drip 2.4s var(--ease) 1.4s infinite both}
+@keyframes drip{0%{transform:translateY(-100%)}70%,100%{transform:translateY(230%)}}
 .lede .short{display:none}
 /* Phones and small tablets: the model gets the top half of the screen, the words the bottom
    half, so they never sit on top of each other. Shorter text and smaller buttons here. */
@@ -174,6 +184,18 @@ p{margin:0;text-wrap:pretty}
 .js-off .stage{height:auto}.js-off .stage-sticky{position:relative;height:auto;min-height:100vh}
 .js-off .copy-b,.js-off .poster-b{display:none}
 .js-off .copy-a{opacity:1;transform:none}
+
+/* ---------- motion: the hero enters once; part details settle in ---------- */
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes framein{from{opacity:0;scale:.96}to{opacity:1;scale:1}}
+@media (prefers-reduced-motion:no-preference){
+  .copy-a h1,.copy-a .lede,.copy-a .actions,.copy-a .kitline{animation:rise .9s var(--ease) both}
+  .copy-a .lede{animation-delay:.09s}.copy-a .actions{animation-delay:.18s}.copy-a .kitline{animation-delay:.27s}
+  .poster-frame{animation:framein 1.2s var(--ease) .1s both}
+  .info.swap>*{animation:rise .5s var(--ease) both}
+  .info.swap>*:nth-child(2){animation-delay:.04s}.info.swap>*:nth-child(3){animation-delay:.08s}.info.swap>*:nth-child(n+4){animation-delay:.12s}
+}
+@media (prefers-reduced-motion:reduce){.scroll-cue::after{animation:none;transform:none}}
 
 /* ---------- horizon rule ---------- */
 .horizon{height:0;border:0;border-top:2px solid var(--rule);margin:0}
@@ -275,10 +297,16 @@ p{margin:0;text-wrap:pretty}
 .sheet-cap{grid-column:1/-1;margin:2px 4px 6px;color:var(--on-leaf-2);font-size:.9rem;font-weight:600}
 .parts-sheet button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 6px 10px;border:2px solid transparent;border-radius:14px;background:rgba(255,255,255,.05);color:var(--on-leaf);font:700 .88rem/1.2 var(--sans);text-align:center;cursor:pointer;transition:background-color .2s,border-color .2s}
 .parts-sheet button:hover{background:rgba(255,255,255,.1)}
+.parts-sheet img{transition:transform .5s var(--ease)}
+.parts-sheet button:hover img{transform:translateY(-3px) scale(1.04)}
+.chips button:active,.viewer-tools button:active,.parts-sheet button:active{transform:scale(.97)}
+.viewer-tools button{transition:background-color .2s,color .2s,transform .15s var(--ease)}
+@media (prefers-reduced-motion:reduce){.parts-sheet button:hover img{transform:none}}
 .parts-sheet button[aria-pressed="true"]{border-color:var(--sun);background:rgba(246,195,67,.14)}
 .parts-sheet img{width:100%;height:auto;aspect-ratio:4/3;object-fit:contain}
+.parts-sheet .sheet-note{display:flex;align-items:center;justify-content:center;margin:0;padding:12px;border:2px dashed rgba(215,237,211,.4);border-radius:14px;color:var(--on-leaf-2);font-size:.88rem;font-weight:700;line-height:1.3;text-align:center}
 @media (max-width:520px){.parts-sheet{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.chips button{min-height:40px;padding:0 14px;border-radius:999px;border:2px solid var(--ink);background:transparent;color:var(--ink);font:600 .9rem/1 var(--sans);cursor:pointer;transition:background-color .2s,color .2s}
+.chips button{min-height:40px;padding:0 14px;border-radius:999px;border:2px solid var(--ink);background:transparent;color:var(--ink);font:600 .9rem/1 var(--sans);cursor:pointer;transition:background-color .2s,color .2s,transform .15s var(--ease)}
 .chips button:hover{background:rgba(19,38,28,.08)}
 .chips button[aria-pressed="true"]{background:var(--ink);color:var(--stock)}
 .chips .sep{flex-basis:100%;height:0}
@@ -370,9 +398,9 @@ p{margin:0;text-wrap:pretty}
           <h1>A plant cell you can take apart.</h1>
           <p class="lede"><span class="long">A 12-piece, 3D printed plant cell model for middle school. Students take it apart and rebuild it to explain how each structure contributes to the function of the cell as a whole.</span><span class="short">A 12-piece, 3D printed plant cell model for middle school science.</span></p>
           <div class="actions">
-            <a class="btn btn-sun" href="#why">Learn more
+            <a class="btn btn-sun down" href="#why">Learn more
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-            <a class="btn btn-line" href="#stage-b">See it come apart
+            <a class="btn btn-line down" href="#stage-b">See it come apart
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
           </div>
           <p class="kitline"><b>Plant Cell Kit</b> · Grades 6–8 · Designed to align with Next Generation Science Standards* MS-LS1-2</p>
@@ -489,6 +517,7 @@ p{margin:0;text-wrap:pretty}
           <button type="button" data-part="vacuole" aria-pressed="false"><img src="assets/img/parts/vacuole.webp?v=20261115b" width="480" height="360" alt="" loading="lazy" decoding="async"><span>Central vacuole</span></button>
           <button type="button" data-part="peroxisome" aria-pressed="false"><img src="assets/img/parts/peroxisome.webp?v=20261115b" width="480" height="360" alt="" loading="lazy" decoding="async"><span>Peroxisome</span></button>
           <button type="button" data-part="amyloplast" aria-pressed="false"><img src="assets/img/parts/amyloplast.webp?v=20261115b" width="480" height="360" alt="" loading="lazy" decoding="async"><span>Amyloplast</span></button>
+          <p class="sheet-note">Plus the nucleolus, which sits inside the nucleus.</p>
         </div>
         <div class="viewer-box on-leaf" id="viewer-box">
           <img src="assets/img/cell-exploded.webp?v=20261115b" width="1600" height="1200" alt="" loading="lazy" decoding="async">
@@ -552,6 +581,8 @@ p{margin:0;text-wrap:pretty}
   (function () {
     var d = document.documentElement, stage = document.getElementById('stage'), top = document.getElementById('top');
     var ticking = false;
+    var navLinks = [].slice.call(top.querySelectorAll('nav a'));
+    var sections = ['#why', '#resources'].map(function (h) { return { href: h, el: document.querySelector(h) }; });
     function onScroll() {
       if (ticking) return; ticking = true;
       requestAnimationFrame(function () {
@@ -561,6 +592,11 @@ p{margin:0;text-wrap:pretty}
         stage.style.setProperty('--p', p.toFixed(3));
         stage.dataset.phase = p < 0.45 ? 'a' : 'b';
         top.classList.toggle('solid', r.bottom < 68);
+        // underline the header link for the section in the middle of the screen
+        var here = null, mid = vh * 0.45;
+        if (p >= 0.45 && r.bottom > mid) here = '#stage-b';
+        else sections.forEach(function (s) { var b = s.el.getBoundingClientRect(); if (b.top <= mid && b.bottom > mid) here = s.href; });
+        navLinks.forEach(function (a) { if (a.getAttribute('href') === here) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
       });
     }
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -576,6 +612,7 @@ p{margin:0;text-wrap:pretty}
       var bar = document.getElementById('viewer-name');
       if (tpl) { bar.textContent = tpl.content.querySelector('h3').textContent; bar.hidden = false; bar.classList.remove('show'); void bar.offsetWidth; bar.classList.add('show'); } else { bar.hidden = true; }
       info.innerHTML = (tpl || document.getElementById('info-empty')).innerHTML;
+      info.classList.remove('swap'); void info.offsetWidth; info.classList.add('swap');
       chips.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.part === key)); });
       document.dispatchEvent(new CustomEvent('wra:part', { detail: key || null }));
       if (from === 'model' && key && window.innerWidth <= 960) info.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -635,7 +672,7 @@ p{margin:0;text-wrap:pretty}
 
     // Load the 3D model only on capable devices, after the page is already usable.
     if (d.classList.contains('want-3d')) {
-      var go = function () { var s = document.createElement('script'); s.type = 'module'; s.src = 'assets/js/cell-viewer.js?v=20261115b'; document.head.appendChild(s); };
+      var go = function () { var s = document.createElement('script'); s.type = 'module'; s.src = 'assets/js/cell-viewer.js?v=20261116a'; document.head.appendChild(s); };
       if (document.readyState === 'complete') go(); else window.addEventListener('load', function () { (window.requestIdleCallback || setTimeout)(go, { timeout: 1200 }); });
     }
   })();
