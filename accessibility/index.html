@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- What this page may load: only its own files from wrastem.com. It runs no script and sends nothing anywhere. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; base-uri 'none'; form-action 'none'">
+<title>Accessibility Statement · WRA STEM Kits</title>
+<meta name="description" content="How wrastem.com is built to be usable by everyone, including people who use screen readers, keyboards or zoom, what is known not to work yet, and how to ask for help or report a problem.">
+<meta name="theme-color" content="#124A2B">
+<link rel="canonical" href="https://wrastem.com/accessibility/">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WRA STEM Kits">
+<meta property="og:url" content="https://wrastem.com/accessibility/">
+<meta property="og:title" content="Accessibility Statement · WRA STEM Kits">
+<meta property="og:description" content="How wrastem.com is built to be usable by everyone, what is known not to work yet, and how to report a problem.">
+<link rel="preload" href="../assets/fonts/bricolage-wght.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/css/site.css?v=20261117a">
+<style>
+/* Accessibility page only. Shared tokens, header, footer, buttons and motion: assets/css/site.css */
+body{min-height:100vh;display:flex;flex-direction:column;line-height:1.6}
+main{flex:1 0 auto}
+h1,h2,h3{line-height:1.02}
+.hero{background:var(--leaf);color:var(--on-leaf);padding:clamp(40px,6vw,80px) 0 clamp(44px,6vw,80px)}
+.hero h1{font-size:clamp(2.6rem,5.6vw,5rem)}
+.hero .lede{margin-top:16px;max-width:52ch;font-size:clamp(1.05rem,1.2vw + .5rem,1.25rem);color:var(--on-leaf-2);line-height:1.45}
+.hero .meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.9rem;font-weight:600;color:var(--on-leaf-2)}
+.hero .meta b{color:var(--sun);font-weight:800}
+
+/* contents on the left (sticky), the policy on the right */
+.policy-grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:clamp(28px,5vw,80px);padding-top:clamp(40px,6vw,72px);padding-bottom:clamp(56px,8vw,104px);align-items:start}
+.side{position:sticky;top:calc(var(--head) + 24px);max-height:calc(100vh - var(--head) - 48px);overflow:auto;padding-bottom:8px;scrollbar-width:thin}
+.contents h2{font-size:.85rem;font-weight:700;letter-spacing:.01em;color:var(--ink-2);margin-bottom:10px}
+.contents ol{list-style:none;margin:0;padding:0;border-top:2px solid var(--rule);counter-reset:c}
+.contents li{counter-increment:c;border-bottom:1px solid var(--line)}
+.contents a{position:relative;display:grid;grid-template-columns:1.9rem 1fr;align-items:baseline;padding:8px 8px 8px 0;font-weight:600;font-size:.95rem;line-height:1.3;text-decoration:none;color:var(--ink-2);transition:color .2s,padding-left .3s var(--ease)}
+.contents a::before{content:counter(c);font-weight:800;font-size:.8rem;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.contents a::after{content:"";position:absolute;left:-14px;top:50%;width:6px;height:6px;border-radius:50%;background:var(--leaf);transform:translateY(-50%) scale(0);transition:transform .3s var(--ease)}
+.contents a:hover{color:var(--ink)}
+.contents a[aria-current]{color:var(--ink);padding-left:6px}
+.contents a[aria-current]::after{transform:translateY(-50%) scale(1)}
+.policy{max-width:68ch;min-width:0}
+.short{border:2px solid var(--rule);border-radius:18px;padding:22px 24px;background:#fff}
+.short h2{font-size:1.5rem}
+.short ul{margin:12px 0 0;padding-left:1.2em}
+.short li+li{margin-top:6px}
+.policy section{padding-top:40px}
+.policy section h2{font-size:clamp(1.45rem,2.2vw,1.9rem)}
+.policy section h3{font-size:1.1rem;letter-spacing:-.01em;line-height:1.25;margin-top:22px}
+.policy section p{margin-top:12px}
+.policy section ul{margin:12px 0 0;padding-left:1.2em}
+.policy section li+li{margin-top:8px}
+.policy .date{color:var(--ink-2);font-weight:600}
+.policy section{content-visibility:auto;contain-intrinsic-size:auto 600px}
+.to-top{display:inline-flex;align-items:center;gap:8px;margin-top:48px;font-weight:700}
+.to-top svg{width:18px;height:18px;transform:rotate(-90deg)}
+@media (max-width:900px){
+  .policy-grid{grid-template-columns:1fr}
+  .side{position:static;max-height:none;overflow:visible}
+  .contents ol{columns:2;column-gap:28px;border-top:0}
+  .contents li{break-inside:avoid}
+}
+@media (max-width:560px){.contents ol{columns:1}}
+@media print{.side,.to-top{display:none}.policy-grid{display:block}.hero{background:none;color:var(--ink)}.hero .lede,.hero .meta{color:var(--ink)}.policy section{content-visibility:visible}}
+</style>
+</head>
+<body id="top-of-page">
+<a class="skip" href="#statement">Skip to the statement</a>
+<header class="site-head on-leaf">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="WRA STEM Kits, home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="14" cy="15" r="4.6" fill="currentColor"/><ellipse cx="21.4" cy="20.2" rx="2.6" ry="1.7" fill="currentColor" transform="rotate(-30 21.4 20.2)"/></svg>WRA STEM Kits</a>
+    <nav class="site-nav" aria-label="Site"><a href="../">The kit</a><a href="../cell-kit-generator/">Worksheets</a><a href="../standards-ai/">Standards AI</a><a href="../#why">About</a></nav>
+    <a class="btn btn-sun cta" href="../purchase/">Request kits</a>
+    <details class="menu">
+      <summary><svg class="bars" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>Menu</span></summary>
+      <nav class="menu-panel" aria-label="Site menu"><a href="../">The kit<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="../cell-kit-generator/">Worksheets<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="../standards-ai/">Standards AI<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="../#why">About<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a class="btn btn-sun" href="../purchase/">Request kits</a></nav>
+    </details>
+  </div>
+</header>
+
+<main>
+  <div class="hero on-leaf" data-head-over>
+    <div class="wrap" data-enter>
+      <h1>Accessibility Statement</h1>
+      <p class="lede">WRA STEM Kits wants every teacher and student to be able to use this site. Here is what has been done, what doesn’t work well yet, and how to get help.</p>
+      <p class="meta"><span>Last reviewed <b>November 17, 2026</b></span><span>10 sections</span></p>
+    </div>
+  </div>
+  <div class="wrap policy-grid">
+    <aside class="side">
+      <nav class="contents" aria-labelledby="contents-h">
+      <h2 id="contents-h">Contents</h2>
+      <ol data-spy>
+        <li><a href="#s1">Our commitment</a></li>
+        <li><a href="#s2">The standard we aim for</a></li>
+        <li><a href="#s3">What has been done</a></li>
+        <li><a href="#s4">Known limitations</a></li>
+        <li><a href="#s5">Getting content another way</a></li>
+        <li><a href="#s6">The physical kit</a></li>
+        <li><a href="#s7">Report a problem</a></li>
+        <li><a href="#s8">Browsers and assistive technology</a></li>
+        <li><a href="#s9">How this site was checked</a></li>
+        <li><a href="#s10">Changes to this statement</a></li>
+      </ol>
+    </nav>
+    </aside>
+    <article class="policy" id="statement">
+      <div class="short">
+      <h2>The short version</h2>
+      <ul>
+        <li>The goal is for wrastem.com to meet the Web Content Accessibility Guidelines (WCAG) 2.1, Level AA.</li>
+        <li>The site has not been checked by an outside accessibility expert yet, so it may not meet every part of that standard.</li>
+        <li>The worksheet and answer key PDFs are pictures of the pages, so a screen reader can’t read them. Use the on-screen worksheet or the print option instead, or ask for a copy that works for you.</li>
+        <li>If anything on the site is hard for you to use, tell us and we will help and try to fix it.</li>
+      </ul>
+    </div>
+
+    <section id="s1">
+      <h2>1. Our commitment</h2>
+      <p class="date">Last reviewed: November 17, 2026</p>
+      <p>WRA STEM Kits, a student Compass project at Western Reserve Academy, is committed to making the website at wrastem.com and its subdomains, including ai.wrastem.com (together, the “Site”), usable by as many people as possible, including people with disabilities. This applies to the home page, the Plant Cell Worksheet Generator, Standards AI, the Request kits form and the Site’s other pages.</p>
+      <p>This is a small project run by a student. We do not have a dedicated accessibility team, but we treat accessibility problems as bugs to be fixed, not as optional extras.</p>
+    </section>
+
+    <section id="s2">
+      <h2>2. The standard we aim for</h2>
+      <p>We aim for the Site to conform to the <a href="https://www.w3.org/TR/WCAG21/">Web Content Accessibility Guidelines (WCAG) 2.1</a> at Level AA, published by the World Wide Web Consortium (W3C). These guidelines explain how to make web content more usable for people with disabilities, including people who are blind or have low vision, who are deaf or hard of hearing, who have limited movement, or who have cognitive or learning disabilities.</p>
+      <p>We believe the Site <b>partially conforms</b> to WCAG 2.1 Level AA. “Partially conforms” means that some parts of the content do not yet fully meet the standard. The known gaps are listed in Section 4.</p>
+    </section>
+
+    <section id="s3">
+      <h2>3. What has been done</h2>
+      <p>The Site was built with accessibility in mind. Among other things:</p>
+      <ul>
+        <li>Pages use real headings, lists, landmarks (header, navigation, main content, footer) and a declared language, so screen readers and other tools can move through them.</li>
+        <li>Everything that can be clicked can also be reached and used with a keyboard, and the item that has keyboard focus is shown with a clear outline.</li>
+        <li>Pages with a lot of navigation have a “Skip to content” link.</li>
+        <li>Photos and drawings have text descriptions. Purely decorative images are hidden from screen readers.</li>
+        <li>Text and background colors were chosen for strong contrast, and text can be enlarged with the browser’s zoom without the page breaking.</li>
+        <li>Pages work on phones, tablets and computers, in portrait or landscape.</li>
+        <li>Form fields have visible labels, required fields are marked, and error messages say what went wrong and are announced to screen readers.</li>
+        <li>Status messages, such as “Making PDF…” or a new Standards AI answer, are announced to screen readers.</li>
+        <li>Animation is reduced or turned off when your device is set to reduce motion.</li>
+        <li>The 3D model on the home page can be switched off and replaced with still pictures, and the same information about each part of the cell is also given as text.</li>
+        <li>The Site does not use flashing content, time limits, CAPTCHAs, sound or video.</li>
+      </ul>
+    </section>
+
+    <section id="s4">
+      <h2>4. Known limitations</h2>
+      <p>We know about the following problems. We are working on them, and Section 5 explains how to get the same content another way in the meantime.</p>
+      <ul>
+        <li><b>Worksheet and answer key PDFs.</b> The PDF files made by the Plant Cell Worksheet Generator are saved as pictures of each page. A screen reader cannot read the text in them, and the text cannot be selected or searched. The same worksheet shown on the screen is real text and can be read by a screen reader.</li>
+        <li><b>Labeling drawings.</b> The worksheet’s labeling activity asks students to label parts on a drawing of the plant cell. This activity depends on seeing the drawing. The physical kit, which can be explored by touch, is the intended way for students to work through it (see Section 6).</li>
+        <li><b>The interactive 3D model.</b> The rotating 3D model on the home page is controlled mostly by mouse or touch and is not fully usable with a screen reader. It is not needed to use the Site: the same information is available as text and still pictures on the same page.</li>
+        <li><b>Standards AI answers.</b> Answers are written by an artificial intelligence model. We ask it to use plain language, but some answers may be longer or harder to read than we would like. You can ask it to explain something again more simply.</li>
+        <li><b>Linked websites.</b> Some links go to websites we do not control, such as nextgenscience.org. We cannot promise that those websites are accessible.</li>
+      </ul>
+    </section>
+
+    <section id="s5">
+      <h2>5. Getting content another way</h2>
+      <p>If any part of the Site doesn’t work for you, we will try to give you the same information or the same materials in a form that does. For example, we can send a worksheet and answer key as text, as a document that works with a screen reader, or in large print. Ask using the method in Section 7 and tell us what format would work best. Please allow a few school days for a reply, since this project is run by a student.</p>
+      <p>You can also use <b>Print worksheets</b> in the Worksheet Generator, which prints the on-screen version, or your browser’s own reader, zoom and text-to-speech tools on any page.</p>
+    </section>
+
+    <section id="s6">
+      <h2>6. The physical kit</h2>
+      <p>The Plant Cell Kit is designed to be explored by hand: each organelle has its own shape, sits in its own custom-shaped slot and can be lifted out and felt. This may make it useful for students who learn best by touch, including students who are blind or have low vision. The kit has not yet been tested with students, though, including students with disabilities, so we can’t yet promise how well it works for any particular need. Small pieces and magnets mean it is meant for supervised classroom use. If you have a student who would need the kit changed in some way, please tell us when you request kits.</p>
+    </section>
+
+    <section id="s7">
+      <h2>7. Report a problem</h2>
+      <p>We welcome your feedback. If you find something on the Site that is hard or impossible to use, or you need content in another format, please tell us using the message box on the <a href="../purchase/">Request kits form</a>, or by replying to any email you have received from us. You don’t have to request any kits to send a message: leave the number of sets at 1 and explain in the message that you are reporting an accessibility problem.</p>
+      <p>It helps if you tell us which page you were on, what you were trying to do, and which browser and assistive technology (if any) you were using. We aim to reply within five school days, and we will tell you what we plan to do about it.</p>
+      <p>If you can’t use the Request kits form, any message you send us about it through Western Reserve Academy will be passed on.</p>
+    </section>
+
+    <section id="s8">
+      <h2>8. Browsers and assistive technology</h2>
+      <p>The Site is designed to work with recent versions of common browsers, including Chrome, Edge, Firefox and Safari, on computers, Chromebooks, tablets and phones, together with the assistive technology built into them or commonly used with them, such as screen readers (for example VoiceOver, NVDA, JAWS and ChromeVox), screen magnifiers, zoom, and keyboard-only use. Very old browsers may not show the 3D model, which can be switched off.</p>
+      <p>The Site is built with HTML, CSS and JavaScript. The Worksheet Generator and Standards AI need JavaScript to be turned on.</p>
+    </section>
+
+    <section id="s9">
+      <h2>9. How this site was checked</h2>
+      <p>The Site’s accessibility has been reviewed by WRA STEM Kits itself against WCAG 2.1 Level AA (a self-evaluation), by looking at how its pages are built and trying them in a browser. It has not yet been formally audited by an independent accessibility expert or tested by people who use assistive technology every day. We plan to keep checking it as pages are added or changed, and to do more testing with assistive technology.</p>
+    </section>
+
+    <section id="s10">
+      <h2>10. Changes to this statement</h2>
+      <p>We will update this statement when we fix a known problem, find a new one, or make a significant change to the Site. The date at the top of Section 1 shows when it was last reviewed.</p>
+    </section>
+
+      <p><a class="to-top draw" href="#top-of-page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Back to the top</a></p>
+    </article>
+  </div>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="big" href="../"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="14" cy="15" r="4.6" fill="currentColor"/><ellipse cx="21.4" cy="20.2" rx="2.6" ry="1.7" fill="currentColor" transform="rotate(-30 21.4 20.2)"/></svg>WRA STEM Kits</a>
+        <p>Hands-on, 3D printed science kits for middle school classrooms. A student Compass project at Western Reserve Academy.</p>
+      </div>
+      <div class="foot-cols">
+        <div><h2>The kit</h2><ul><li><a class="draw" href="../#explore">Explore the kit</a></li><li><a class="draw" href="../purchase/">Request kits</a></li></ul></div>
+        <div><h2>For teachers</h2><ul><li><a class="draw" href="../cell-kit-generator/">Worksheet Generator</a></li><li><a class="draw" href="../standards-ai/">Standards AI</a></li></ul></div>
+        <div><h2>About</h2><ul><li><a class="draw" href="../#why">Why I built it</a></li><li><a class="draw" href="../privacy/">Privacy Policy</a></li><li><a class="draw" href="../accessibility/">Accessibility</a></li></ul></div>
+      </div>
+    </div>
+    <div class="foot-fine">
+      <p>*Next Generation Science Standards is a registered trademark of WestEd. Neither WestEd nor the lead states and partners that developed the Next Generation Science Standards were involved in the production of this product, and do not endorse it.</p>
+    </div>
+  </div>
+</footer>
+<script src="../assets/js/site.js?v=20261117a" defer></script>
+</body>
+</html>

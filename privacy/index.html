@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- What this page may load: only its own files from wrastem.com. It runs no script and sends nothing anywhere. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; base-uri 'none'; form-action 'none'">
 <title>Privacy Policy · WRA STEM Kits</title>
 <meta name="description" content="What wrastem.com collects when you request kits or use Standards AI, including your email address and IP address, why it is collected, and how long it is kept.">
 <meta name="theme-color" content="#124A2B">
@@ -18,98 +18,82 @@
 <meta property="og:title" content="Privacy Policy · WRA STEM Kits">
 <meta property="og:description" content="What wrastem.com collects when you request kits or use Standards AI, why it is collected, and how long it is kept.">
 <link rel="preload" href="../assets/fonts/bricolage-wght.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/css/site.css?v=20261117a">
 <style>
-@font-face{font-family:"Bricolage";src:url(../assets/fonts/bricolage-wght.woff2) format("woff2");font-weight:200 800;font-display:swap}
-:root{
-  --stock:#F6F7F2; --ink:#13261C; --ink-2:#3E5446; --rule:#13261C;
-  --leaf:#124A2B; --leaf-deep:#0C3520; --on-leaf:#F6F7F2; --on-leaf-2:#D7EDD3;
-  --sun:#F6C343;
-  --sans:"Bricolage",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  --gutter:clamp(16px,4vw,56px);
-  color-scheme:light;
-}
-*,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;scroll-padding-top:16px}
-body{margin:0;background:var(--stock);color:var(--ink);font-family:var(--sans);font-size:clamp(17px,1.05vw + 12px,19px);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
-::selection{background:var(--sun);color:var(--ink)}
-a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:2px}
-:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:6px}
-.on-leaf :focus-visible{outline-color:var(--sun)}
-h1,h2,h3{font-weight:800;line-height:1.02;letter-spacing:-.035em;margin:0;text-wrap:balance}
-p{margin:0;text-wrap:pretty}
-.wrap{max-width:1240px;margin:0 auto;padding:0 var(--gutter)}
-
-/* header */
-.top{background:var(--leaf);color:var(--on-leaf)}
-.top .wrap{display:flex;align-items:center;gap:16px;min-height:68px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.15rem;letter-spacing:-.03em;text-decoration:none;white-space:nowrap}
-.brand svg{width:30px;height:30px}
-.top .back{margin-left:auto;font-weight:600;font-size:.95rem}
-
-/* title on the leaf field */
-.hero{background:var(--leaf);color:var(--on-leaf);padding:clamp(28px,5vw,56px) 0 clamp(36px,6vw,64px)}
+/* Privacy page only. Shared tokens, header, footer, buttons and motion: assets/css/site.css */
+body{min-height:100vh;display:flex;flex-direction:column;line-height:1.6}
+main{flex:1 0 auto}
+h1,h2,h3{line-height:1.02}
+.hero{background:var(--leaf);color:var(--on-leaf);padding:clamp(40px,6vw,80px) 0 clamp(44px,6vw,80px)}
 .hero h1{font-size:clamp(2.6rem,5.6vw,5rem)}
 .hero .lede{margin-top:16px;max-width:52ch;font-size:clamp(1.05rem,1.2vw + .5rem,1.25rem);color:var(--on-leaf-2);line-height:1.45}
+.hero .meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.9rem;font-weight:600;color:var(--on-leaf-2)}
+.hero .meta b{color:var(--sun);font-weight:800}
 
-/* the policy */
-main{flex:1 0 auto}
-.policy{max-width:760px;margin:0 auto;padding:clamp(36px,6vw,64px) var(--gutter) clamp(56px,8vw,96px)}
+/* contents on the left (sticky), the policy on the right */
+.policy-grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:clamp(28px,5vw,80px);padding-top:clamp(40px,6vw,72px);padding-bottom:clamp(56px,8vw,104px);align-items:start}
+.side{position:sticky;top:calc(var(--head) + 24px);max-height:calc(100vh - var(--head) - 48px);overflow:auto;padding-bottom:8px;scrollbar-width:thin}
+.contents h2{font-size:.85rem;font-weight:700;letter-spacing:.01em;color:var(--ink-2);margin-bottom:10px}
+.contents ol{list-style:none;margin:0;padding:0;border-top:2px solid var(--rule);counter-reset:c}
+.contents li{counter-increment:c;border-bottom:1px solid var(--line)}
+.contents a{position:relative;display:grid;grid-template-columns:1.9rem 1fr;align-items:baseline;padding:8px 8px 8px 0;font-weight:600;font-size:.95rem;line-height:1.3;text-decoration:none;color:var(--ink-2);transition:color .2s,padding-left .3s var(--ease)}
+.contents a::before{content:counter(c);font-weight:800;font-size:.8rem;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.contents a::after{content:"";position:absolute;left:-14px;top:50%;width:6px;height:6px;border-radius:50%;background:var(--leaf);transform:translateY(-50%) scale(0);transition:transform .3s var(--ease)}
+.contents a:hover{color:var(--ink)}
+.contents a[aria-current]{color:var(--ink);padding-left:6px}
+.contents a[aria-current]::after{transform:translateY(-50%) scale(1)}
+.policy{max-width:68ch;min-width:0}
 .short{border:2px solid var(--rule);border-radius:18px;padding:22px 24px;background:#fff}
 .short h2{font-size:1.5rem}
 .short ul{margin:12px 0 0;padding-left:1.2em}
 .short li+li{margin-top:6px}
-.contents{margin-top:36px;padding:0 0 28px;border-bottom:2px solid var(--rule)}
-.contents h2{font-size:1.3rem}
-.contents ol{margin:12px 0 0;padding-left:1.6em;columns:2;column-gap:32px;font-weight:600}
-.contents li{break-inside:avoid;padding:2px 0}
-@media (max-width:640px){.contents ol{columns:1}}
-.policy section{padding-top:32px}
+.policy section{padding-top:40px}
 .policy section h2{font-size:clamp(1.45rem,2.2vw,1.9rem)}
-.policy section h3{font-size:1.1rem;letter-spacing:-.01em;line-height:1.25;margin-top:20px}
+.policy section h3{font-size:1.1rem;letter-spacing:-.01em;line-height:1.25;margin-top:22px}
 .policy section p{margin-top:12px}
 .policy section ul{margin:12px 0 0;padding-left:1.2em}
 .policy section li+li{margin-top:8px}
 .policy .date{color:var(--ink-2);font-weight:600}
-
-.foot{background:var(--ink);color:#C9D6CC;padding:36px 0 44px;font-size:.9rem}
-.foot .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between}
-.foot a{color:var(--stock)}
-@media print{.top .back,.foot{display:none}.top,.hero{background:none;color:var(--ink)}.hero .lede{color:var(--ink)}}
+.policy section{content-visibility:auto;contain-intrinsic-size:auto 600px}
+.to-top{display:inline-flex;align-items:center;gap:8px;margin-top:48px;font-weight:700}
+.to-top svg{width:18px;height:18px;transform:rotate(-90deg)}
+@media (max-width:900px){
+  .policy-grid{grid-template-columns:1fr}
+  .side{position:static;max-height:none;overflow:visible}
+  .contents ol{columns:2;column-gap:28px;border-top:0}
+  .contents li{break-inside:avoid}
+}
+@media (max-width:560px){.contents ol{columns:1}}
+@media print{.side,.to-top{display:none}.policy-grid{display:block}.hero{background:none;color:var(--ink)}.hero .lede,.hero .meta{color:var(--ink)}.policy section{content-visibility:visible}}
 </style>
 </head>
-<body>
-<header class="top on-leaf">
+<body id="top-of-page">
+<a class="skip" href="#policy">Skip to the policy</a>
+<header class="site-head on-leaf">
   <div class="wrap">
-    <a class="brand" href="../" aria-label="WRA STEM Kits, home">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="14" cy="15" r="4.6" fill="currentColor"/><ellipse cx="21.4" cy="20.2" rx="2.6" ry="1.7" fill="currentColor" transform="rotate(-30 21.4 20.2)"/></svg>
-      WRA STEM Kits
-    </a>
-    <a class="back" href="../purchase/">Request kits</a>
+    <a class="brand" href="../" aria-label="WRA STEM Kits, home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="14" cy="15" r="4.6" fill="currentColor"/><ellipse cx="21.4" cy="20.2" rx="2.6" ry="1.7" fill="currentColor" transform="rotate(-30 21.4 20.2)"/></svg>WRA STEM Kits</a>
+    <nav class="site-nav" aria-label="Site"><a href="../">The kit</a><a href="../cell-kit-generator/">Worksheets</a><a href="../standards-ai/">Standards AI</a><a href="../#why">About</a></nav>
+    <a class="btn btn-sun cta" href="../purchase/">Request kits</a>
+    <details class="menu">
+      <summary><svg class="bars" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>Menu</span></summary>
+      <nav class="menu-panel" aria-label="Site menu"><a href="../">The kit<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="../cell-kit-generator/">Worksheets<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="../standards-ai/">Standards AI<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="../#why">About<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a class="btn btn-sun" href="../purchase/">Request kits</a></nav>
+    </details>
   </div>
 </header>
 
 <main>
-  <div class="hero on-leaf">
-    <div class="wrap">
+  <div class="hero on-leaf" data-head-over>
+    <div class="wrap" data-enter>
       <h1>Privacy Policy</h1>
       <p class="lede">What wrastem.com collects, why it is collected, who it is shared with and how long it is kept.</p>
+      <p class="meta"><span>Effective <b>November 17, 2026</b></span><span>14 sections</span></p>
     </div>
   </div>
-
-  <article class="policy">
-    <div class="short">
-      <h2>The short version</h2>
-      <ul>
-        <li>When you send the Request kits form, your answers (including your email address) are collected, along with the IP address the form was sent from and the rough area that address is in.</li>
-        <li>They are used to reply to you, to fill your request, and to check that the request and any order that follows are real.</li>
-        <li>Nothing is sold, and there are no ads, cookies or tracking tools on this site.</li>
-        <li>The server’s logs are kept for up to 7 days. The request email is kept for as long as the request or order needs it.</li>
-      </ul>
-    </div>
-
-    <nav class="contents" aria-labelledby="contents-h">
+  <div class="wrap policy-grid">
+    <aside class="side">
+      <nav class="contents" aria-labelledby="contents-h">
       <h2 id="contents-h">Contents</h2>
-      <ol>
+      <ol data-spy>
         <li><a href="#s1">Who this policy covers</a></li>
         <li><a href="#s2">Your agreement</a></li>
         <li><a href="#s3">Information collected</a></li>
@@ -126,8 +110,19 @@ main{flex:1 0 auto}
         <li><a href="#s14">Contact</a></li>
       </ol>
     </nav>
+    </aside>
+    <article class="policy" id="policy">
+      <div class="short">
+      <h2>The short version</h2>
+      <ul>
+        <li>When you send the Request kits form, your answers (including your email address) are collected, along with the IP address the form was sent from and the rough area that address is in.</li>
+        <li>They are used to reply to you, to fill your request, and to check that the request and any order that follows are real.</li>
+        <li>Nothing is sold, and there are no ads, cookies or tracking tools on this site.</li>
+        <li>The server’s logs are kept for up to 7 days. The request email is kept for as long as the request or order needs it.</li>
+      </ul>
+    </div>
 
-    <section id="s1">
+      <section id="s1">
       <h2>1. Who this policy covers</h2>
       <p class="date">Effective date: November 17, 2026</p>
       <p>This Privacy Policy (the “Policy”) describes how WRA STEM Kits, a student Compass project at Western Reserve Academy (“WRA STEM Kits”, “we”, “us” or “our”), collects, uses, discloses, retains and otherwise processes information, including personal information, in connection with the website located at wrastem.com and its subdomains, including ai.wrastem.com (together, the “Site”), and the features made available through it, including the Request kits form, Standards AI and the Plant Cell Worksheet Generator (together, the “Services”).</p>
@@ -237,14 +232,30 @@ main{flex:1 0 auto}
       <h2>14. Contact</h2>
       <p>Questions about this Policy, and requests concerning your personal information, may be sent using the message box on the <a href="../purchase/">Request kits form</a>, or by replying to any email you have received from us about your request.</p>
     </section>
-  </article>
+
+      <p><a class="to-top draw" href="#top-of-page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Back to the top</a></p>
+    </article>
+  </div>
 </main>
 
-<footer class="foot">
+<footer class="site-foot">
   <div class="wrap">
-    <p>WRA STEM Kits · A student Compass project at Western Reserve Academy.</p>
-    <p><a href="../">Home</a> · <a href="../purchase/">Request kits</a></p>
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="big" href="../"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="14" cy="15" r="4.6" fill="currentColor"/><ellipse cx="21.4" cy="20.2" rx="2.6" ry="1.7" fill="currentColor" transform="rotate(-30 21.4 20.2)"/></svg>WRA STEM Kits</a>
+        <p>Hands-on, 3D printed science kits for middle school classrooms. A student Compass project at Western Reserve Academy.</p>
+      </div>
+      <div class="foot-cols">
+        <div><h2>The kit</h2><ul><li><a class="draw" href="../#explore">Explore the kit</a></li><li><a class="draw" href="../purchase/">Request kits</a></li></ul></div>
+        <div><h2>For teachers</h2><ul><li><a class="draw" href="../cell-kit-generator/">Worksheet Generator</a></li><li><a class="draw" href="../standards-ai/">Standards AI</a></li></ul></div>
+        <div><h2>About</h2><ul><li><a class="draw" href="../#why">Why I built it</a></li><li><a class="draw" href="../privacy/">Privacy Policy</a></li><li><a class="draw" href="../accessibility/">Accessibility</a></li></ul></div>
+      </div>
+    </div>
+    <div class="foot-fine">
+      <p>*Next Generation Science Standards is a registered trademark of WestEd. Neither WestEd nor the lead states and partners that developed the Next Generation Science Standards were involved in the production of this product, and do not endorse it.</p>
+    </div>
   </div>
 </footer>
+<script src="../assets/js/site.js?v=20261117a" defer></script>
 </body>
 </html>
