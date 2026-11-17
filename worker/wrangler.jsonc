@@ -9,13 +9,18 @@
   // "@cf/meta/llama-3.1-8b-instruct-fp8-fast" (roughly 6x more questions a day).
   "ai": { "binding": "AI" },
   // MODEL writes the answers; ROUTER_MODEL (small and cheap) works out what a messy search meant.
+  // Only pages on wrastem.com may use this server. To also allow a page on your own computer,
+  // add:  "ALLOWED_ORIGINS": "http://localhost:8000"  (several addresses: separate with commas).
   "vars": {
     "MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
     "ROUTER_MODEL": "@cf/meta/llama-3.1-8b-instruct-fp8-fast"
   },
 
-  // At most 6 questions a minute from one visitor.
-  "ratelimits": [{ "name": "LIMITER", "namespace_id": "1001", "simple": { "limit": 6, "period": 60 } }],
+  // At most 6 questions a minute from one visitor, and 3 kit requests a minute.
+  "ratelimits": [
+    { "name": "LIMITER", "namespace_id": "1001", "simple": { "limit": 6, "period": 60 } },
+    { "name": "PURCHASE_LIMITER", "namespace_id": "1002", "simple": { "limit": 3, "period": 60 } }
+  ],
 
   // Purchase requests are emailed (free) to a verified address in the Cloudflare account.
   // That address is a secret, not written here: npx wrangler secret put NOTIFY_TO
