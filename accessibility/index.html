@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- What this page may load: only its own files from wrastem.com. It runs no script and sends nothing anywhere. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'inline-speculation-rules'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
 <title>Accessibility Statement · WRA STEM Kits</title>
 <meta name="description" content="How wrastem.com is built to be usable by everyone, including people who use screen readers, keyboards or zoom, what is known not to work yet, and how to ask for help or report a problem.">
 <meta name="theme-color" content="#124A2B">
@@ -12,6 +12,10 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<!-- Prefetch a page on this site when a link to it is pointed at or pressed, so it opens almost at once.
+     Browsers skip this under Data Saver; browsers without speculation rules simply ignore it. -->
+<script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/*\\?*"}},{"not":{"href_matches":"/*.*"}}]},"eagerness":"moderate"}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="WRA STEM Kits">
 <meta property="og:url" content="https://wrastem.com/accessibility/">
@@ -218,6 +222,6 @@ h1,h2,h3{line-height:1.02}
     </div>
   </div>
 </footer>
-<script src="../assets/js/site.js?v=20261117a" defer></script>
+<script src="../assets/js/site.js?v=20261117c" defer></script>
 </body>
 </html>

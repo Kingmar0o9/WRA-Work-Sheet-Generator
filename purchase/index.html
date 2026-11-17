@@ -6,7 +6,7 @@
 <!-- What this page is allowed to load and run (a Content Security Policy). Scripts, fonts and pictures
      come only from this site, and the page may only talk to this site and its AI server. If something
      harmful ever got into the page, the browser would refuse to run it or send anything elsewhere. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://ai.wrastem.com; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'inline-speculation-rules'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://ai.wrastem.com; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'self'">
 <title>Request the Plant Cell Kit · WRA STEM Kits</title>
 <meta name="description" content="Request the 3D printed plant cell kit for your middle school classroom. Say how many sets you need, and I'll reply by email.">
 <meta name="theme-color" content="#124A2B">
@@ -14,6 +14,10 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<!-- Prefetch a page on this site when a link to it is pointed at or pressed, so it opens almost at once.
+     Browsers skip this under Data Saver; browsers without speculation rules simply ignore it. -->
+<script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/*\\?*"}},{"not":{"href_matches":"/*.*"}}]},"eagerness":"moderate"}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="WRA STEM Kits">
 <meta property="og:url" content="https://wrastem.com/purchase/">
@@ -223,8 +227,8 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--cora
   </div>
 </footer>
 
-<script src="../assets/js/site.js?v=20261117a" defer></script>
+<script src="../assets/js/site.js?v=20261117c" defer></script>
 <script src="../assets/js/purchase.js?v=20261117c"></script>
-<script src="../assets/js/gallery.js?v=20261115c" defer></script>
+<script src="../assets/js/gallery.js?v=20261117b" defer></script>
 </body>
 </html>

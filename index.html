@@ -6,7 +6,7 @@
 <!-- What this page is allowed to load and run (a Content Security Policy). Scripts, fonts, pictures and
      the 3D model come only from this site, and the page may not send anything to another site.
      ('unsafe-eval' is there for the 3D model: older browsers need it to run the model's decoder.) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' data: blob:; worker-src 'self' blob:; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' data: blob:; worker-src 'self' blob:; manifest-src 'self'; base-uri 'none'; form-action 'self'">
 <title>WRA STEM Kits · A plant cell you can take apart</title>
 <meta name="description" content="A 12-piece, 3D printed plant cell that middle school students (grades 6–8) take apart and rebuild. Designed to align with NGSS MS-LS1-2, with a worksheet generator and Standards AI for teachers. A student Compass project at Western Reserve Academy.">
 <meta name="theme-color" content="#124A2B">
@@ -14,6 +14,10 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<!-- Prefetch a page on this site when a link to it is pointed at or pressed, so it opens almost at once.
+     Browsers skip this under Data Saver; browsers without speculation rules simply ignore it. -->
+<script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/*\\?*"}},{"not":{"href_matches":"/*.*"}}]},"eagerness":"moderate"}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="WRA STEM Kits">
 <meta property="og:url" content="https://wrastem.com/">
@@ -45,6 +49,8 @@
       if (pref === 'on') return true;
       var n = navigator;
       if (n.connection && n.connection.saveData) return false;
+      // On a slow connection the model (about 330 KB) would take many seconds; the pictures show at once.
+      if (n.connection && /(^|-)2g$|^3g$/.test(n.connection.effectiveType || '')) return false;
       if (n.deviceMemory && n.deviceMemory < 2) return false;
       if (n.hardwareConcurrency && n.hardwareConcurrency < 3) return false;
       try {
@@ -77,7 +83,14 @@
 .poster-a{opacity:calc(1 - (var(--p) - .3) * 2.5)}
 #stage-canvas,#viewer-canvas{position:absolute;inset:0}
 #stage-canvas canvas,#viewer-canvas canvas{width:100%!important;height:100%!important;display:block;opacity:0;animation:fade .8s var(--ease) .05s forwards}
-.has-3d .poster-frame{display:none}
+/* the frozen copy of the model's last frame, left behind when the live model moves (cell-viewer.js) */
+#stage-canvas canvas.snap,#viewer-canvas canvas.snap{position:absolute;inset:0;opacity:1;animation:none}
+/* The page has one live model, which moves between this stage and the viewer further down
+   (assets/js/cell-viewer.js). On a tall window both can be on screen at once, so whichever one
+   doesn't hold the model right now shows its still picture instead of an empty green box. */
+.has-3d .stage-art:has(#stage-canvas canvas) .poster-frame{display:none}
+.has-3d .poster-frame .label{display:none}
+@supports not selector(:has(*)){.has-3d .poster-frame{display:none}}
 .stage-copy{position:absolute;left:0;right:0;bottom:clamp(28px,7vh,72px);pointer-events:none}
 .stage-copy .wrap>*{pointer-events:auto}
 .stage-copy h1{font-size:clamp(2.9rem,6.4vw,6rem);max-width:9.5ch}
@@ -149,7 +162,8 @@
 .viewer{grid-area:viewer;position:sticky;top:calc(var(--head) + 20px);align-self:start}
 .viewer-box{position:relative;aspect-ratio:4/3;width:min(100%,calc((100svh - var(--head) - 48px) * 4 / 3));margin-left:auto;background:var(--leaf);border-radius:22px;overflow:hidden;touch-action:pan-y;user-select:none;cursor:grab}
 .viewer-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:6%}
-.has-3d .viewer-box img{display:none}
+.has-3d .viewer-box:has(canvas) img{display:none}
+@supports not selector(:has(*)){.has-3d .viewer-box img{display:none}}
 .viewer-box:active{cursor:grabbing}
 .viewer-name{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);margin:0;background:var(--sun);color:var(--ink);font-weight:800;font-size:1.15rem;letter-spacing:-.02em;padding:9px 20px;border-radius:999px;box-shadow:0 6px 18px -8px rgba(0,0,0,.55);white-space:nowrap;pointer-events:none}
 .viewer-name.show{animation:namein .5s var(--ease) .2s both}
@@ -656,12 +670,12 @@
 
     // Load the 3D model only on capable devices, after the page is already usable.
     if (d.classList.contains('want-3d')) {
-      var go = function () { var s = document.createElement('script'); s.type = 'module'; s.src = 'assets/js/cell-viewer.js?v=20261117a'; document.head.appendChild(s); };
+      var go = function () { var s = document.createElement('script'); s.type = 'module'; s.src = 'assets/js/cell-viewer.js?v=20261117b'; document.head.appendChild(s); };
       if (document.readyState === 'complete') go(); else window.addEventListener('load', function () { (window.requestIdleCallback || setTimeout)(go, { timeout: 1200 }); });
     }
   })();
 </script>
-<script src="assets/js/site.js?v=20261117a" defer></script>
-<script src="assets/js/gallery.js?v=20261115c" defer></script>
+<script src="assets/js/site.js?v=20261117c" defer></script>
+<script src="assets/js/gallery.js?v=20261117b" defer></script>
 </body>
 </html>

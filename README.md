@@ -150,7 +150,13 @@ flowchart LR
   - **Written answers:** the [Cloudflare Worker](worker) has a language model write a short answer from the matching standards.
   - **Checks before an answer goes out:** every quote must match the standard word for word, every code must point at a standard it was given, and grade levels are corrected.
   - **Standards text:** collected from nextgenscience.org by [`src/ngss-pipeline/`](src/ngss-pipeline).
-- **Worksheet Generator.** A single self-contained page that works offline. PDFs are made in the browser.
+- **Worksheet Generator.** A single self-contained page that works offline. PDFs are made in the browser. Its PDF tools are stored in the page as plain text and only start when a PDF is wanted (or once the computer is idle), so the worksheet appears first on slow laptops.
+- **Fast on slow networks and old computers.**
+  - **Offline copy:** [`sw.js`](sw.js) (a service worker) keeps the pages and files you have opened on the device. Pages always try the network first, but if it hasn't answered in 3 seconds the saved copy shows instead, and with no network at all the site still opens.
+  - **Next page early:** pointing at (or pressing) a link to another page starts loading it, so it opens almost at once. Browsers under Data Saver skip this.
+  - **3D only when it will be quick:** the live model is skipped on slow connections, Data Saver, low memory and software-only graphics; those devices get still pictures of the same model.
+  - **Right-sized photos:** the photo viewer downloads a 1000-pixel photo on laptop and Chromebook screens and the full 1600-pixel one only on large screens.
+  - **Installable:** [`manifest.webmanifest`](manifest.webmanifest) lets a teacher add the site to a Chromebook or phone home screen.
 - **Request kits.** The same Worker emails each request through Cloudflare's email service. A hidden field and a rate limit keep spam out. Each email also shows the sender's IP address, its rough location, and whether the email address looks like a school's, so a fake request is easy to spot.
 - **Hosting.** The site runs on GitHub Pages and the server on Cloudflare's free plans, so the tools cost nothing to run.
 
@@ -180,6 +186,8 @@ The site has no accounts, passwords or database, so there is nothing to log in t
 | [`src/`](src) | Source for the 3D viewer, the model pipeline, the NGSS pipeline and the photo rotation script ([build notes](src/README.md)) |
 | [`assets/`](assets) | Fonts, images, the 3D model and the built viewer. The header, footer, buttons and motion every page shares are in [`assets/css/site.css`](assets/css/site.css) and [`assets/js/site.js`](assets/js/site.js) (the worksheet generator keeps its own copy so it works offline). Logo files are in [`assets/brand/`](assets/brand) |
 | [`DESIGN.md`](DESIGN.md) | The design system |
+| [`sw.js`](sw.js), [`manifest.webmanifest`](manifest.webmanifest) | The offline copy (service worker) and the install details for the whole site |
+| [`.claude/skills/modern-web-guidance/`](.claude/skills/modern-web-guidance) | Modern Web Guidance, a Claude Code skill from the Chrome, Edge, Firefox and MDN teams: 210 guides on current HTML, CSS and JavaScript practice, kept here so any Claude Code session in this repository can use it (type `/modern-web-guidance`) |
 | `9113d54f23e68ee25a1596c5112c4986.txt` | Public IndexNow verification file, so search engines accept page updates from wrastem.com (not a secret) |
 
 ## Run it locally
