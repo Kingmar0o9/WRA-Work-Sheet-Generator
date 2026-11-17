@@ -860,7 +860,13 @@ newVersions();
 
 /* Keep a copy of this page on the device (see /sw.js): it opens instantly next time, even offline. */
 if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("/sw.js").then(()=>navigator.serviceWorker.ready).then(reg=>{
+      /* first visit: hand over this page and its fonts, so it opens offline from now on */
+      const urls=performance.getEntriesByType("resource").map(e=>e.name);
+      if(reg.active) reg.active.postMessage({type:"cache-loaded",page:location.href,urls});
+    }).catch(()=>{});
+  });
 }
 
 /* Start the PDF tools from the text stored in #pdf-tools. Runs once; later calls do nothing. */
