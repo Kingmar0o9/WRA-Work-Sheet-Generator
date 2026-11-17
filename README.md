@@ -151,7 +151,7 @@ flowchart LR
   - **Checks before an answer goes out:** every quote must match the standard word for word, every code must point at a standard it was given, and grade levels are corrected.
   - **Standards text:** collected from nextgenscience.org by [`src/ngss-pipeline/`](src/ngss-pipeline).
 - **Worksheet Generator.** A single self-contained page that works offline. PDFs are made in the browser.
-- **Request kits.** The same Worker emails each request through Cloudflare's email service. A hidden field and a rate limit keep spam out.
+- **Request kits.** The same Worker emails each request through Cloudflare's email service. A hidden field and a rate limit keep spam out. Each email also shows the sender's IP address, its rough location, and whether the email address looks like a school's, so a fake request is easy to spot.
 - **Hosting.** The site runs on GitHub Pages and the server on Cloudflare's free plans, so the tools cost nothing to run.
 
 ## Security
@@ -173,6 +173,7 @@ The site has no accounts, passwords or database, so there is nothing to log in t
 | [`standards-ai/`](standards-ai) | Standards AI chat page (`index.html`), its script (`app.js`), its search code and the NGSS data |
 | [`cell-kit-generator/`](cell-kit-generator) | Worksheet and answer key generator |
 | [`purchase/`](purchase) | Request kits form (its script is [`assets/js/purchase.js`](assets/js/purchase.js)) |
+| [`privacy/`](privacy) | Privacy Policy. The request form can't be sent until its "I agree" box is ticked |
 | [`404.html`](404.html) | The "page not found" page (its script is [`assets/js/not-found.js`](assets/js/not-found.js)). GitHub Pages shows it for any address that doesn't exist, so its links and files all start with `/` |
 | [`worker/`](worker) | Cloudflare Worker for Standards AI answers and purchase requests ([setup notes](worker/README.md)) |
 | [`src/`](src) | Source for the 3D viewer, the model pipeline, the NGSS pipeline and the photo rotation script ([build notes](src/README.md)) |
