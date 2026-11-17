@@ -11,6 +11,9 @@ below if you change the 3D model or the viewer code. Editing text in
 | `index.html` | The home page: all text, styles, and the small script for scrolling and part info |
 | `assets/model/plant-cell.glb` | The plant cell model (165 KB, compressed) |
 | `assets/js/cell-viewer.js` | The 3D viewer, built from `src/cell-viewer.js` (includes three.js) |
+| `assets/js/gallery.js` | The kit photo gallery, used on the home page and the request page |
+| `assets/js/purchase.js` | The request form's script (`purchase/index.html`) |
+| `standards-ai/app.js` | The Standards AI page's script (`standards-ai/index.html`) |
 | `assets/img/cell-*.webp` | Still pictures of the whole cell shown on slow devices (rendered from the same model) |
 | `assets/img/parts/*.webp` | One picture of each piece, for the laid-out sheet on slow devices |
 | `assets/img/kit-laid-out.webp` | The whole kit laid out (tray plus every organelle), for the Buy section and purchase page |

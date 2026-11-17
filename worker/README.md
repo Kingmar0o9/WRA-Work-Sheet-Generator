@@ -54,7 +54,8 @@ Only questions that need a written answer reach the server. A bare code such as
 ## Purchase requests (wrastem.com/purchase)
 
 The "Request kits" form sends its answers (number of sets, name, school, email, message) to
-this server at `/purchase`, which emails them to you. Pressing **Reply** in that email
+this server at `/purchase`, which emails them to you. The form has an "I agree to the
+Privacy Policy" box (`wrastem.com/privacy`); the server refuses a request without it. Pressing **Reply** in that email
 answers the teacher directly. It's free: Cloudflare delivers to a verified address in your
 own account at no charge, on the Workers Free plan.
 
@@ -69,8 +70,80 @@ One-time setup in the Cloudflare dashboard (about 3 minutes):
 
 Every request is also written to the Logs (Workers & Pages → `standards-ai` → Logs, look
 for `purchase`), so if an email ever fails you can still find it there for 7 days. A
-hidden "website" field catches most spam bots, and one visitor can send at most a few
+hidden "website" field catches most spam bots, and one visitor can send at most 3
 requests a minute.
+
+### Who sent this (spotting fake requests)
+
+Every request email ends with a **Who sent this** part. No request is ever blocked by it;
+it only tells you what to look at before you reply.
+
+| Line | What it is |
+|---|---|
+| **Verdict** | `Looks like a real school`, `Can't tell` or `Check this one`. A "check this one" request also says so in the email's subject |
+| **Why** | The reasons, in plain words |
+| **IP address** | The internet address the form was sent from |
+| **Location** | The city, state, country, postal code and time zone Cloudflare has for that IP address |
+| **Network** | Who owns that address: a home internet company, a school district, a phone company, a data center |
+| **Map** | A link that opens the rough spot on OpenStreetMap |
+
+How the verdict is worked out:
+
+- **Looks like a real school:** the email is at a school-style address (`.edu`, `k12`,
+  `...schools.org`, `...isd.org`) or at an address named after the school they typed
+  (`wra.net` for Western Reserve Academy), and that address can receive email. Or the
+  form was sent from a school's own network.
+- **Check this one:** the email is a throwaway address, or its domain doesn't exist or has
+  no mail server (so your reply could never arrive), or the form came through Tor, or it
+  came through a data center or VPN with nothing else to vouch for it.
+- **Can't tell:** everything else. Most often a real teacher writing from a personal
+  address such as Gmail, at home.
+
+What it can't do:
+
+- **It can't give a street address.** An IP address only shows a rough area, and a teacher
+  at home or on a district network can show up a town or more away.
+- **It can't prove someone owns an email address.** Anyone can type any address. The proof
+  is that its owner answers when you reply.
+
+If you change what is collected or how long it is kept, change `privacy/index.html` to
+match, and its effective date.
+
+The same details are written to the Logs with each `purchase` line (kept 7 days). To see
+your own, send the form yourself: the email you get shows your IP address and location.
+The lists of personal and throwaway email providers, and the words that mark a school
+address or a school network, are near `Who sent a kit request` in `src/index.js`.
+
+## Who can use the server
+
+Only the pages on `wrastem.com`. A question or a kit request from any other website, or
+from a script with no website at all, gets a "forbidden" reply and uses no AI and sends
+no email. On top of that:
+
+- one visitor can ask at most 6 questions and send 3 kit requests a minute;
+- only small JSON messages are read (64 KB for a question, 16 KB for a request);
+- an email address may only contain the characters real addresses use, so nothing typed
+  into the form can add other recipients;
+- if something breaks inside the server, the visitor sees only "server_error"; the
+  details go to the Logs;
+- every reply tells the browser not to put it in a frame, not to guess its type, not to
+  keep a copy, and to use HTTPS.
+
+To let a page on your own computer use the live server too (for example the site opened
+at `http://localhost:8000`), add that address to `ALLOWED_ORIGINS` under `vars` in
+`wrangler.jsonc` and deploy. Leave it out unless you need it. A test copy started with
+`npx wrangler dev` reads the same setting:
+
+```bash
+npx wrangler dev --var ALLOWED_ORIGINS:http://localhost:8000
+```
+
+To check that the protections still work after a change (it uses stand-ins for the AI and
+the email service, so it touches nothing real):
+
+```bash
+npm test
+```
 
 ## What happens when the free allowance runs out
 

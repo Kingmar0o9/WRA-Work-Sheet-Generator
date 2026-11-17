@@ -3,7 +3,10 @@
 // POST /ask {"q": "...", "history": [{q, a}]}
 //   ->  {"answer": "... [MS-LS1-2] ...", "sources": ["MS-LS1-2", ...], "focus": ["mitochondria"],
 //        "type": "science", "status": "ok"}
+// POST /purchase {"sets": 2, "school": "...", "email": "...", "agree": true}  ->  {"ok": true}
 // GET  /health  ->  what is loaded
+//
+// Only the pages on wrastem.com may call /ask and /purchase (see "Who may call this server").
 //
 // It is a teaching assistant for science teachers: it answers first, in plain words, then gives
 // the facts, then says where the idea is in the NGSS. It works from two sources:
@@ -266,13 +269,79 @@ const tidy = (t) => t.replace(/__/g, '').replace(/^\s*\(?MODE:?\s*[a-z-]+\)?\s*$
   // "..., as described in [MS-LS1-2]." -> "... [MS-LS1-2]." (the page hides the code, so it can't be part of the sentence)
   .replace(/,?\s+(?:as (?:described|outlined|stated|explained|shown|seen|listed) in|according to|in line with|aligned (?:with|to)|based on|from|per|see|in)\s+(?:the\s+)?(?:NGSS\s+)?(?:standard\s+)?(\[[A-Z0-9][A-Z0-9-]*\d\])/g, ' $1').trim();
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+// ---- Who may call this server
+// Browsers only let a web page read this server's replies if the page's address is listed
+// here, and /ask and /purchase refuse any request that doesn't come from one of these pages.
+// That keeps other websites from using up the free AI allowance or sending requests through
+// the form. More addresses can be allowed with the ALLOWED_ORIGINS variable (see wrangler.jsonc), e.g.
+//   npx wrangler dev --var ALLOWED_ORIGINS:http://localhost:8000
+const SITE_ORIGINS = ['https://wrastem.com', 'https://www.wrastem.com'];
+const allowedOrigin = (request, env) => {
+  const origin = request.headers.get('Origin') || '';
+  const extra = String(env.ALLOWED_ORIGINS || '').split(',').map((o) => o.trim()).filter(Boolean);
+  return origin && (SITE_ORIGINS.includes(origin) || extra.includes(origin)) ? origin : '';
 };
-const json = (body, status = 200, extra = {}) =>
-  new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...CORS, ...extra } });
+// Sent with every reply: no page may put a reply in a frame, guess its type or keep a copy,
+// and browsers are told to use HTTPS for this address from now on.
+const SECURITY_HEADERS = {
+  'Content-Security-Policy': "default-src 'none'; frame-ancestors 'none'",
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'no-referrer',
+  'Strict-Transport-Security': 'max-age=31536000',
+  'Cache-Control': 'no-store',
+};
+function finish(response, origin) {
+  const res = new Response(response.body, response);
+  for (const [k, v] of Object.entries(SECURITY_HEADERS)) res.headers.set(k, v);
+  res.headers.set('Vary', 'Origin');
+  if (origin) {
+    res.headers.set('Access-Control-Allow-Origin', origin);
+    res.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.headers.set('Access-Control-Allow-Headers', 'Content-Type');
+    res.headers.set('Access-Control-Max-Age', '86400');
+  }
+  return res;
+}
+const json = (body, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
+
+// The JSON a page sent, or null if it isn't a JSON object. Bodies over the limit are refused
+// before they are read in full, so nobody can make the server chew through huge uploads.
+const ASK_MAX_BYTES = 64 * 1024, PURCHASE_MAX_BYTES = 16 * 1024;
+async function readJson(request, maxBytes) {
+  if (Number(request.headers.get('Content-Length')) > maxBytes) return { tooBig: true };
+  const chunks = [];
+  let size = 0;
+  if (request.body) {
+    const reader = request.body.getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > maxBytes) { await reader.cancel(); return { tooBig: true }; }
+      chunks.push(value);
+    }
+  }
+  const bytes = new Uint8Array(size);
+  let at = 0;
+  for (const c of chunks) { bytes.set(c, at); at += c.byteLength; }
+  try {
+    const v = JSON.parse(new TextDecoder().decode(bytes));
+    return { body: v && typeof v === 'object' && !Array.isArray(v) ? v : null };
+  } catch { return { body: null }; }
+}
+
+// One visitor, for the rate limits: their IP address. An IPv6 connection usually owns a whole
+// block of addresses (a /64), so the block counts as one visitor, not each address in it.
+function visitor(request) {
+  const ip = request.headers.get('cf-connecting-ip') || 'anon';
+  if (!ip.includes(':') || ip.includes('.')) return ip;
+  const [head, tail = ''] = ip.split('::');
+  const h = head ? head.split(':') : [], t = tail ? tail.split(':') : [];
+  const groups = ip.includes('::') ? [...h, ...Array(Math.max(0, 8 - h.length - t.length)).fill('0'), ...t] : h;
+  return groups.slice(0, 4).join(':').toLowerCase();
+}
 
 // ---- Purchase requests (wrastem.com/purchase) ------------------------------------
 // The form's answers are emailed to the kit maker, who replies to the teacher directly.
@@ -281,13 +350,128 @@ const json = (body, status = 200, extra = {}) =>
 // request is also written to the logs, so nothing is lost if an email can't be sent.
 const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const clean = (v, max) => String(v ?? '').replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, '').trim().slice(0, max);
+// An email address made only of the characters real addresses use. Commas, quotes, brackets,
+// spaces and line breaks are refused, so nothing typed here can add extra recipients or headers.
+const EMAIL = /^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/i;
+// ---- Who sent a kit request ------------------------------------------------------
+// Nothing here blocks a request. It adds a "Who sent this" part to the email the kit maker
+// gets: the sender's IP address, roughly where that address is and whose network it is
+// (Cloudflare works these out for every request, free), and whether the email address looks
+// like a school's. The location is a city-level guess, never a street address, and a typed
+// email address isn't proven until its owner answers the reply.
+
+// Addresses anyone can sign up for: they don't show which school someone is at.
+const PERSONAL_MAIL = ('gmail.com googlemail.com yahoo.com ymail.com rocketmail.com yahoo.co.uk yahoo.ca outlook.com hotmail.com hotmail.co.uk ' +
+  'live.com msn.com icloud.com me.com mac.com aol.com proton.me protonmail.com pm.me gmx.com gmx.net mail.com zoho.com yandex.com ' +
+  'yandex.ru fastmail.com hey.com duck.com tutanota.com tuta.com comcast.net att.net sbcglobal.net verizon.net bellsouth.net cox.net ' +
+  'charter.net spectrum.net roadrunner.com rr.com frontier.com windstream.net earthlink.net qq.com 163.com').split(' ');
+// Addresses made to be thrown away after a few minutes.
+const THROWAWAY_MAIL = ('mailinator.com yopmail.com guerrillamail.com guerrillamail.net sharklasers.com grr.la 10minutemail.com ' +
+  'tempmail.com temp-mail.org tempmailo.com tmpmail.org tempr.email tempinbox.com trashmail.com getnada.com maildrop.cc dispostable.com ' +
+  'throwawaymail.com fakeinbox.com mailnesia.com mohmal.com emailondeck.com moakt.com mintemail.com spamgourmet.com discard.email ' +
+  'burnermail.io mailcatch.com inboxkitten.com').split(' ');
+const inList = (domain, list) => list.some((d) => domain === d || domain.endsWith('.' + d));
+
+// Does the domain look like a school's? (.edu, k12, school.nz, austinisd.org, hudsonschools.org ...)
+function schoolStyle(domain) {
+  const labels = domain.split('.'), last = labels.at(-1), second = labels.at(-2) || '';
+  if (['edu', 'school', 'schools', 'academy', 'college', 'university', 'education'].includes(last)) return true;
+  if (last.length === 2 && ['edu', 'ac', 'sch', 'school'].includes(second)) return true;
+  return labels.slice(0, -1).some((l) => /k12|school|academy|college|univ|district/.test(l) || /(isd|usd|csd)\d*$/.test(l));
+}
+
+// Is the domain named after the school the sender typed? Either a word of the name is in it
+// ("Hudson Montessori" and hudsonmontessori.org) or its initials are ("Western Reserve Academy"
+// and wra.net). Words that are in thousands of school names don't count.
+const COMMON_SCHOOL_WORDS = new Set(('school schools middle high elementary primary secondary intermediate junior senior academy college ' +
+  'university institute center centre district public charter magnet community county city township area regional central north south ' +
+  'east west northern southern eastern western saint christian catholic lutheran preparatory country learning education science arts ' +
+  'technology international memorial').split(' '));
+function namedAfter(domain, school) {
+  const labels = domain.split('.').slice(0, -1).map((l) => l.replace(/[^a-z0-9]/g, ''));
+  const words = school.normalize('NFKD').toLowerCase().replace(/[^a-z0-9\s-]/g, '').split(/[\s-]+/).filter(Boolean);
+  const initials = words.filter((w) => !['of', 'the', 'and', 'for', 'at'].includes(w)).map((w) => w[0]).join('');
+  if (initials.length >= 3 && labels.includes(initials)) return true;
+  return words.some((w) => w.length >= 4 && !COMMON_SCHOOL_WORDS.has(w) && labels.some((l) => l.includes(w)));
+}
+
+// Does the email's domain have a mail server? Asked of Cloudflare's public DNS (free). Only the
+// domain is sent, never the address. 'yes', 'no' (none listed, or one that refuses all mail),
+// 'none' (no such domain) or 'unknown' (the lookup failed; that never holds up a request).
+async function receivesMail(domain) {
+  try {
+    const r = await fetch('https://cloudflare-dns.com/dns-query?type=MX&name=' + encodeURIComponent(domain),
+      { headers: { Accept: 'application/dns-json' }, signal: AbortSignal.timeout(2500) });
+    if (!r.ok) return 'unknown';
+    const d = await r.json();
+    if (d.Status === 3) return 'none';
+    if (d.Status !== 0) return 'unknown';
+    const servers = (d.Answer || []).filter((a) => a.type === 15).map((a) => String(a.data).trim().split(/\s+/).pop());
+    return servers.some((s) => s && s !== '.') ? 'yes' : 'no';
+  } catch { return 'unknown'; }
+}
+
+// Whose network the request came over, by the owner's name.
+const SCHOOL_NETWORK = /\b(schools?|k-?12|education|educational|academy|university|college|isd|usd)\b/i;
+const HIDING_NETWORK = /\b(amazon|aws|digitalocean|linode|akamai|ovh|hetzner|vultr|choopa|constant company|m247|datacamp|leaseweb|contabo|oracle|alibaba|tencent|scaleway|hostinger|cloudflare|fastly|microsoft|google cloud|vpn|proxy|hosting|data ?cent(er|re))\b/i;
+
+// What Cloudflare knows about where a request came from.
+function sender(request) {
+  const cf = request.cf || {};
+  const s = (v, max = 80) => clean(String(v ?? '').replace(/\s+/g, ' '), max);
+  const code = s(cf.country, 2).toUpperCase();
+  let country = code;
+  if (code === 'T1') country = 'Tor network';
+  else if (code) { try { country = new Intl.DisplayNames(['en'], { type: 'region' }).of(code) || code; } catch { /* keep the code */ } }
+  const has = (v) => v !== undefined && v !== null && v !== '';
+  const lat = Number(cf.latitude), lon = Number(cf.longitude);
+  const mapped = has(cf.latitude) && has(cf.longitude) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180;
+  return {
+    ip: s(request.headers.get('cf-connecting-ip'), 45), city: s(cf.city), region: s(cf.region), country,
+    postal: s(cf.postalCode, 12), timezone: s(cf.timezone, 40), asn: Number.isInteger(cf.asn) ? cf.asn : 0, network: s(cf.asOrganization, 100),
+    tor: code === 'T1',
+    map: mapped ? `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=10/${lat}/${lon}` : '',
+  };
+}
+
+// The verdict the kit maker sees, and the reasons for it in plain words.
+const VERDICTS = { looks_real: 'Looks like a real school', cant_tell: 'Can’t tell', check: 'Check this one' };
+async function checkSender(email, school, from) {
+  const domain = email.slice(email.lastIndexOf('@') + 1).toLowerCase();
+  const why = [];
+  let bad = false, good = false;
+  if (inList(domain, THROWAWAY_MAIL)) {
+    bad = true; why.push(`The email is a throwaway address (${domain}).`);
+  } else if (inList(domain, PERSONAL_MAIL)) {
+    why.push(`The email is a personal address (${domain}), so it doesn’t show which school they are at.`);
+  } else {
+    const style = schoolStyle(domain), named = namedAfter(domain, school);
+    why.push(style ? `The email is at a school-style address (${domain})${named ? ' that matches the school\u2019s name' : ''}.`
+      : named ? `The email is at ${domain}, which matches the school\u2019s name.`
+      : `The email is at ${domain}, which isn\u2019t a school-style address and doesn\u2019t match the school\u2019s name.`);
+    const mail = await receivesMail(domain);
+    if (mail === 'yes') { good = style || named; why.push('That address can receive email.'); }
+    else if (mail === 'unknown') why.push('I couldn\u2019t check whether that address can receive email.');
+    else { bad = true; why.push(mail === 'none' ? `But ${domain} doesn\u2019t exist on the internet, so a reply won\u2019t arrive.` : `But ${domain} has no mail server, so a reply won\u2019t arrive.`); }
+  }
+  let hidden = false;
+  if (from.tor) { bad = true; why.push('It was sent through Tor, which hides where the sender is.'); }
+  else if (HIDING_NETWORK.test(from.network)) { hidden = true; why.push(`It was sent through a data center, VPN or privacy relay (${from.network}), so the location may not be where they are.`); }
+  else if (SCHOOL_NETWORK.test(from.network)) { good = true; why.push(`It was sent from a school network (${from.network}).`); }
+  const verdict = bad ? 'check' : hidden ? (good ? 'cant_tell' : 'check') : good ? 'looks_real' : 'cant_tell';
+  return { verdict, why: why.join(' ') };
+}
+
 async function purchase(request, env) {
-  if (env.LIMITER) {
-    const { success } = await env.LIMITER.limit({ key: 'purchase:' + (request.headers.get('cf-connecting-ip') || 'anon') });
+  // a few requests a minute per visitor (its own, lower limit; the question limit if it is missing)
+  const limiter = env.PURCHASE_LIMITER || env.LIMITER;
+  if (limiter) {
+    const { success } = await limiter.limit({ key: 'purchase:' + visitor(request) });
     if (!success) return json({ error: 'slow_down' }, 429);
   }
-  let body = {};
-  try { body = await request.json(); } catch { /* bad body */ }
+  const read = await readJson(request, PURCHASE_MAX_BYTES);
+  if (read.tooBig) return json({ error: 'too_large' }, 413);
+  const body = read.body || {};
   // a hidden field people never see: if it is filled in, a bot sent the form
   if (clean(body.website, 200)) return json({ ok: true });
   const sets = Math.floor(Number(body.sets));
@@ -298,61 +482,84 @@ async function purchase(request, env) {
   const bad = [];
   if (!(sets >= 1 && sets <= 1000)) bad.push('sets');
   if (school.length < 2) bad.push('school');
-  if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)) bad.push('email');
+  if (email.length > 254 || !EMAIL.test(email)) bad.push('email');
+  // the form's "I agree to the Privacy Policy" box must be ticked (wrastem.com/privacy)
+  if (body.agree !== true) bad.push('agree');
   if (bad.length) return json({ error: 'invalid', fields: bad }, 400);
 
   const request_ = { sets, name, school, email, message };
-  const subject = `Kit request: ${sets} set${sets === 1 ? '' : 's'} for ${school}`.slice(0, 200);
+  const from = sender(request), check = await checkSender(email, school, from);
+  const place = [from.city, from.region, from.country].filter(Boolean).join(', ') || 'unknown';
+  const where = place + (from.postal ? ` (postal code ${from.postal})` : '') + (from.timezone ? `, time zone ${from.timezone}` : '');
+  const network = from.network ? from.network + (from.asn ? ` (AS${from.asn})` : '') : 'unknown';
+  const flag = check.verdict === 'check' ? ' (check this one)' : '';
+  const subject = `Kit request: ${sets} set${sets === 1 ? '' : 's'} for ${school}`.slice(0, 180) + flag;
   const rows = [['Sets', String(sets)], ['Name', name || '(not given)'], ['School', school], ['Email', email], ['Message', message || '(none)']];
-  const text = `A teacher requested the plant cell kit on wrastem.com.\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nReply to this email to answer them. They were told you'll get back to them as soon as possible.`;
-  const html = `<p>A teacher requested the plant cell kit on wrastem.com.</p><table cellpadding="6" style="border-collapse:collapse">${
-    rows.map(([k, v]) => `<tr><th align="left" valign="top">${k}</th><td style="white-space:pre-wrap">${esc(v)}</td></tr>`).join('')
-  }</table><p>Reply to this email to answer them. They were told you'll get back to them as soon as possible.</p>`;
+  const who = [['Verdict', VERDICTS[check.verdict]], ['Why', check.why], ['IP address', from.ip || 'unknown'], ['Location', where], ['Network', network]];
+  if (from.map) who.push(['Map', from.map]);
+  const note = 'The location is a city-level guess from the IP address, not a street address, and it can be off by a town or more. An email address is only proven when its owner answers your reply. The sender ticked "I agree to the Privacy Policy" (wrastem.com/privacy) before sending.';
+  const list = (r) => r.map(([k, v]) => `${k}: ${v}`).join('\n');
+  const table = (r) => `<table cellpadding="6" style="border-collapse:collapse">${
+    r.map(([k, v]) => `<tr><th align="left" valign="top">${k}</th><td style="white-space:pre-wrap">${k === 'Map' ? `<a href="${esc(v)}">Open the map</a>` : esc(v)}</td></tr>`).join('')
+  }</table>`;
+  const text = `A teacher requested the plant cell kit on wrastem.com.\n\n${list(rows)}\n\nReply to this email to answer them. They were told you'll get back to them as soon as possible.\n\nWho sent this\n\n${list(who)}\n\n${note}`;
+  const html = `<p>A teacher requested the plant cell kit on wrastem.com.</p>${table(rows)}<p>Reply to this email to answer them. They were told you'll get back to them as soon as possible.</p><h3>Who sent this</h3>${table(who)}<p>${esc(note)}</p>`;
   let status = 'emailed';
   try {
     if (!env.EMAIL || !env.NOTIFY_TO) throw new Error('email not set up');
     await env.EMAIL.send({
       to: env.NOTIFY_TO,
       from: { email: env.FROM_ADDRESS || 'kits@wrastem.com', name: 'WRA STEM Kits' },
-      replyTo: { email, name: name || undefined },
+      // the name beside the reply address: letters, numbers and plain punctuation only
+      replyTo: { email, name: name.replace(/[^\p{L}\p{N} .'-]/gu, ' ').replace(/\s+/g, ' ').trim() || undefined },
       subject, text, html,
     });
   } catch (err) {
     status = 'email_failed';
     console.log(JSON.stringify({ purchase_email_error: String(err && (err.code || '') + ' ' + (err.message || err)).slice(0, 300) }));
   }
-  console.log(JSON.stringify({ purchase: request_, status }));
+  const { tor, map, ...seen } = from;
+  console.log(JSON.stringify({ purchase: request_, from: seen, check, status }));
   return json({ ok: true });
 }
 
 // Questions are cached for a week, so a repeated question costs no AI time.
-const normal = (q) => q.toLowerCase().replace(/[^a-z0-9- ]+/g, ' ').replace(/\s+/g, ' ').trim();
+// Two questions share a saved answer only if they are the same apart from capitals, spacing
+// and plain punctuation. Every letter of every alphabet stays in the key: if other characters
+// were dropped, someone could hide instructions to the AI in them and have that answer saved
+// for everyone who asks the plain question.
+const normal = (q) => q.toWellFormed().normalize('NFKC').toLowerCase().replace(/[!-,./:-@[-`{-~]+/g, ' ').replace(/\s+/g, ' ').trim();
 
-export default {
-  async fetch(request, env, ctx) {
+// The server itself. `origin` is the page that asked, when it is one of the site's own.
+const app = {
+  async fetch(request, env, ctx, origin) {
     const url = new URL(request.url);
-    if (request.method === 'OPTIONS') return new Response(null, { headers: CORS });
-    if (url.pathname === '/health') {
+    // the browser's check before a page may send a question or a request
+    if (request.method === 'OPTIONS') return new Response(null, { status: origin ? 204 : 403 });
+    if (url.pathname === '/health' && (request.method === 'GET' || request.method === 'HEAD')) {
       return json({ ok: true, standards: data.count, retrieved: data.retrieved, model: env.MODEL });
     }
-    if (url.pathname === '/purchase' && request.method === 'POST') return purchase(request, env);
-    if (url.pathname !== '/ask' || request.method !== 'POST') return json({ error: 'not_found' }, 404);
+    const path = request.method === 'POST' ? url.pathname : '';
+    if (path !== '/ask' && path !== '/purchase') return json({ error: 'not_found' }, 404);
+    // only the site's own pages, and only JSON (a page on another site can't send that unasked)
+    if (!origin) return json({ error: 'forbidden' }, 403);
+    if (!/^application\/json\b/i.test(request.headers.get('Content-Type') || '')) return json({ error: 'json_only' }, 415);
+    if (path === '/purchase') return purchase(request, env);
 
     // a few questions a minute per visitor, so nobody can use up the day's free allowance
     if (env.LIMITER) {
-      const { success } = await env.LIMITER.limit({ key: request.headers.get('cf-connecting-ip') || 'anon' });
+      const { success } = await env.LIMITER.limit({ key: visitor(request) });
       if (!success) return json({ error: 'slow_down' }, 429);
     }
 
-    let q = '', history = [];
-    try {
-      const body = await request.json();
-      q = String(body.q || '').slice(0, 300).trim();
-      // the last few turns of the chat, so follow-up questions make sense
-      history = (Array.isArray(body.history) ? body.history : []).slice(-6)
-        .map((t) => ({ q: String(t?.q || '').slice(0, 300), a: String(t?.a || '').slice(0, 1600) }))
-        .filter((t) => t.q);
-    } catch { /* bad body */ }
+    const read = await readJson(request, ASK_MAX_BYTES);
+    if (read.tooBig) return json({ error: 'too_large' }, 413);
+    const body = read.body || {};
+    const q = String(body.q || '').slice(0, 300).trim();
+    // the last few turns of the chat, so follow-up questions make sense
+    const history = (Array.isArray(body.history) ? body.history : []).slice(-6)
+      .map((t) => ({ q: String(t?.q || '').slice(0, 300), a: String(t?.a || '').slice(0, 1600) }))
+      .filter((t) => t.q);
     if (q.length < 2) return json({ error: 'empty' }, 400);
 
     // "hi", "thanks", "who are you": a friendly reply, no AI needed
@@ -373,11 +580,11 @@ export default {
     }
 
     const cache = caches.default;
-    const key = new Request(`https://cache.standards-ai/${env.CACHE_TAG || 'v13'}/ask?q=` + encodeURIComponent(normal(q)));
+    const key = new Request(`https://cache.standards-ai/${env.CACHE_TAG || 'v14'}/ask?q=` + encodeURIComponent(normal(q)));
     const cached = history.length ? null : await cache.match(key);
     if (cached) {
       console.log(JSON.stringify({ q, status: 'cached' }));
-      return new Response(cached.body, { headers: { 'Content-Type': 'application/json', ...CORS } });
+      return new Response(cached.body, { headers: { 'Content-Type': 'application/json' } });
     }
 
     // Route: a typed code goes straight to its standard; anything else is interpreted first.
@@ -474,5 +681,18 @@ export default {
     const res = json({ answer, sources, interpreted, focus, type, mode, status });
     if (status === 'ok' && !history.length) ctx.waitUntil(cache.put(key, new Response(res.clone().body, { headers: { 'Cache-Control': 'max-age=604800' } })));
     return res;
+  },
+};
+
+export default {
+  async fetch(request, env, ctx) {
+    const origin = allowedOrigin(request, env);
+    let res;
+    try { res = await app.fetch(request, env, ctx, origin); } catch (err) {
+      // never show a visitor the inside of an error; it goes to the logs instead
+      console.log(JSON.stringify({ error: String(err && (err.stack || err)).slice(0, 500) }));
+      res = json({ error: 'server_error' }, 500);
+    }
+    return finish(res, origin);
   },
 };
