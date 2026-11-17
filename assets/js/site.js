@@ -67,4 +67,13 @@
     }, { rootMargin: '-20% 0px -55% 0px' });
     Object.keys(links).forEach(function (id) { var s = document.getElementById(id); if (s) so.observe(s); });
   }
+
+  // Keep a copy of the pages and files already opened on this device (see /sw.js), so the site
+  // comes back fast on a slow network and the worksheet generator works offline. Registered
+  // after the page has loaded, so it never competes with what the page needs first.
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js').catch(function () {});
+    });
+  }
 })();

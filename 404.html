@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- What this page may load: only its own files from wrastem.com, and it sends nothing anywhere.
      Its script lives in /assets/js/not-found.js; a <script> written into this page will not run. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'inline-speculation-rules'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
 <title>Page not found · WRA STEM Kits</title>
 <meta name="description" content="There's no page at this address on wrastem.com. Go back to the plant cell kit, the worksheet generator, Standards AI or the request form.">
 <meta name="robots" content="noindex">
@@ -15,6 +15,10 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<!-- Prefetch a page on this site when a link to it is pointed at or pressed, so it opens almost at once.
+     Browsers skip this under Data Saver; browsers without speculation rules simply ignore it. -->
+<script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/*\\?*"}},{"not":{"href_matches":"/*.*"}}]},"eagerness":"moderate"}]}</script>
 <link rel="preload" href="/assets/fonts/bricolage-wght.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/site.css?v=20261117a">
 <style>
@@ -144,7 +148,7 @@ main{flex:1 0 auto;display:flex;flex-direction:column}
   </div>
 </footer>
 
-<script src="/assets/js/site.js?v=20261117a" defer></script>
+<script src="/assets/js/site.js?v=20261117b" defer></script>
 <script src="/assets/js/not-found.js?v=20261117a"></script>
 </body>
 </html>

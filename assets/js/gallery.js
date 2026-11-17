@@ -59,7 +59,11 @@
     dlg.setAttribute('aria-label', 'Photos of the plant cell kit');
     var slides = '', strip = '';
     for (var i = 0; i < PHOTOS.length; i++) {
-      slides += '<li><img alt="' + PHOTOS[i].alt + '" data-src="' + BASE + PHOTOS[i].f + '.jpg' + VER + '" width="1600" height="1200" decoding="async"></li>';
+      // Each photo comes in two sizes; the browser picks the smaller one when it fills the screen
+      // (laptops, Chromebooks, slow phones), which is about half the download.
+      slides += '<li><img alt="' + PHOTOS[i].alt + '" data-src="' + BASE + PHOTOS[i].f + '-1000.jpg' + VER + '"' +
+        ' data-srcset="' + BASE + PHOTOS[i].f + '-1000.jpg' + VER + ' 1000w, ' + BASE + PHOTOS[i].f + '.jpg' + VER + ' 1600w"' +
+        ' sizes="min(100vw, calc((100vh - 150px) * 4 / 3))" width="1600" height="1200" decoding="async"></li>';
       strip += '<button type="button" class="g-thumb" data-i="' + i + '" aria-label="Photo ' + (i + 1) + ' of ' + PHOTOS.length + '"><img alt="" src="' + BASE + PHOTOS[i].f + '-thumb.jpg' + VER + '" width="320" height="240"></button>';
     }
     dlg.innerHTML =
@@ -102,7 +106,10 @@
     for (var k = i - 1; k <= i + 1; k++) {
       if (k < 0 || k >= PHOTOS.length) continue;
       var img = track.children[k].firstChild;
-      if (img.getAttribute('data-src')) { img.src = img.getAttribute('data-src'); img.removeAttribute('data-src'); }
+      if (img.getAttribute('data-src')) {
+        img.srcset = img.getAttribute('data-srcset'); img.src = img.getAttribute('data-src');
+        img.removeAttribute('data-srcset'); img.removeAttribute('data-src');
+      }
     }
   }
   function mark(i) {

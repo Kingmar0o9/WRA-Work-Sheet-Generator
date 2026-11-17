@@ -6,7 +6,7 @@
 <!-- What this page is allowed to load and run (a Content Security Policy). Scripts, fonts, pictures and
      the 3D model come only from this site, and the page may not send anything to another site.
      ('unsafe-eval' is there for the 3D model: older browsers need it to run the model's decoder.) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' data: blob:; worker-src 'self' blob:; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' data: blob:; worker-src 'self' blob:; manifest-src 'self'; base-uri 'none'; form-action 'self'">
 <title>WRA STEM Kits · A plant cell you can take apart</title>
 <meta name="description" content="A 12-piece, 3D printed plant cell that middle school students (grades 6–8) take apart and rebuild. Designed to align with NGSS MS-LS1-2, with a worksheet generator and Standards AI for teachers. A student Compass project at Western Reserve Academy.">
 <meta name="theme-color" content="#124A2B">
@@ -14,6 +14,10 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<!-- Prefetch a page on this site when a link to it is pointed at or pressed, so it opens almost at once.
+     Browsers skip this under Data Saver; browsers without speculation rules simply ignore it. -->
+<script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/*\\?*"}},{"not":{"href_matches":"/*.*"}}]},"eagerness":"moderate"}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="WRA STEM Kits">
 <meta property="og:url" content="https://wrastem.com/">
@@ -45,6 +49,8 @@
       if (pref === 'on') return true;
       var n = navigator;
       if (n.connection && n.connection.saveData) return false;
+      // On a slow connection the model (about 330 KB) would take many seconds; the pictures show at once.
+      if (n.connection && /(^|-)2g$|^3g$/.test(n.connection.effectiveType || '')) return false;
       if (n.deviceMemory && n.deviceMemory < 2) return false;
       if (n.hardwareConcurrency && n.hardwareConcurrency < 3) return false;
       try {
@@ -661,7 +667,7 @@
     }
   })();
 </script>
-<script src="assets/js/site.js?v=20261117a" defer></script>
-<script src="assets/js/gallery.js?v=20261115c" defer></script>
+<script src="assets/js/site.js?v=20261117b" defer></script>
+<script src="assets/js/gallery.js?v=20261117b" defer></script>
 </body>
 </html>
