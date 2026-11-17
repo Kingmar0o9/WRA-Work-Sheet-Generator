@@ -57,7 +57,7 @@ async function call(env, path, { method = 'POST', origin = SITE, type = 'applica
   await Promise.all(env.waits.splice(0));
   return res;
 }
-const goodRequest = { sets: 2, name: 'Ada Lovelace', school: 'Hudson Middle School', email: 'ada@school.org', message: 'Needed by March.' };
+const goodRequest = { sets: 2, name: 'Ada Lovelace', school: 'Hudson Middle School', email: 'ada@school.org', message: 'Needed by March.', agree: true };
 
 before(() => {
   const out = mkdtempSync(join(tmpdir(), 'standards-ai-test-'));
@@ -233,6 +233,20 @@ test('email addresses that could smuggle in other recipients or headers are refu
   const env = makeEnv();
   await call(env, '/purchase', { body: { ...goodRequest, email: ' ada @school.org ' } });
   assert.equal(env.sent[0].replyTo.email, 'ada@school.org');
+});
+
+test('a request that does not agree to the privacy policy is refused and sends nothing', async () => {
+  const { agree, ...notAsked } = goodRequest;
+  for (const body of [notAsked, { ...goodRequest, agree: false }, { ...goodRequest, agree: 'yes' }, { ...goodRequest, agree: 1 }, { ...goodRequest, agree: null }]) {
+    const env = makeEnv();
+    const res = await call(env, '/purchase', { body });
+    assert.equal(res.status, 400, JSON.stringify(body.agree));
+    assert.deepEqual((await res.json()).fields, ['agree']);
+    assert.equal(env.sent.length, 0);
+  }
+  const env = makeEnv();
+  assert.equal((await call(env, '/purchase', { body: goodRequest })).status, 200);
+  assert.equal(env.sent.length, 1);
 });
 
 test('the hidden field still catches bots without sending anything', async () => {

@@ -3,7 +3,7 @@
 // POST /ask {"q": "...", "history": [{q, a}]}
 //   ->  {"answer": "... [MS-LS1-2] ...", "sources": ["MS-LS1-2", ...], "focus": ["mitochondria"],
 //        "type": "science", "status": "ok"}
-// POST /purchase {"sets": 2, "school": "...", "email": "..."}  ->  {"ok": true}
+// POST /purchase {"sets": 2, "school": "...", "email": "...", "agree": true}  ->  {"ok": true}
 // GET  /health  ->  what is loaded
 //
 // Only the pages on wrastem.com may call /ask and /purchase (see "Who may call this server").
@@ -483,6 +483,8 @@ async function purchase(request, env) {
   if (!(sets >= 1 && sets <= 1000)) bad.push('sets');
   if (school.length < 2) bad.push('school');
   if (email.length > 254 || !EMAIL.test(email)) bad.push('email');
+  // the form's "I agree to the Privacy Policy" box must be ticked (wrastem.com/privacy)
+  if (body.agree !== true) bad.push('agree');
   if (bad.length) return json({ error: 'invalid', fields: bad }, 400);
 
   const request_ = { sets, name, school, email, message };
@@ -495,7 +497,7 @@ async function purchase(request, env) {
   const rows = [['Sets', String(sets)], ['Name', name || '(not given)'], ['School', school], ['Email', email], ['Message', message || '(none)']];
   const who = [['Verdict', VERDICTS[check.verdict]], ['Why', check.why], ['IP address', from.ip || 'unknown'], ['Location', where], ['Network', network]];
   if (from.map) who.push(['Map', from.map]);
-  const note = 'The location is a city-level guess from the IP address, not a street address, and it can be off by a town or more. An email address is only proven when its owner answers your reply.';
+  const note = 'The location is a city-level guess from the IP address, not a street address, and it can be off by a town or more. An email address is only proven when its owner answers your reply. The sender ticked "I agree to the Privacy Policy" (wrastem.com/privacy) before sending.';
   const list = (r) => r.map(([k, v]) => `${k}: ${v}`).join('\n');
   const table = (r) => `<table cellpadding="6" style="border-collapse:collapse">${
     r.map(([k, v]) => `<tr><th align="left" valign="top">${k}</th><td style="white-space:pre-wrap">${k === 'Map' ? `<a href="${esc(v)}">Open the map</a>` : esc(v)}</td></tr>`).join('')

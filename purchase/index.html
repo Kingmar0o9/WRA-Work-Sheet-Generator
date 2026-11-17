@@ -91,6 +91,9 @@ input:focus-visible,textarea:focus-visible{outline:3px solid var(--sun);outline-
 input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--coral)}
 .err{font-size:.9rem;font-weight:700;color:var(--coral)}
 .err:empty{display:none}
+/* the "I agree" tick box */
+.field .check{display:flex;align-items:center;gap:12px;cursor:pointer}
+.check input{width:26px;height:26px;min-height:0;padding:0;flex:none;border-radius:6px;accent-color:var(--leaf);cursor:pointer}
 .sets{display:flex;align-items:center;gap:8px}
 .sets input{width:7.5em;text-align:center;font-size:1.25rem;font-weight:800;font-variant-numeric:tabular-nums}
 .sets button{width:48px;height:48px;flex:none;border-radius:50%;border:2px solid var(--ink);background:transparent;color:var(--ink);font:800 1.4rem/1 var(--sans);cursor:pointer}
@@ -182,6 +185,11 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--cora
           <label for="message">Anything else? <span class="opt">(optional)</span></label>
           <textarea id="message" name="message" maxlength="1500" placeholder="For example, when you need the kits, or questions you have."></textarea>
         </div>
+        <div class="field">
+          <label class="check" for="agree"><input id="agree" name="agree" type="checkbox" required aria-describedby="agree-hint agree-err"><span>I agree to the <a href="../privacy/" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+          <p class="hint" id="agree-hint">It says what is collected when you send this form, including your email address and IP address, and that they are used to check that a request is real.</p>
+          <p class="err" id="agree-err"></p>
+        </div>
         <!-- left empty by people; bots fill it in -->
         <div class="trap" aria-hidden="true"><label for="website">Website</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
         <div class="send-row">
@@ -205,11 +213,11 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--cora
 <footer class="foot">
   <div class="wrap">
     <p>WRA STEM Kits · A student Compass project at Western Reserve Academy.</p>
-    <p>Your answers are only used to reply to your request. To help spot fake requests, the form also notes the internet (IP) address it was sent from and the rough area that address is in.</p>
+    <p>Your answers, and the IP address the form is sent from, are used to reply to your request and to check that it is real. <a href="../privacy/">Privacy Policy</a></p>
   </div>
 </footer>
 
-<script src="../assets/js/purchase.js?v=20261117a"></script>
+<script src="../assets/js/purchase.js?v=20261117b"></script>
 <script src="../assets/js/gallery.js?v=20261115c" defer></script>
 </body>
 </html>

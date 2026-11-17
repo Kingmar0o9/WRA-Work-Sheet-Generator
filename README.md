@@ -173,6 +173,7 @@ The site has no accounts, passwords or database, so there is nothing to log in t
 | [`standards-ai/`](standards-ai) | Standards AI chat page (`index.html`), its script (`app.js`), its search code and the NGSS data |
 | [`cell-kit-generator/`](cell-kit-generator) | Worksheet and answer key generator |
 | [`purchase/`](purchase) | Request kits form (its script is [`assets/js/purchase.js`](assets/js/purchase.js)) |
+| [`privacy/`](privacy) | Privacy Policy. The request form can't be sent until its "I agree" box is ticked |
 | [`404.html`](404.html) | The "page not found" page (its script is [`assets/js/not-found.js`](assets/js/not-found.js)). GitHub Pages shows it for any address that doesn't exist, so its links and files all start with `/` |
 | [`worker/`](worker) | Cloudflare Worker for Standards AI answers and purchase requests ([setup notes](worker/README.md)) |
 | [`src/`](src) | Source for the 3D viewer, the model pipeline, the NGSS pipeline and the photo rotation script ([build notes](src/README.md)) |

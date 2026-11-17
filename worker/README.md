@@ -54,7 +54,8 @@ Only questions that need a written answer reach the server. A bare code such as
 ## Purchase requests (wrastem.com/purchase)
 
 The "Request kits" form sends its answers (number of sets, name, school, email, message) to
-this server at `/purchase`, which emails them to you. Pressing **Reply** in that email
+this server at `/purchase`, which emails them to you. The form has an "I agree to the
+Privacy Policy" box (`wrastem.com/privacy`); the server refuses a request without it. Pressing **Reply** in that email
 answers the teacher directly. It's free: Cloudflare delivers to a verified address in your
 own account at no charge, on the Workers Free plan.
 
@@ -104,6 +105,9 @@ What it can't do:
   at home or on a district network can show up a town or more away.
 - **It can't prove someone owns an email address.** Anyone can type any address. The proof
   is that its owner answers when you reply.
+
+If you change what is collected or how long it is kept, change `privacy/index.html` to
+match, and its effective date.
 
 The same details are written to the Logs with each `purchase` line (kept 7 days). To see
 your own, send the form yourself: the email you get shows your IP address and location.
