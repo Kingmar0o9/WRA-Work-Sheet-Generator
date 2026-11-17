@@ -73,7 +73,14 @@
   // after the page has loaded, so it never competes with what the page needs first.
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/sw.js').catch(function () {});
+      navigator.serviceWorker.register('/sw.js').then(function () {
+        return navigator.serviceWorker.ready;
+      }).then(function (reg) {
+        // first visit: hand over what this page already loaded, so it is kept for next time
+        var urls = [];
+        try { urls = performance.getEntriesByType('resource').map(function (e) { return e.name; }); } catch (e) {}
+        if (reg.active) reg.active.postMessage({ type: 'cache-loaded', page: location.href, urls: urls });
+      }).catch(function () {});
     });
   }
 })();

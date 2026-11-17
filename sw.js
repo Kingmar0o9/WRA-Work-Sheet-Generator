@@ -13,8 +13,12 @@
      in the background.
    - Nothing from other sites (Standards AI answers, the request form) is touched or saved.
 
+   - On the very first visit the page loads before this worker starts, so the page then sends the
+     list of what it already loaded (see "cache-loaded" below) and that gets saved too. Those files
+     come from the browser's own cache, so this costs no extra download.
+
    To ship a change to this file's rules, bump VERSION: old caches are deleted on the next visit. */
-var VERSION = '2026-11-17a';
+var VERSION = '2026-11-17b';
 var PAGES = 'wra-pages-' + VERSION;
 var FILES = 'wra-files-' + VERSION;
 var MAX_FILES = 120;
@@ -53,6 +57,31 @@ self.addEventListener('fetch', function (event) {
     event.respondWith(fresh(event));
   }
 });
+
+// The page that registered this worker lists what it loaded before the worker was running.
+self.addEventListener('message', function (event) {
+  var d = event.data;
+  if (d && d.type === 'cache-loaded' && Array.isArray(d.urls)) event.waitUntil(saveLoaded(d.page, d.urls.slice(0, 80)));
+});
+
+async function saveLoaded(page, urls) {
+  var pages = await caches.open(PAGES), files = await caches.open(FILES);
+  var all = [page].concat(urls);
+  for (var i = 0; i < all.length; i++) {
+    var u;
+    try { u = new URL(all[i], self.location.href); } catch (e) { continue; }
+    if (u.origin !== self.location.origin || u.pathname === '/sw.js') continue;
+    var isPage = i === 0;
+    var cache = isPage ? pages : files;
+    var key = isPage ? u.origin + u.pathname : u.href;
+    if (await cache.match(key)) continue;
+    try {
+      var res = await fetch(u.href, { cache: 'force-cache', credentials: 'same-origin' });
+      if (res.ok && res.type === 'basic' && res.status === 200) await cache.put(key, res);
+    } catch (e) { /* offline or blocked: skip this one */ }
+  }
+  trim(files);
+}
 
 // A page is saved under its address without the query (?3d=off is the same page as no query).
 function pageKey(req) {

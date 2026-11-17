@@ -83,7 +83,14 @@
 .poster-a{opacity:calc(1 - (var(--p) - .3) * 2.5)}
 #stage-canvas,#viewer-canvas{position:absolute;inset:0}
 #stage-canvas canvas,#viewer-canvas canvas{width:100%!important;height:100%!important;display:block;opacity:0;animation:fade .8s var(--ease) .05s forwards}
-.has-3d .poster-frame{display:none}
+/* the frozen copy of the model's last frame, left behind when the live model moves (cell-viewer.js) */
+#stage-canvas canvas.snap,#viewer-canvas canvas.snap{position:absolute;inset:0;opacity:1;animation:none}
+/* The page has one live model, which moves between this stage and the viewer further down
+   (assets/js/cell-viewer.js). On a tall window both can be on screen at once, so whichever one
+   doesn't hold the model right now shows its still picture instead of an empty green box. */
+.has-3d .stage-art:has(#stage-canvas canvas) .poster-frame{display:none}
+.has-3d .poster-frame .label{display:none}
+@supports not selector(:has(*)){.has-3d .poster-frame{display:none}}
 .stage-copy{position:absolute;left:0;right:0;bottom:clamp(28px,7vh,72px);pointer-events:none}
 .stage-copy .wrap>*{pointer-events:auto}
 .stage-copy h1{font-size:clamp(2.9rem,6.4vw,6rem);max-width:9.5ch}
@@ -155,7 +162,8 @@
 .viewer{grid-area:viewer;position:sticky;top:calc(var(--head) + 20px);align-self:start}
 .viewer-box{position:relative;aspect-ratio:4/3;width:min(100%,calc((100svh - var(--head) - 48px) * 4 / 3));margin-left:auto;background:var(--leaf);border-radius:22px;overflow:hidden;touch-action:pan-y;user-select:none;cursor:grab}
 .viewer-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:6%}
-.has-3d .viewer-box img{display:none}
+.has-3d .viewer-box:has(canvas) img{display:none}
+@supports not selector(:has(*)){.has-3d .viewer-box img{display:none}}
 .viewer-box:active{cursor:grabbing}
 .viewer-name{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);margin:0;background:var(--sun);color:var(--ink);font-weight:800;font-size:1.15rem;letter-spacing:-.02em;padding:9px 20px;border-radius:999px;box-shadow:0 6px 18px -8px rgba(0,0,0,.55);white-space:nowrap;pointer-events:none}
 .viewer-name.show{animation:namein .5s var(--ease) .2s both}
@@ -662,12 +670,12 @@
 
     // Load the 3D model only on capable devices, after the page is already usable.
     if (d.classList.contains('want-3d')) {
-      var go = function () { var s = document.createElement('script'); s.type = 'module'; s.src = 'assets/js/cell-viewer.js?v=20261117a'; document.head.appendChild(s); };
+      var go = function () { var s = document.createElement('script'); s.type = 'module'; s.src = 'assets/js/cell-viewer.js?v=20261117b'; document.head.appendChild(s); };
       if (document.readyState === 'complete') go(); else window.addEventListener('load', function () { (window.requestIdleCallback || setTimeout)(go, { timeout: 1200 }); });
     }
   })();
 </script>
-<script src="assets/js/site.js?v=20261117b" defer></script>
+<script src="assets/js/site.js?v=20261117c" defer></script>
 <script src="assets/js/gallery.js?v=20261117b" defer></script>
 </body>
 </html>

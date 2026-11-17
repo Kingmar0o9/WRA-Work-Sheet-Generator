@@ -361,16 +361,46 @@ export async function start() {
   }
 
   // ---- move the canvas between the stage and the viewer --------------------
+  // There is one live model. The spot it leaves keeps a copy of its last frame, at exactly the same
+  // size and place, so on a tall window (where both spots are on screen) nothing jumps or empties.
+  function freeze(slot) {
+    if (!canvas.width || !canvas.height) return;
+    frame(); // draw now: WebGL keeps the picture only until the browser paints, so copy it right away
+    let snap = slot.querySelector('canvas.snap');
+    if (!snap) {
+      snap = document.createElement('canvas');
+      snap.className = 'snap';
+      snap.setAttribute('aria-hidden', 'true');
+      slot.insertBefore(snap, slot.firstChild);
+    }
+    snap.width = canvas.width; snap.height = canvas.height;
+    const g = snap.getContext('2d');
+    g.clearRect(0, 0, snap.width, snap.height);
+    g.drawImage(canvas, 0, 0);
+    snap.hidden = false;
+  }
   function mount(mode) {
     column = null;
     if (st.mode === mode && canvas.parentNode) return;
+    const from = canvas.parentNode;
+    if (from) {
+      freeze(from);
+      // after its first entrance the live model no longer fades in, so a move is seamless
+      canvas.style.animation = 'none'; canvas.style.opacity = '1';
+    }
     st.mode = mode;
-    (mode === 'viewer' ? viewerSlot : stageSlot).appendChild(canvas);
+    const to = mode === 'viewer' ? viewerSlot : stageSlot;
+    to.appendChild(canvas);
     if (mode === 'viewer') {
       st.yaw = st.yawT = VIEW.yaw; st.pitch = st.pitchT = VIEW.pitch; st.roll = st.rollT = 0;
     } else {
       onScroll();
       st.explode = st.explodeT; st.yaw = st.yawT; st.pitch = st.pitchT; st.roll = st.rollT;
+    }
+    if (from) {
+      frame(); // first frame in the new spot before the browser paints, then drop that spot's copy
+      const old = to.querySelector('canvas.snap');
+      if (old) old.hidden = true;
     }
     request();
   }
@@ -505,6 +535,7 @@ export async function start() {
     document.documentElement.classList.add('no-3d');
     window.removeEventListener('scroll', onScroll);
     renderer.dispose(); canvas.remove();
+    document.querySelectorAll('#stage-canvas canvas.snap, #viewer-canvas canvas.snap').forEach((c) => c.remove());
   }
 
   // ---- still pictures for slower devices -------------------------------------
