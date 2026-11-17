@@ -147,6 +147,24 @@ h2{font-size:17pt;margin:0;display:flex;align-items:center;gap:10px}
   body.p-ws .page.key{display:none}
   body.p-key .page:not(.key){display:none}
 }
+/* motion, matching the rest of the site (kept in this file so the page still works offline) */
+.pill{transition:background-color .2s,color .2s,border-color .2s,transform .3s cubic-bezier(.16,1,.3,1)}
+.pill:hover:not(:disabled){transform:translateY(-2px)}
+.pill:active:not(:disabled){transform:translateY(0) scale(.98);transition-duration:.08s}
+.pill svg{transition:transform .35s cubic-bezier(.16,1,.3,1)}
+.pill.primary:hover:not(:disabled) svg{transform:translateY(2px)}
+.bar a.brand svg{transition:transform .6s cubic-bezier(.16,1,.3,1)}
+.bar a.brand:hover svg{transform:rotate(60deg)}
+.more summary svg,.more summary::before{transition:transform .3s cubic-bezier(.16,1,.3,1)}
+@view-transition{navigation:auto}
+@media (prefers-reduced-motion:no-preference){
+  ::view-transition-old(root){animation:vt-out .16s ease-in both}
+  ::view-transition-new(root){animation:vt-in .38s cubic-bezier(.16,1,.3,1) both}
+}
+@keyframes vt-out{to{opacity:0}}
+@keyframes vt-in{from{opacity:0;transform:translateY(10px)}}
+@media (prefers-reduced-motion:reduce){.pill,.pill svg,.bar a.brand svg{transition:none}.pill:hover:not(:disabled),.pill:active:not(:disabled){transform:none}}
+@media print{::view-transition-old(root),::view-transition-new(root){animation:none}}
 </style>
 </head>
 <body>
