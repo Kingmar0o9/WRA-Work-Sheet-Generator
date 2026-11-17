@@ -1,0 +1,19 @@
+{
+  "name": "WRA STEM Kits",
+  "short_name": "WRA STEM",
+  "description": "A 3D printed plant cell kit for middle school science, with a worksheet generator and Standards AI for teachers.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F6F7F2",
+  "theme_color": "#124A2B",
+  "icons": [
+    { "src": "/assets/img/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/assets/img/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "shortcuts": [
+    { "name": "Worksheet Generator", "url": "/cell-kit-generator/", "icons": [{ "src": "/assets/img/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Standards AI", "url": "/standards-ai/", "icons": [{ "src": "/assets/img/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

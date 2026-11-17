@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- What this page may load: only its own files from wrastem.com. It runs no script and sends nothing anywhere. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'inline-speculation-rules'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
 <title>Privacy Policy · WRA STEM Kits</title>
 <meta name="description" content="What wrastem.com collects when you request kits or use Standards AI, including your email address and IP address, why it is collected, and how long it is kept.">
 <meta name="theme-color" content="#124A2B">
@@ -12,6 +12,10 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<!-- Prefetch a page on this site when a link to it is pointed at or pressed, so it opens almost at once.
+     Browsers skip this under Data Saver; browsers without speculation rules simply ignore it. -->
+<script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/*\\?*"}},{"not":{"href_matches":"/*.*"}}]},"eagerness":"moderate"}]}</script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="WRA STEM Kits">
 <meta property="og:url" content="https://wrastem.com/privacy/">
@@ -200,6 +204,7 @@ h1,h2,h3{line-height:1.02}
     <section id="s8">
       <h2>8. Cookies and browser storage</h2>
       <p>The Site does not set cookies. It stores two settings in your browser’s local storage so that your preferences are remembered on your device: whether the 3D model on the home page is switched on, and whether written answers in Standards AI are switched on. These settings remain on your device, are not transmitted to us, and can be removed at any time by clearing your browser’s site data.</p>
+      <p>So that the Site loads quickly on slow connections and the worksheet generator works offline, your browser also keeps a copy of the Site’s own pages and files that you have opened (its cache). This copy contains only the Site’s public pages, pictures and code: no questions you ask, nothing you type into a form, and nothing about you. It stays on your device, is not sent to us, and is removed when you clear your browser’s site data.</p>
     </section>
 
     <section id="s9">
@@ -256,6 +261,6 @@ h1,h2,h3{line-height:1.02}
     </div>
   </div>
 </footer>
-<script src="../assets/js/site.js?v=20261117a" defer></script>
+<script src="../assets/js/site.js?v=20261117b" defer></script>
 </body>
 </html>
