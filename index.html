@@ -83,6 +83,8 @@
 .poster-a{opacity:calc(1 - (var(--p) - .3) * 2.5)}
 #stage-canvas,#viewer-canvas{position:absolute;inset:0}
 #stage-canvas canvas,#viewer-canvas canvas{width:100%!important;height:100%!important;display:block;opacity:0;animation:fade .8s var(--ease) .05s forwards}
+/* the frozen copy of the model's last frame, left behind when the live model moves (cell-viewer.js) */
+#stage-canvas canvas.snap,#viewer-canvas canvas.snap{position:absolute;inset:0;opacity:1;animation:none}
 /* The page has one live model, which moves between this stage and the viewer further down
    (assets/js/cell-viewer.js). On a tall window both can be on screen at once, so whichever one
    doesn't hold the model right now shows its still picture instead of an empty green box. */
@@ -668,7 +670,7 @@
 
     // Load the 3D model only on capable devices, after the page is already usable.
     if (d.classList.contains('want-3d')) {
-      var go = function () { var s = document.createElement('script'); s.type = 'module'; s.src = 'assets/js/cell-viewer.js?v=20261117a'; document.head.appendChild(s); };
+      var go = function () { var s = document.createElement('script'); s.type = 'module'; s.src = 'assets/js/cell-viewer.js?v=20261117b'; document.head.appendChild(s); };
       if (document.readyState === 'complete') go(); else window.addEventListener('load', function () { (window.requestIdleCallback || setTimeout)(go, { timeout: 1200 }); });
     }
   })();
