@@ -163,7 +163,7 @@ The site has no accounts, passwords or database, so there is nothing to log in t
 - **Nothing a visitor or the AI writes can run as code.** The pages show it as plain text, and each page carries a Content Security Policy (the `Content-Security-Policy` line near the top of each HTML file) that tells the browser what the page may load and where it may send data.
 - **Checked by tests.** `npm test` in [`worker/`](worker) runs the server's protections against attacks.
 
-**If you add something from another website** (a video, a font, an analytics script), the browser will block it until that site's address is added to the `Content-Security-Policy` line of the page that uses it. On the Standards AI and Request kits pages, scripts must be in their own `.js` files: a `<script>` written into those pages will not run.
+**If you add something from another website** (a video, a font, an analytics script), the browser will block it until that site's address is added to the `Content-Security-Policy` line of the page that uses it. On the Standards AI, Request kits and page-not-found pages, scripts must be in their own `.js` files: a `<script>` written into those pages will not run.
 
 ## Repository map
 
@@ -173,6 +173,7 @@ The site has no accounts, passwords or database, so there is nothing to log in t
 | [`standards-ai/`](standards-ai) | Standards AI chat page (`index.html`), its script (`app.js`), its search code and the NGSS data |
 | [`cell-kit-generator/`](cell-kit-generator) | Worksheet and answer key generator |
 | [`purchase/`](purchase) | Request kits form (its script is [`assets/js/purchase.js`](assets/js/purchase.js)) |
+| [`404.html`](404.html) | The "page not found" page (its script is [`assets/js/not-found.js`](assets/js/not-found.js)). GitHub Pages shows it for any address that doesn't exist, so its links and files all start with `/` |
 | [`worker/`](worker) | Cloudflare Worker for Standards AI answers and purchase requests ([setup notes](worker/README.md)) |
 | [`src/`](src) | Source for the 3D viewer, the model pipeline, the NGSS pipeline and the photo rotation script ([build notes](src/README.md)) |
 | [`assets/`](assets) | Fonts, images, the 3D model and the built viewer. Logo files are in [`assets/brand/`](assets/brand) |
