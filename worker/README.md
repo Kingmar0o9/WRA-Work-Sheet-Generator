@@ -72,6 +72,44 @@ for `purchase`), so if an email ever fails you can still find it there for 7 day
 hidden "website" field catches most spam bots, and one visitor can send at most 3
 requests a minute.
 
+### Who sent this (spotting fake requests)
+
+Every request email ends with a **Who sent this** part. No request is ever blocked by it;
+it only tells you what to look at before you reply.
+
+| Line | What it is |
+|---|---|
+| **Verdict** | `Looks like a real school`, `Can't tell` or `Check this one`. A "check this one" request also says so in the email's subject |
+| **Why** | The reasons, in plain words |
+| **IP address** | The internet address the form was sent from |
+| **Location** | The city, state, country, postal code and time zone Cloudflare has for that IP address |
+| **Network** | Who owns that address: a home internet company, a school district, a phone company, a data center |
+| **Map** | A link that opens the rough spot on OpenStreetMap |
+
+How the verdict is worked out:
+
+- **Looks like a real school:** the email is at a school-style address (`.edu`, `k12`,
+  `...schools.org`, `...isd.org`) or at an address named after the school they typed
+  (`wra.net` for Western Reserve Academy), and that address can receive email. Or the
+  form was sent from a school's own network.
+- **Check this one:** the email is a throwaway address, or its domain doesn't exist or has
+  no mail server (so your reply could never arrive), or the form came through Tor, or it
+  came through a data center or VPN with nothing else to vouch for it.
+- **Can't tell:** everything else. Most often a real teacher writing from a personal
+  address such as Gmail, at home.
+
+What it can't do:
+
+- **It can't give a street address.** An IP address only shows a rough area, and a teacher
+  at home or on a district network can show up a town or more away.
+- **It can't prove someone owns an email address.** Anyone can type any address. The proof
+  is that its owner answers when you reply.
+
+The same details are written to the Logs with each `purchase` line (kept 7 days). To see
+your own, send the form yourself: the email you get shows your IP address and location.
+The lists of personal and throwaway email providers, and the words that mark a school
+address or a school network, are near `Who sent a kit request` in `src/index.js`.
+
 ## Who can use the server
 
 Only the pages on `wrastem.com`. A question or a kit request from any other website, or

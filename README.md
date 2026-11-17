@@ -151,7 +151,7 @@ flowchart LR
   - **Checks before an answer goes out:** every quote must match the standard word for word, every code must point at a standard it was given, and grade levels are corrected.
   - **Standards text:** collected from nextgenscience.org by [`src/ngss-pipeline/`](src/ngss-pipeline).
 - **Worksheet Generator.** A single self-contained page that works offline. PDFs are made in the browser.
-- **Request kits.** The same Worker emails each request through Cloudflare's email service. A hidden field and a rate limit keep spam out.
+- **Request kits.** The same Worker emails each request through Cloudflare's email service. A hidden field and a rate limit keep spam out. Each email also shows the sender's IP address, its rough location, and whether the email address looks like a school's, so a fake request is easy to spot.
 - **Hosting.** The site runs on GitHub Pages and the server on Cloudflare's free plans, so the tools cost nothing to run.
 
 ## Security
