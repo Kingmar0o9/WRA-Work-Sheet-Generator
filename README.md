@@ -162,6 +162,7 @@ flowchart LR
 | [`standards-ai/`](standards-ai) | Standards AI chat page, its search code and the NGSS data |
 | [`cell-kit-generator/`](cell-kit-generator) | Worksheet and answer key generator |
 | [`purchase/`](purchase) | Request kits form |
+| [`404.html`](404.html) | The "page not found" page. GitHub Pages shows it for any address that doesn't exist, so its links and files all start with `/` |
 | [`worker/`](worker) | Cloudflare Worker for Standards AI answers and purchase requests ([setup notes](worker/README.md)) |
 | [`src/`](src) | Source for the 3D viewer, the model pipeline, the NGSS pipeline and the photo rotation script ([build notes](src/README.md)) |
 | [`assets/`](assets) | Fonts, images, the 3D model and the built viewer. Logo files are in [`assets/brand/`](assets/brand) |
