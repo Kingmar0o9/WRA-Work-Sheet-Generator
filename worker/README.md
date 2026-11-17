@@ -69,8 +69,39 @@ One-time setup in the Cloudflare dashboard (about 3 minutes):
 
 Every request is also written to the Logs (Workers & Pages → `standards-ai` → Logs, look
 for `purchase`), so if an email ever fails you can still find it there for 7 days. A
-hidden "website" field catches most spam bots, and one visitor can send at most a few
+hidden "website" field catches most spam bots, and one visitor can send at most 3
 requests a minute.
+
+## Who can use the server
+
+Only the pages on `wrastem.com`. A question or a kit request from any other website, or
+from a script with no website at all, gets a "forbidden" reply and uses no AI and sends
+no email. On top of that:
+
+- one visitor can ask at most 6 questions and send 3 kit requests a minute;
+- only small JSON messages are read (64 KB for a question, 16 KB for a request);
+- an email address may only contain the characters real addresses use, so nothing typed
+  into the form can add other recipients;
+- if something breaks inside the server, the visitor sees only "server_error"; the
+  details go to the Logs;
+- every reply tells the browser not to put it in a frame, not to guess its type, not to
+  keep a copy, and to use HTTPS.
+
+To let a page on your own computer use the live server too (for example the site opened
+at `http://localhost:8000`), add that address to `ALLOWED_ORIGINS` under `vars` in
+`wrangler.jsonc` and deploy. Leave it out unless you need it. A test copy started with
+`npx wrangler dev` reads the same setting:
+
+```bash
+npx wrangler dev --var ALLOWED_ORIGINS:http://localhost:8000
+```
+
+To check that the protections still work after a change (it uses stand-ins for the AI and
+the email service, so it touches nothing real):
+
+```bash
+npm test
+```
 
 ## What happens when the free allowance runs out
 
