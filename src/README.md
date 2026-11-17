@@ -22,7 +22,7 @@ below if you change the 3D model or the viewer code. Editing text in
 ## Changing part names or descriptions
 
 Part info lives in `index.html` in the `<template id="info-...">` blocks near
-the bottom, and the buttons are the `data-part` buttons in the Resources section.
+the bottom, and the buttons are the `data-part` buttons in the "Take a closer look" section (`#explore`).
 
 ## How it stays fast
 

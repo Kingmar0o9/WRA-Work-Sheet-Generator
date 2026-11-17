@@ -16,47 +16,10 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/bricolage-wght.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css?v=20261117a">
 <style>
-@font-face{font-family:"Bricolage";src:url(/assets/fonts/bricolage-wght.woff2) format("woff2");font-weight:200 800;font-display:swap}
-:root{
-  --stock:#F6F7F2; --ink:#13261C; --ink-2:#3E5446; --rule:#13261C;
-  --leaf:#124A2B; --leaf-deep:#0C3520; --on-leaf:#F6F7F2; --on-leaf-2:#D7EDD3;
-  --sun:#F6C343;
-  --sans:"Bricolage",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  --gutter:clamp(16px,4vw,56px); --max:1240px;
-  --ease:cubic-bezier(.16,1,.3,1);
-  color-scheme:light;
-}
-*,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;scrollbar-color:var(--leaf) var(--stock)}
-body{margin:0;background:var(--stock);color:var(--ink);font-family:var(--sans);font-size:clamp(17px,1.05vw + 12px,19px);line-height:1.55;font-weight:400;-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100svh;display:flex;flex-direction:column}
-::selection{background:var(--sun);color:var(--ink)}
-a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:2px}
-:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:6px}
-.on-leaf :focus-visible{outline-color:var(--sun)}
-img{display:block;max-width:100%;height:auto}
-h1,h2,h3{font-weight:800;line-height:.98;letter-spacing:-.035em;margin:0;text-wrap:balance}
-p{margin:0;text-wrap:pretty}
-.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--gutter)}
-[hidden]{display:none!important}
-.skip{position:absolute;left:-999px;top:8px;background:var(--sun);color:var(--ink);padding:10px 16px;border-radius:8px;z-index:50}
-.skip:focus{left:8px}
-
-/* header */
-.top{background:var(--leaf);color:var(--on-leaf)}
-.top .wrap{display:flex;align-items:center;gap:16px;min-height:68px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.15rem;letter-spacing:-.03em;text-decoration:none;white-space:nowrap}
-.brand svg{width:30px;height:30px}
-.top .back{margin-left:auto;font-weight:600;font-size:.95rem}
-
-/* buttons */
-.btn{display:inline-flex;align-items:center;gap:.55em;min-height:48px;padding:0 22px;border-radius:999px;font:700 1rem/1 var(--sans);letter-spacing:-.01em;text-decoration:none;border:2px solid currentColor;cursor:pointer;transition:transform .3s var(--ease),background-color .2s,color .2s}
-.btn:hover{transform:translateY(-2px)}
-.btn:active{transform:translateY(0)}
-.btn svg{width:18px;height:18px;flex:none}
-.btn-sun{background:var(--sun);border-color:var(--sun);color:var(--ink)}
-.btn-sun:hover{background:#ffd35e;border-color:#ffd35e}
-
+/* Page-not-found only. Shared tokens, header, footer, buttons and motion: /assets/css/site.css */
+body{min-height:100vh;display:flex;flex-direction:column}
 /* the message, on the leaf field, beside the kit's empty tray */
 main{flex:1 0 auto;display:flex;flex-direction:column}
 .lost{background:var(--leaf);color:var(--on-leaf);padding:clamp(28px,5vw,72px) 0 clamp(44px,7vw,96px);overflow:hidden}
@@ -69,6 +32,8 @@ main{flex:1 0 auto;display:flex;flex-direction:column}
 .tried b{color:var(--sun);font-weight:800}
 .lost figure{margin:0}
 .lost figure img{width:100%}
+@keyframes framein{from{opacity:0;scale:.96}to{opacity:1;scale:1}}
+@media (prefers-reduced-motion:no-preference){.lost figure{animation:framein 1.1s var(--ease) .12s both}}
 @media (max-width:860px){
   .lost .wrap{grid-template-columns:1fr}
   .lost figure{order:-1;width:min(64vw,300px)}
@@ -90,29 +55,27 @@ main{flex:1 0 auto;display:flex;flex-direction:column}
 .ways li a:hover h3{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:.14em}
 .ways li a:hover .go{background:var(--ink);color:var(--stock);transform:translateX(4px)}
 @media (max-width:860px){.ways .wrap{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){.btn,.ways .go{transition:none}.btn:hover,.ways li a:hover .go{transform:none}}
 
-.foot{background:var(--ink);color:#C9D6CC;padding:36px 0 44px;font-size:.9rem}
-.foot .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between}
-.foot a{color:var(--stock)}
 </style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<header class="top on-leaf">
+<header class="site-head on-leaf">
   <div class="wrap">
-    <a class="brand" href="/" aria-label="WRA STEM Kits, home">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="14" cy="15" r="4.6" fill="currentColor"/><ellipse cx="21.4" cy="20.2" rx="2.6" ry="1.7" fill="currentColor" transform="rotate(-30 21.4 20.2)"/></svg>
-      WRA STEM Kits
-    </a>
-    <a class="back" href="/purchase/">Request kits</a>
+    <a class="brand" href="/" aria-label="WRA STEM Kits, home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="14" cy="15" r="4.6" fill="currentColor"/><ellipse cx="21.4" cy="20.2" rx="2.6" ry="1.7" fill="currentColor" transform="rotate(-30 21.4 20.2)"/></svg>WRA STEM Kits</a>
+    <nav class="site-nav" aria-label="Site"><a href="/">The kit</a><a href="/cell-kit-generator/">Worksheets</a><a href="/standards-ai/">Standards AI</a><a href="/#why">About</a></nav>
+    <a class="btn btn-sun cta" href="/purchase/">Request kits</a>
+    <details class="menu">
+      <summary><svg class="bars" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>Menu</span></summary>
+      <nav class="menu-panel" aria-label="Site menu"><a href="/">The kit<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="/cell-kit-generator/">Worksheets<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="/standards-ai/">Standards AI<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="/#why">About<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a class="btn btn-sun" href="/purchase/">Request kits</a></nav>
+    </details>
   </div>
 </header>
 
 <main id="main">
-  <section class="lost on-leaf" aria-labelledby="lost-h">
+  <section class="lost on-leaf" aria-labelledby="lost-h" data-head-over>
     <div class="wrap">
-      <div>
+      <div data-enter>
         <h1 id="lost-h">This slot is empty.</h1>
         <p class="lede">There’s no page at this address. The link may be out of date, or the address may have a typo.</p>
         <!-- filled in by /assets/js/not-found.js when the address looks like one of the site's pages -->
@@ -162,13 +125,26 @@ main{flex:1 0 auto;display:flex;flex-direction:column}
   </section>
 </main>
 
-<footer class="foot">
+<footer class="site-foot">
   <div class="wrap">
-    <p>WRA STEM Kits · A student Compass project at Western Reserve Academy.</p>
-    <p><a href="/">Home</a></p>
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="big" href="/"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="14" cy="15" r="4.6" fill="currentColor"/><ellipse cx="21.4" cy="20.2" rx="2.6" ry="1.7" fill="currentColor" transform="rotate(-30 21.4 20.2)"/></svg>WRA STEM Kits</a>
+        <p>Hands-on, 3D printed science kits for middle school classrooms. A student Compass project at Western Reserve Academy.</p>
+      </div>
+      <div class="foot-cols">
+        <div><h2>The kit</h2><ul><li><a class="draw" href="/#explore">Explore the kit</a></li><li><a class="draw" href="/purchase/">Request kits</a></li></ul></div>
+        <div><h2>For teachers</h2><ul><li><a class="draw" href="/cell-kit-generator/">Worksheet Generator</a></li><li><a class="draw" href="/standards-ai/">Standards AI</a></li></ul></div>
+        <div><h2>About</h2><ul><li><a class="draw" href="/#why">Why I built it</a></li><li><a class="draw" href="/privacy/">Privacy Policy</a></li></ul></div>
+      </div>
+    </div>
+    <div class="foot-fine">
+      <p>*Next Generation Science Standards is a registered trademark of WestEd. Neither WestEd nor the lead states and partners that developed the Next Generation Science Standards were involved in the production of this product, and do not endorse it.</p>
+    </div>
   </div>
 </footer>
 
+<script src="/assets/js/site.js?v=20261117a" defer></script>
 <script src="/assets/js/not-found.js?v=20261117a"></script>
 </body>
 </html>

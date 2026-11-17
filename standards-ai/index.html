@@ -27,6 +27,7 @@
 <!-- Where the AI server lives. If it can't be reached, the chat still shows the matching standards. -->
 <meta name="standards-ai-endpoint" content="https://ai.wrastem.com/ask">
 <link rel="preload" href="../assets/fonts/bricolage-wght.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/css/site.css?v=20261117a">
 <style>
 @font-face{font-family:"Bricolage";src:url(../assets/fonts/bricolage-wght.woff2) format("woff2");font-weight:200 800;font-display:swap}
 :root{
@@ -45,19 +46,18 @@ a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:2px}
 p{margin:0}
 .wrap{width:100%;max-width:820px;margin:0 auto;padding:0 var(--gutter)}
 
-/* header */
-.top{background:var(--leaf);color:var(--on-leaf);flex:none}
-.top .bar{max-width:1240px;margin:0 auto;padding:0 var(--gutter);display:flex;align-items:center;gap:16px;min-height:60px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.05rem;letter-spacing:-.03em;text-decoration:none}
-.brand svg{width:26px;height:26px}
-.top .title{font-weight:800;letter-spacing:-.02em;opacity:.95}
-.top .tools{margin-left:auto;display:flex;gap:8px;align-items:center}
-.pill{min-height:36px;padding:0 14px;border-radius:999px;border:2px solid var(--on-leaf);background:transparent;color:var(--on-leaf);font:700 .82rem var(--sans);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+/* header: the site's shared header (assets/css/site.css), with this page's two switches in it */
+.site-head{flex:none}
+.site-head .wrap{max-width:var(--max);padding:0 clamp(16px,4vw,56px)}
+.site-head .title{font-weight:800;letter-spacing:-.02em;opacity:.95;padding-left:14px;border-left:2px solid rgba(246,247,242,.35);line-height:1.2;white-space:nowrap}
+.pill{min-height:36px;padding:0 14px;border-radius:999px;border:2px solid var(--on-leaf);background:transparent;color:var(--on-leaf);font:700 .82rem var(--sans);cursor:pointer;transition:background-color .2s,color .2s,transform .15s var(--ease);text-decoration:none;display:inline-flex;align-items:center}
 .pill:hover{background:var(--on-leaf);color:var(--ink)}
 .pill[aria-pressed="false"]{border-color:var(--sun);color:var(--sun)}
 .pill[aria-pressed="false"]:hover{background:var(--sun);color:var(--ink)}
-.top :focus-visible{outline-color:var(--sun)}
-@media (max-width:560px){.top .title{display:none}.top .bar{padding-top:8px;padding-bottom:8px}}
+.pill:active{transform:scale(.96)}
+@media (max-width:1240px){.site-head .title{display:none}}
+@media (max-width:620px){.site-tools .pill{padding:0 10px;font-size:.78rem}.site-head .brand span{display:none}}
+@media (max-width:380px){.site-tools{gap:6px}.site-tools .pill{padding:0 8px;font-size:.74rem}.site-head .brand{display:none}}
 
 /* conversation */
 main{flex:1 0 auto;padding:22px 0 12px}
@@ -141,17 +141,21 @@ form:focus-within{outline:3px solid var(--sun);outline-offset:2px}
 </style>
 </head>
 <body>
-<header class="top">
-  <div class="bar">
-    <a class="brand" href="../" aria-label="WRA STEM Kits, home">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="14" cy="15" r="4.6" fill="currentColor"/><ellipse cx="21.4" cy="20.2" rx="2.6" ry="1.7" fill="currentColor" transform="rotate(-30 21.4 20.2)"/></svg>
-      WRA STEM Kits
-    </a>
+<a class="skip" href="#q">Skip to the question box</a>
+<header class="site-head on-leaf has-tools">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="WRA STEM Kits, home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="14" cy="15" r="4.6" fill="currentColor"/><ellipse cx="21.4" cy="20.2" rx="2.6" ry="1.7" fill="currentColor" transform="rotate(-30 21.4 20.2)"/></svg><span>WRA STEM Kits</span></a>
     <span class="title">Standards AI</span>
-    <div class="tools">
+    <nav class="site-nav" aria-label="Site"><a href="../">The kit</a><a href="../cell-kit-generator/">Worksheets</a><a href="../standards-ai/" aria-current="page">Standards AI</a><a href="../#why">About</a></nav>
+    <div class="site-tools">
       <button type="button" class="pill" id="new-chat">New chat</button>
       <button type="button" class="pill" id="ai-toggle" aria-pressed="true">Turn off AI answers</button>
     </div>
+    <a class="btn btn-sun cta" href="../purchase/">Request kits</a>
+    <details class="menu">
+      <summary><svg class="bars" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>Menu</span></summary>
+      <nav class="menu-panel" aria-label="Site menu"><a href="../">The kit<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="../cell-kit-generator/">Worksheets<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="../standards-ai/" aria-current="page">Standards AI<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="../#why">About<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a class="btn btn-sun" href="../purchase/">Request kits</a></nav>
+    </details>
   </div>
 </header>
 
@@ -191,6 +195,7 @@ form:focus-within{outline:3px solid var(--sun);outline-offset:2px}
   </div>
 </footer>
 
+<script src="../assets/js/site.js?v=20261117a" defer></script>
 <script type="module" src="app.js?v=20261117a"></script>
 </body>
 </html>

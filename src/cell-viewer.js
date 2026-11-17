@@ -3,7 +3,7 @@
 //
 // One WebGL canvas is shared by two places on the page:
 //   1. the sticky "stage" at the top (assembled -> exploded as you scroll)
-//   2. the interactive viewer next to the resources (drag to turn, click a part)
+//   2. the interactive viewer in the "Take a closer look" section (drag to turn, click a part)
 // It renders only while something moves, so it costs nothing while idle.
 
 import {
@@ -586,9 +586,9 @@ export async function start() {
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', () => request());
   const io = new IntersectionObserver((es) => {
-    for (const e of es) if (e.target.id === 'resources') mount(e.isIntersecting ? 'viewer' : 'stage');
+    for (const e of es) if (e.target.id === 'explore') mount(e.isIntersecting ? 'viewer' : 'stage');
   }, { threshold: 0.2 });
-  io.observe($('#resources'));
+  io.observe($('#explore'));
   onScroll();
   st.explode = st.explodeT; st.yaw = st.yawT; st.pitch = st.pitchT; st.roll = st.rollT;
   frame();

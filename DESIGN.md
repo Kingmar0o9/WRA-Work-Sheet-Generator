@@ -218,7 +218,9 @@ The hero is a sticky stage: a 260svh leaf section with a 100svh sticky frame. Sc
 
 The spec grid is a fixed-cell ruled grid: 4 columns, 2 at 960px, 1 at 520px. Cells may span 2; the status cell spans the full row. Values always sit inside a cell.
 
-The resource column and the viewer column sit side by side; the viewer is sticky (top 88px) on desktop and stacks below 960px. The fixed header is 68px tall.
+The home page reads as one story: the stage (the kit comes apart), **Take a closer look** (`#explore`: heading, part picker and part details on the left, the sticky viewer on the right; it stacks below 960px with the viewer under the heading), **Tools for teaching with it** (`#tools`, on leaf), **Why I built it** with the kit at a glance (on paper), and **Bring the kit to your classroom** (on leaf) as the closing call. Grounds alternate paper and leaf down the page. The header is 68px tall: fixed on the home page (the stage runs under it), sticky everywhere else.
+
+Every page except the worksheet generator loads one shared layer, `assets/css/site.css` and `assets/js/site.js`, for tokens, buttons, tickets, the header, the footer and motion. Page files hold only what is theirs. The generator keeps its own copy of what it needs inside its one file, so it still works offline.
 
 ### Named Rules
 **The Horizon Rule.** One 2px ink rule runs full width between each major section, tying the packet together.
@@ -230,9 +232,13 @@ Above 1680x860 the root type steps to 106.25% and the column to 1400px; above 22
 
 ### Motion
 - **Hero entrance:** once on load, the headline, lede, buttons and kitline rise 16px and fade in on the expo-out ease, 90ms apart; the still picture scales in from 0.96.
-- **Hover:** buttons lift 2px and their arrow nudges 3px toward where it goes (right, or down for in-page jumps); press scales to 0.98. Header links draw a 2px underline from the left, and the link for the section on screen keeps it (`aria-current="location"`). Part tiles lift their picture slightly.
+- **Page entrance:** any block marked `data-enter` (each page's opening words) rises in once, its children 80ms apart.
+- **Between pages:** cross-page view transitions. The header holds still (`view-transition-name: site-head`) while the page under it fades out in 160ms and the new one rises 10px and fades in over 380ms. Browsers without support simply load the page.
+- **Hover:** buttons lift 2px and their arrow nudges 3px toward where it goes (right, or down for in-page jumps); press scales to 0.98. Header links draw a 2px underline from the left, and the current page's link keeps it. Tool cards lift 4px and their screenshot slides up 6px in its window. The brand mark turns 60 degrees. Part tiles lift their picture slightly. Footer and inline links draw their underline in.
+- **Settle in once:** a few blocks marked `data-reveal` (the tool cards, the cells of the kit at a glance) rise 18px and fade in the first time they reach the screen, 70ms apart, then never move again. Nothing else animates on scroll except the stage.
+- **Small signals:** the dot on a Live ticket breathes slowly; the scroll cue drips while the stage is at its start; a form error nudges sideways once.
 - **Part details:** when a part is picked, its title and lines settle in with a short stagger.
-- **Never:** no fade-in on scroll for sections or cards; everything rests under `prefers-reduced-motion`.
+- **Cost:** motion only ever changes `transform` and `opacity`. Nothing listens to scroll in the shared layer (IntersectionObserver only). With `prefers-reduced-motion`, or without JavaScript, everything shows at once and nothing moves.
 
 ## Elevation & Depth
 
@@ -279,23 +285,25 @@ A sunflower block (6px corner, 4px 10px, 700 at 0.85rem, ink text) placed under 
 ### Spec Grid
 The back of the packet. A 2px ink-ruled grid of cells (padding 18px 20px 22px, min-height 150px). Each cell is a soft-ink label (700, 0.85rem) over a value: an optional big figure (800, tabular numerals) and a plain line beneath. The status cell spans the row and is filled sunflower.
 
-### Resource List
-A numbered list ruled top and bottom with 2px ink rules, rows padded 24px 0 26px. Each row: title and status ticket on one line, soft-ink description (max 46ch), and an ink button when the resource is live.
+### Tool Cards
+On the leaf field, two cards side by side (one column below 820px): stock ground, 22px corners, the whole card is the link. On top, a real screenshot of the tool in a window (2px ink frame, 12px top corners) on a pale leaf band, ruled off by a 2px ink line; below, the title and status ticket, a soft-ink description and a bold "Open …" line with an arrow. A tool that is not built yet sits under them as one dashed row with a Coming soon ticket, never as an empty card.
 
 ### Model Viewer
 - **Box:** leaf ground, 22px corners, 4:3 (1:1 on mobile), grab cursor. A still image of the model fills it when 3D is off.
 - **Tools:** pill buttons top-right, 2px on-leaf border over a 25% ink wash, on-leaf text; hover inverts to on-leaf fill and ink text; focus ring sunflower.
 - **Hint:** on-leaf, 600 at 0.85rem, top-left with a hand icon.
-- **Info panel:** below the chips, stock ground, 2px ink rule, 16px corners, padding 18px 22px. Holds the part title, its role, a plain comparison in soft ink, and a swatch dot (14px, 2px ink ring) in the part's model colour.
+- **Info panel:** under the part picker, white, 2px ink rule, 16px corners, padding 20px 22px. Holds the part title (after a small sunflower dot), its role, the piece of the kit it is, and where MS-LS1-2 stands on it. Before anything is picked it says how to pick a part.
 
 ### Model Labels
 Pill labels in stock with ink text (700, 0.85rem) on a short angled stock leader line ending in a 10px stock dot ringed in ink, carrying the Label lift shadow. They appear only as the kit comes apart.
 
 ### Navigation
-Fixed header, 68px. Wordmark left (800, 1.15rem, -0.03em, with the hex mark at 30px), three text links right (600, 0.95rem, 90% opacity, underline on hover), then a sun button. On leaf it is transparent with on-leaf text; once past the stage it turns stock at 94% with ink text. Links hide below 760px, leaving the wordmark and button.
+One header on every page, 68px: wordmark left (800, 1.15rem, -0.03em, with the hex mark at 30px), then the site links (The kit, Worksheets, Standards AI, About; 600, 0.95rem, in pill-shaped hit areas), then a sun Request kits button. The current page's link keeps its underline. It sits on leaf; once the green top of the page has scrolled under it, it turns stock at 94% with ink text and the sun button turns ink. A page with its own switches (Standards AI) puts them between the links and the button.
+
+Below 860px (1100px on a page with switches) the links and button fold into a **Menu** button: a native disclosure, so it works before scripts load, that drops a full-width sheet of large links with a full-width Request kits button. Escape, a click outside, or picking a link closes it.
 
 ### Footer
-Ink ground with stock text. A large wordmark (800, clamp(1.8rem, 3.4vw, 2.8rem)) over a plain status line, links underlined in stock.
+One footer on every page: ink ground, 5:7 grid. Left, the large wordmark with the hex mark (800, clamp(1.8rem, 3.4vw, 2.8rem)) over one plain line about the project. Right, three short link columns (The kit, For teachers, About) under soft labels, links drawing their underline on hover. Below a hairline, the fine print: any note the page needs (what the request form collects) and the NGSS trademark notice.
 
 ### Focus and Selection
 Focus is a 3px solid outline offset 3px with a 6px corner: ink on paper, sunflower on leaf. Selection is sunflower with ink text.
