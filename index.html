@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- What this page is allowed to load and run (a Content Security Policy). Scripts, fonts, pictures and
+     the 3D model come only from this site, and the page may not send anything to another site.
+     ('unsafe-eval' is there for the 3D model: older browsers need it to run the model's decoder.) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' data: blob:; worker-src 'self' blob:; base-uri 'none'; form-action 'self'">
 <title>WRA STEM Kits · A plant cell you can take apart</title>
 <meta name="description" content="A 12-piece, 3D printed plant cell that middle school students (grades 6–8) take apart and rebuild. Designed to align with NGSS MS-LS1-2, with a worksheet generator and Standards AI for teachers. A student Compass project at Western Reserve Academy.">
 <meta name="theme-color" content="#124A2B">

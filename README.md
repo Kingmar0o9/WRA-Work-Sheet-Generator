@@ -154,14 +154,25 @@ flowchart LR
 - **Request kits.** The same Worker emails each request through Cloudflare's email service. A hidden field and a rate limit keep spam out.
 - **Hosting.** The site runs on GitHub Pages and the server on Cloudflare's free plans, so the tools cost nothing to run.
 
+## Security
+
+The site has no accounts, passwords or database, so there is nothing to log in to and no stored data to steal. What it does have is protected like this:
+
+- **No secrets in the code.** The only secret (the inbox that kit requests go to) is saved in Cloudflare, not in this repository. There are no API keys: the AI runs inside Cloudflare.
+- **Only wrastem.com may use the server.** The Worker refuses questions and kit requests that don't come from the site's own pages, limits how many one visitor can send a minute, refuses oversized or malformed requests, and never shows a visitor the inside of an error.
+- **Nothing a visitor or the AI writes can run as code.** The pages show it as plain text, and each page carries a Content Security Policy (the `Content-Security-Policy` line near the top of each HTML file) that tells the browser what the page may load and where it may send data.
+- **Checked by tests.** `npm test` in [`worker/`](worker) runs the server's protections against attacks.
+
+**If you add something from another website** (a video, a font, an analytics script), the browser will block it until that site's address is added to the `Content-Security-Policy` line of the page that uses it. On the Standards AI and Request kits pages, scripts must be in their own `.js` files: a `<script>` written into those pages will not run.
+
 ## Repository map
 
 | Path | What it is |
 |---|---|
 | [`index.html`](index.html) | Home page: the 3D kit, why it was built, the quick rundown, Request kits, resources |
-| [`standards-ai/`](standards-ai) | Standards AI chat page, its search code and the NGSS data |
+| [`standards-ai/`](standards-ai) | Standards AI chat page (`index.html`), its script (`app.js`), its search code and the NGSS data |
 | [`cell-kit-generator/`](cell-kit-generator) | Worksheet and answer key generator |
-| [`purchase/`](purchase) | Request kits form |
+| [`purchase/`](purchase) | Request kits form (its script is [`assets/js/purchase.js`](assets/js/purchase.js)) |
 | [`worker/`](worker) | Cloudflare Worker for Standards AI answers and purchase requests ([setup notes](worker/README.md)) |
 | [`src/`](src) | Source for the 3D viewer, the model pipeline, the NGSS pipeline and the photo rotation script ([build notes](src/README.md)) |
 | [`assets/`](assets) | Fonts, images, the 3D model and the built viewer. Logo files are in [`assets/brand/`](assets/brand) |
@@ -177,6 +188,8 @@ python3 -m http.server 8000
 ```
 
 Then open http://localhost:8000. The server for Standards AI and the request form lives in `worker/`. See [worker/README.md](worker/README.md) to deploy your own.
+
+The live server only answers pages on wrastem.com, so on your own computer the Standards AI page shows the matching standards without a written answer, and the request form can't send. [worker/README.md](worker/README.md#who-can-use-the-server) explains how to allow a local address.
 
 ## Status
 

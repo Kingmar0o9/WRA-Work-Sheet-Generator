@@ -3,7 +3,10 @@
 // POST /ask {"q": "...", "history": [{q, a}]}
 //   ->  {"answer": "... [MS-LS1-2] ...", "sources": ["MS-LS1-2", ...], "focus": ["mitochondria"],
 //        "type": "science", "status": "ok"}
+// POST /purchase {"sets": 2, "school": "...", "email": "..."}  ->  {"ok": true}
 // GET  /health  ->  what is loaded
+//
+// Only the pages on wrastem.com may call /ask and /purchase (see "Who may call this server").
 //
 // It is a teaching assistant for science teachers: it answers first, in plain words, then gives
 // the facts, then says where the idea is in the NGSS. It works from two sources:
@@ -266,13 +269,79 @@ const tidy = (t) => t.replace(/__/g, '').replace(/^\s*\(?MODE:?\s*[a-z-]+\)?\s*$
   // "..., as described in [MS-LS1-2]." -> "... [MS-LS1-2]." (the page hides the code, so it can't be part of the sentence)
   .replace(/,?\s+(?:as (?:described|outlined|stated|explained|shown|seen|listed) in|according to|in line with|aligned (?:with|to)|based on|from|per|see|in)\s+(?:the\s+)?(?:NGSS\s+)?(?:standard\s+)?(\[[A-Z0-9][A-Z0-9-]*\d\])/g, ' $1').trim();
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+// ---- Who may call this server
+// Browsers only let a web page read this server's replies if the page's address is listed
+// here, and /ask and /purchase refuse any request that doesn't come from one of these pages.
+// That keeps other websites from using up the free AI allowance or sending requests through
+// the form. More addresses can be allowed with the ALLOWED_ORIGINS variable (see wrangler.jsonc), e.g.
+//   npx wrangler dev --var ALLOWED_ORIGINS:http://localhost:8000
+const SITE_ORIGINS = ['https://wrastem.com', 'https://www.wrastem.com'];
+const allowedOrigin = (request, env) => {
+  const origin = request.headers.get('Origin') || '';
+  const extra = String(env.ALLOWED_ORIGINS || '').split(',').map((o) => o.trim()).filter(Boolean);
+  return origin && (SITE_ORIGINS.includes(origin) || extra.includes(origin)) ? origin : '';
 };
-const json = (body, status = 200, extra = {}) =>
-  new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...CORS, ...extra } });
+// Sent with every reply: no page may put a reply in a frame, guess its type or keep a copy,
+// and browsers are told to use HTTPS for this address from now on.
+const SECURITY_HEADERS = {
+  'Content-Security-Policy': "default-src 'none'; frame-ancestors 'none'",
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'no-referrer',
+  'Strict-Transport-Security': 'max-age=31536000',
+  'Cache-Control': 'no-store',
+};
+function finish(response, origin) {
+  const res = new Response(response.body, response);
+  for (const [k, v] of Object.entries(SECURITY_HEADERS)) res.headers.set(k, v);
+  res.headers.set('Vary', 'Origin');
+  if (origin) {
+    res.headers.set('Access-Control-Allow-Origin', origin);
+    res.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.headers.set('Access-Control-Allow-Headers', 'Content-Type');
+    res.headers.set('Access-Control-Max-Age', '86400');
+  }
+  return res;
+}
+const json = (body, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
+
+// The JSON a page sent, or null if it isn't a JSON object. Bodies over the limit are refused
+// before they are read in full, so nobody can make the server chew through huge uploads.
+const ASK_MAX_BYTES = 64 * 1024, PURCHASE_MAX_BYTES = 16 * 1024;
+async function readJson(request, maxBytes) {
+  if (Number(request.headers.get('Content-Length')) > maxBytes) return { tooBig: true };
+  const chunks = [];
+  let size = 0;
+  if (request.body) {
+    const reader = request.body.getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > maxBytes) { await reader.cancel(); return { tooBig: true }; }
+      chunks.push(value);
+    }
+  }
+  const bytes = new Uint8Array(size);
+  let at = 0;
+  for (const c of chunks) { bytes.set(c, at); at += c.byteLength; }
+  try {
+    const v = JSON.parse(new TextDecoder().decode(bytes));
+    return { body: v && typeof v === 'object' && !Array.isArray(v) ? v : null };
+  } catch { return { body: null }; }
+}
+
+// One visitor, for the rate limits: their IP address. An IPv6 connection usually owns a whole
+// block of addresses (a /64), so the block counts as one visitor, not each address in it.
+function visitor(request) {
+  const ip = request.headers.get('cf-connecting-ip') || 'anon';
+  if (!ip.includes(':') || ip.includes('.')) return ip;
+  const [head, tail = ''] = ip.split('::');
+  const h = head ? head.split(':') : [], t = tail ? tail.split(':') : [];
+  const groups = ip.includes('::') ? [...h, ...Array(Math.max(0, 8 - h.length - t.length)).fill('0'), ...t] : h;
+  return groups.slice(0, 4).join(':').toLowerCase();
+}
 
 // ---- Purchase requests (wrastem.com/purchase) ------------------------------------
 // The form's answers are emailed to the kit maker, who replies to the teacher directly.
@@ -281,13 +350,19 @@ const json = (body, status = 200, extra = {}) =>
 // request is also written to the logs, so nothing is lost if an email can't be sent.
 const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const clean = (v, max) => String(v ?? '').replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, '').trim().slice(0, max);
+// An email address made only of the characters real addresses use. Commas, quotes, brackets,
+// spaces and line breaks are refused, so nothing typed here can add extra recipients or headers.
+const EMAIL = /^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/i;
 async function purchase(request, env) {
-  if (env.LIMITER) {
-    const { success } = await env.LIMITER.limit({ key: 'purchase:' + (request.headers.get('cf-connecting-ip') || 'anon') });
+  // a few requests a minute per visitor (its own, lower limit; the question limit if it is missing)
+  const limiter = env.PURCHASE_LIMITER || env.LIMITER;
+  if (limiter) {
+    const { success } = await limiter.limit({ key: 'purchase:' + visitor(request) });
     if (!success) return json({ error: 'slow_down' }, 429);
   }
-  let body = {};
-  try { body = await request.json(); } catch { /* bad body */ }
+  const read = await readJson(request, PURCHASE_MAX_BYTES);
+  if (read.tooBig) return json({ error: 'too_large' }, 413);
+  const body = read.body || {};
   // a hidden field people never see: if it is filled in, a bot sent the form
   if (clean(body.website, 200)) return json({ ok: true });
   const sets = Math.floor(Number(body.sets));
@@ -298,7 +373,7 @@ async function purchase(request, env) {
   const bad = [];
   if (!(sets >= 1 && sets <= 1000)) bad.push('sets');
   if (school.length < 2) bad.push('school');
-  if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)) bad.push('email');
+  if (email.length > 254 || !EMAIL.test(email)) bad.push('email');
   if (bad.length) return json({ error: 'invalid', fields: bad }, 400);
 
   const request_ = { sets, name, school, email, message };
@@ -314,7 +389,8 @@ async function purchase(request, env) {
     await env.EMAIL.send({
       to: env.NOTIFY_TO,
       from: { email: env.FROM_ADDRESS || 'kits@wrastem.com', name: 'WRA STEM Kits' },
-      replyTo: { email, name: name || undefined },
+      // the name beside the reply address: letters, numbers and plain punctuation only
+      replyTo: { email, name: name.replace(/[^\p{L}\p{N} .'-]/gu, ' ').replace(/\s+/g, ' ').trim() || undefined },
       subject, text, html,
     });
   } catch (err) {
@@ -326,33 +402,42 @@ async function purchase(request, env) {
 }
 
 // Questions are cached for a week, so a repeated question costs no AI time.
-const normal = (q) => q.toLowerCase().replace(/[^a-z0-9- ]+/g, ' ').replace(/\s+/g, ' ').trim();
+// Two questions share a saved answer only if they are the same apart from capitals, spacing
+// and plain punctuation. Every letter of every alphabet stays in the key: if other characters
+// were dropped, someone could hide instructions to the AI in them and have that answer saved
+// for everyone who asks the plain question.
+const normal = (q) => q.toWellFormed().normalize('NFKC').toLowerCase().replace(/[!-,./:-@[-`{-~]+/g, ' ').replace(/\s+/g, ' ').trim();
 
-export default {
-  async fetch(request, env, ctx) {
+// The server itself. `origin` is the page that asked, when it is one of the site's own.
+const app = {
+  async fetch(request, env, ctx, origin) {
     const url = new URL(request.url);
-    if (request.method === 'OPTIONS') return new Response(null, { headers: CORS });
-    if (url.pathname === '/health') {
+    // the browser's check before a page may send a question or a request
+    if (request.method === 'OPTIONS') return new Response(null, { status: origin ? 204 : 403 });
+    if (url.pathname === '/health' && (request.method === 'GET' || request.method === 'HEAD')) {
       return json({ ok: true, standards: data.count, retrieved: data.retrieved, model: env.MODEL });
     }
-    if (url.pathname === '/purchase' && request.method === 'POST') return purchase(request, env);
-    if (url.pathname !== '/ask' || request.method !== 'POST') return json({ error: 'not_found' }, 404);
+    const path = request.method === 'POST' ? url.pathname : '';
+    if (path !== '/ask' && path !== '/purchase') return json({ error: 'not_found' }, 404);
+    // only the site's own pages, and only JSON (a page on another site can't send that unasked)
+    if (!origin) return json({ error: 'forbidden' }, 403);
+    if (!/^application\/json\b/i.test(request.headers.get('Content-Type') || '')) return json({ error: 'json_only' }, 415);
+    if (path === '/purchase') return purchase(request, env);
 
     // a few questions a minute per visitor, so nobody can use up the day's free allowance
     if (env.LIMITER) {
-      const { success } = await env.LIMITER.limit({ key: request.headers.get('cf-connecting-ip') || 'anon' });
+      const { success } = await env.LIMITER.limit({ key: visitor(request) });
       if (!success) return json({ error: 'slow_down' }, 429);
     }
 
-    let q = '', history = [];
-    try {
-      const body = await request.json();
-      q = String(body.q || '').slice(0, 300).trim();
-      // the last few turns of the chat, so follow-up questions make sense
-      history = (Array.isArray(body.history) ? body.history : []).slice(-6)
-        .map((t) => ({ q: String(t?.q || '').slice(0, 300), a: String(t?.a || '').slice(0, 1600) }))
-        .filter((t) => t.q);
-    } catch { /* bad body */ }
+    const read = await readJson(request, ASK_MAX_BYTES);
+    if (read.tooBig) return json({ error: 'too_large' }, 413);
+    const body = read.body || {};
+    const q = String(body.q || '').slice(0, 300).trim();
+    // the last few turns of the chat, so follow-up questions make sense
+    const history = (Array.isArray(body.history) ? body.history : []).slice(-6)
+      .map((t) => ({ q: String(t?.q || '').slice(0, 300), a: String(t?.a || '').slice(0, 1600) }))
+      .filter((t) => t.q);
     if (q.length < 2) return json({ error: 'empty' }, 400);
 
     // "hi", "thanks", "who are you": a friendly reply, no AI needed
@@ -373,11 +458,11 @@ export default {
     }
 
     const cache = caches.default;
-    const key = new Request(`https://cache.standards-ai/${env.CACHE_TAG || 'v13'}/ask?q=` + encodeURIComponent(normal(q)));
+    const key = new Request(`https://cache.standards-ai/${env.CACHE_TAG || 'v14'}/ask?q=` + encodeURIComponent(normal(q)));
     const cached = history.length ? null : await cache.match(key);
     if (cached) {
       console.log(JSON.stringify({ q, status: 'cached' }));
-      return new Response(cached.body, { headers: { 'Content-Type': 'application/json', ...CORS } });
+      return new Response(cached.body, { headers: { 'Content-Type': 'application/json' } });
     }
 
     // Route: a typed code goes straight to its standard; anything else is interpreted first.
@@ -474,5 +559,18 @@ export default {
     const res = json({ answer, sources, interpreted, focus, type, mode, status });
     if (status === 'ok' && !history.length) ctx.waitUntil(cache.put(key, new Response(res.clone().body, { headers: { 'Cache-Control': 'max-age=604800' } })));
     return res;
+  },
+};
+
+export default {
+  async fetch(request, env, ctx) {
+    const origin = allowedOrigin(request, env);
+    let res;
+    try { res = await app.fetch(request, env, ctx, origin); } catch (err) {
+      // never show a visitor the inside of an error; it goes to the logs instead
+      console.log(JSON.stringify({ error: String(err && (err.stack || err)).slice(0, 500) }));
+      res = json({ error: 'server_error' }, 500);
+    }
+    return finish(res, origin);
   },
 };
