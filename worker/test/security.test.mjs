@@ -19,6 +19,18 @@ globalThis.caches = { default: {
   async match(req) { const hit = store.get(req.url); return hit ? new Response(hit, { headers: { 'Content-Type': 'application/json' } }) : undefined; },
   async put(req, res) { store.set(req.url, await res.text()); },
 } };
+// the mail-server lookup (DNS). A domain not listed in dns.answers "receives mail".
+const dns = { asked: [], answers: {} };
+globalThis.fetch = async (input) => {
+  const name = new URL(String(input && input.url ? input.url : input)).searchParams.get('name');
+  dns.asked.push(name);
+  const answer = dns.answers[name];
+  if (answer === 'down') throw new Error('lookup failed');
+  if (answer === 'missing') return Response.json({ Status: 3 });
+  if (answer === 'no-mail') return Response.json({ Status: 0 });
+  if (answer === 'refuses-mail') return Response.json({ Status: 0, Answer: [{ type: 15, data: '0 .' }] });
+  return Response.json({ Status: 0, Answer: [{ type: 15, data: `10 mx.${name}.` }] });
+};
 function makeEnv(over = {}) {
   const env = {
     MODEL: 'answer-model', ROUTER_MODEL: 'router-model', NOTIFY_TO: 'owner@example.org',
@@ -35,14 +47,17 @@ function makeEnv(over = {}) {
   return env;
 }
 const ctx = (env) => ({ waitUntil: (p) => env.waits.push(p) });
-async function call(env, path, { method = 'POST', origin = SITE, type = 'application/json', body, headers = {} } = {}) {
+// `cf` is what Cloudflare adds to a real request: where the sender's IP address is, and whose network it is
+async function call(env, path, { method = 'POST', origin = SITE, type = 'application/json', body, headers = {}, cf } = {}) {
   const init = { method, headers: { ...(origin ? { Origin: origin } : {}), ...(type && method === 'POST' ? { 'Content-Type': type } : {}), ...headers } };
   if (body !== undefined) init.body = typeof body === 'string' ? body : JSON.stringify(body);
-  const res = await worker.fetch(new Request('https://ai.wrastem.com' + path, init), env, ctx(env));
+  const req = new Request('https://ai.wrastem.com' + path, init);
+  if (cf) Object.defineProperty(req, 'cf', { value: cf });
+  const res = await worker.fetch(req, env, ctx(env));
   await Promise.all(env.waits.splice(0));
   return res;
 }
-const goodRequest = { sets: 2, name: 'Ada Lovelace', school: 'Hudson Middle School', email: 'ada@school.org', message: 'Needed by March.' };
+const goodRequest = { sets: 2, name: 'Ada Lovelace', school: 'Hudson Middle School', email: 'ada@school.org', message: 'Needed by March.', agree: true };
 
 before(() => {
   const out = mkdtempSync(join(tmpdir(), 'standards-ai-test-'));
@@ -220,11 +235,144 @@ test('email addresses that could smuggle in other recipients or headers are refu
   assert.equal(env.sent[0].replyTo.email, 'ada@school.org');
 });
 
+test('a request that does not agree to the privacy policy is refused and sends nothing', async () => {
+  const { agree, ...notAsked } = goodRequest;
+  for (const body of [notAsked, { ...goodRequest, agree: false }, { ...goodRequest, agree: 'yes' }, { ...goodRequest, agree: 1 }, { ...goodRequest, agree: null }]) {
+    const env = makeEnv();
+    const res = await call(env, '/purchase', { body });
+    assert.equal(res.status, 400, JSON.stringify(body.agree));
+    assert.deepEqual((await res.json()).fields, ['agree']);
+    assert.equal(env.sent.length, 0);
+  }
+  const env = makeEnv();
+  assert.equal((await call(env, '/purchase', { body: goodRequest })).status, 200);
+  assert.equal(env.sent.length, 1);
+});
+
 test('the hidden field still catches bots without sending anything', async () => {
   const env = makeEnv();
   const res = await call(env, '/purchase', { body: { ...goodRequest, website: 'http://spam.example' } });
   assert.equal(res.status, 200);
   assert.equal(env.sent.length, 0);
+});
+
+// ---- Who sent a kit request: IP address, rough location, and whether the email looks like a school's
+const HUDSON = { city: 'Hudson', region: 'Ohio', regionCode: 'OH', country: 'US', postalCode: '44236', timezone: 'America/New_York', latitude: '41.24006', longitude: '-81.44067', asn: 64501, asOrganization: 'Spectrum' };
+const SCHOOL_NET = { ...HUDSON, asn: 64500, asOrganization: 'Hudson City School District' };
+// Sends one kit request and gives back the reply, the email that went out, and what was written to the logs.
+async function kitRequest(over = {}, { cf = HUDSON, ip = '203.0.113.7' } = {}) {
+  const env = makeEnv();
+  const lines = [], realLog = console.log;
+  console.log = (line) => lines.push(line);
+  let res;
+  try { res = await call(env, '/purchase', { body: { ...goodRequest, ...over }, cf, headers: ip ? { 'cf-connecting-ip': ip } : {} }); } finally { console.log = realLog; }
+  const log = lines.map((l) => { try { return JSON.parse(l); } catch { return {}; } }).find((l) => l.purchase) || {};
+  return { res, sent: env.sent, mail: env.sent[0], log };
+}
+
+test('the email to the kit maker shows the sender\'s IP address, rough location and network', async () => {
+  const { mail, log } = await kitRequest();
+  for (const m of [mail.text, mail.html]) {
+    assert.match(m, /203\.0\.113\.7/);
+    assert.match(m, /Hudson, Ohio, United States/);
+    assert.match(m, /44236/);
+    assert.match(m, /Spectrum/);
+  }
+  assert.equal(log.from.ip, '203.0.113.7');
+  assert.equal(log.from.city, 'Hudson');
+  assert.equal(log.from.network, 'Spectrum');
+});
+
+test('a school-style address that receives mail is marked as looking real', async () => {
+  for (const email of ['ada@hudson.k12.oh.us', 'ada@oberlin.edu', 'ada@austinisd.org', 'ada@st-marys.school.nz', 'ada@hudsonschools.org']) {
+    const { mail, log } = await kitRequest({ email });
+    assert.equal(log.check.verdict, 'looks_real', email);
+    assert.doesNotMatch(mail.subject, /check this one/i);
+  }
+});
+
+test('an address at a domain named after the school counts as that school\'s', async () => {
+  dns.asked.length = 0;
+  assert.equal((await kitRequest({ school: 'Western Reserve Academy', email: 'A.B@WRA.NET' })).log.check.verdict, 'looks_real');
+  assert.deepEqual(dns.asked, ['wra.net']);
+  assert.equal((await kitRequest({ school: 'Hudson Montessori', email: 'ada@hudsonmontessori.org' })).log.check.verdict, 'looks_real');
+  // a company address that has nothing to do with the school's name proves nothing either way
+  assert.equal((await kitRequest({ school: 'Hudson Middle School', email: 'ada@acme-widgets.com' })).log.check.verdict, 'cant_tell');
+  // "school" and "middle" are in thousands of school names, so they don't count as a match
+  assert.equal((await kitRequest({ school: 'Hudson Middle School', email: 'ada@middleearth.com' })).log.check.verdict, 'cant_tell');
+});
+
+test('a personal address is passed on as "can\'t tell", without a mail-server lookup', async () => {
+  dns.asked.length = 0;
+  for (const email of ['ada@gmail.com', 'ada@YAHOO.com', 'ada@outlook.com', 'ada@icloud.com']) {
+    const { res, sent, log } = await kitRequest({ email });
+    assert.equal(res.status, 200);
+    assert.equal(sent.length, 1);
+    assert.equal(log.check.verdict, 'cant_tell', email);
+  }
+  assert.deepEqual(dns.asked, []);
+});
+
+test('a request whose email domain cannot receive mail is still sent, marked "check this one"', async () => {
+  dns.answers = { 'gone.example': 'missing', 'no-mail.example': 'no-mail', 'refuses.example': 'refuses-mail' };
+  try {
+    for (const email of ['ada@gone.example', 'ada@no-mail.example', 'ada@refuses.example']) {
+      const { res, sent, mail, log } = await kitRequest({ email });
+      assert.deepEqual(await res.json(), { ok: true });
+      assert.equal(sent.length, 1, email);
+      assert.equal(log.check.verdict, 'check', email);
+      assert.match(mail.subject, /check this one/i);
+      assert.doesNotMatch(mail.subject, /[\r\n]/);
+    }
+  } finally { dns.answers = {}; }
+});
+
+test('a throwaway address is marked "check this one"', async () => {
+  for (const email of ['ada@mailinator.com', 'ada@sub.yopmail.com']) {
+    assert.equal((await kitRequest({ email })).log.check.verdict, 'check', email);
+  }
+});
+
+test('a request sent through a data center, VPN or Tor never counts as looking real', async () => {
+  const hosted = { ...HUDSON, asOrganization: 'DigitalOcean, LLC' };
+  assert.equal((await kitRequest({ email: 'ada@hudson.k12.oh.us' }, { cf: hosted })).log.check.verdict, 'cant_tell');
+  assert.equal((await kitRequest({ email: 'ada@gmail.com' }, { cf: hosted })).log.check.verdict, 'check');
+  assert.equal((await kitRequest({ email: 'ada@hudson.k12.oh.us' }, { cf: { country: 'T1' } })).log.check.verdict, 'check');
+});
+
+test('a request sent from a school\'s own network looks real, even with a personal address', async () => {
+  const { mail, log } = await kitRequest({ email: 'ada@gmail.com' }, { cf: SCHOOL_NET });
+  assert.equal(log.check.verdict, 'looks_real');
+  assert.match(mail.text, /Hudson City School District/);
+});
+
+test('the request is still sent when the lookup fails or Cloudflare gives no location', async () => {
+  dns.answers = { 'hudson.k12.oh.us': 'down' };
+  try {
+    const down = await kitRequest({ email: 'ada@hudson.k12.oh.us' });
+    assert.equal(down.res.status, 200);
+    assert.equal(down.sent.length, 1);
+    assert.equal(down.log.check.verdict, 'cant_tell');
+  } finally { dns.answers = {}; }
+  const bare = await kitRequest({}, { cf: undefined, ip: '' });
+  assert.equal(bare.res.status, 200);
+  assert.equal(bare.sent.length, 1);
+  assert.doesNotMatch(bare.mail.text, /undefined|null|NaN/);
+});
+
+test('place and network names cannot put HTML into the email', async () => {
+  const { mail } = await kitRequest({}, { cf: { ...HUDSON, city: '<img src=x onerror=alert(1)>', region: '"><b>', asOrganization: '<script>alert(1)</script>' } });
+  assert.doesNotMatch(mail.html, /<img|<script|<b>/);
+  assert.match(mail.html, /&lt;script&gt;/);
+});
+
+test('the map link is only made from real coordinates', async () => {
+  const good = await kitRequest();
+  assert.match(good.mail.html, /href="https:\/\/www\.openstreetmap\.org\/\?mlat=41\.24006&amp;mlon=-81\.44067[^"]*"/);
+  for (const bad of [{ latitude: 'javascript:alert(1)', longitude: '1' }, { latitude: '999', longitude: '1' }, { latitude: undefined, longitude: undefined }]) {
+    const { mail } = await kitRequest({}, { cf: { ...HUDSON, ...bad } });
+    assert.doesNotMatch(mail.html + mail.text, /openstreetmap|javascript:/);
+  }
 });
 
 test('other addresses and methods get "not found"', async () => {

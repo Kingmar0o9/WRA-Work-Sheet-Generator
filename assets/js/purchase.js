@@ -21,10 +21,11 @@
     sets: function (v) { var n = Number(v); return n >= 1 && n <= 1000 && Math.floor(n) === n ? '' : 'Enter a whole number of sets, 1 or more.'; },
     school: function (v) { return v.trim().length >= 2 ? '' : 'Enter the name of your school.'; },
     // the same test the server uses: only the characters real addresses are made of
-    email: function (v) { v = v.trim(); return v.length <= 254 && /^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/i.test(v) ? '' : 'Enter an email address so I can reply, like name@school.org.'; }
+    email: function (v) { v = v.trim(); return v.length <= 254 && /^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/i.test(v) ? '' : 'Enter an email address so I can reply, like name@school.org.'; },
+    agree: function (v) { return v ? '' : 'Tick the box to agree to the Privacy Policy, then press Send.'; }
   };
   function check(id) {
-    var el = document.getElementById(id), msg = rules[id](el.value);
+    var el = document.getElementById(id), msg = rules[id](el.type === 'checkbox' ? el.checked : el.value);
     document.getElementById(id + '-err').textContent = msg;
     el.setAttribute('aria-invalid', msg ? 'true' : 'false');
     return !msg;
@@ -42,9 +43,9 @@
   });
   window.addEventListener('blur', function (e) { if (e.target === window) pressOver(); });
   Object.keys(rules).forEach(function (id) {
-    document.getElementById(id).addEventListener('blur', function () {
-      if (pressing) waiting.push(id); else leave(id);
-    });
+    var el = document.getElementById(id);
+    if (el.type === 'checkbox') el.addEventListener('change', function () { check(id); });
+    else el.addEventListener('blur', function () { if (pressing) waiting.push(id); else leave(id); });
   });
 
   function row(label, value) {
@@ -63,6 +64,7 @@
       school: form.school.value.trim(),
       email: form.email.value.trim(),
       message: form.message.value.trim(),
+      agree: document.getElementById('agree').checked,
       website: form.website.value
     };
     var said = function (m) { var e = new Error(m); e.said = true; return e; };

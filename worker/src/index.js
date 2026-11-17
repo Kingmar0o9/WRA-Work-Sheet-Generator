@@ -3,7 +3,7 @@
 // POST /ask {"q": "...", "history": [{q, a}]}
 //   ->  {"answer": "... [MS-LS1-2] ...", "sources": ["MS-LS1-2", ...], "focus": ["mitochondria"],
 //        "type": "science", "status": "ok"}
-// POST /purchase {"sets": 2, "school": "...", "email": "..."}  ->  {"ok": true}
+// POST /purchase {"sets": 2, "school": "...", "email": "...", "agree": true}  ->  {"ok": true}
 // GET  /health  ->  what is loaded
 //
 // Only the pages on wrastem.com may call /ask and /purchase (see "Who may call this server").
@@ -353,6 +353,115 @@ const clean = (v, max) => String(v ?? '').replace(/[\u0000-\u0008\u000B-\u001F\u
 // An email address made only of the characters real addresses use. Commas, quotes, brackets,
 // spaces and line breaks are refused, so nothing typed here can add extra recipients or headers.
 const EMAIL = /^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/i;
+// ---- Who sent a kit request ------------------------------------------------------
+// Nothing here blocks a request. It adds a "Who sent this" part to the email the kit maker
+// gets: the sender's IP address, roughly where that address is and whose network it is
+// (Cloudflare works these out for every request, free), and whether the email address looks
+// like a school's. The location is a city-level guess, never a street address, and a typed
+// email address isn't proven until its owner answers the reply.
+
+// Addresses anyone can sign up for: they don't show which school someone is at.
+const PERSONAL_MAIL = ('gmail.com googlemail.com yahoo.com ymail.com rocketmail.com yahoo.co.uk yahoo.ca outlook.com hotmail.com hotmail.co.uk ' +
+  'live.com msn.com icloud.com me.com mac.com aol.com proton.me protonmail.com pm.me gmx.com gmx.net mail.com zoho.com yandex.com ' +
+  'yandex.ru fastmail.com hey.com duck.com tutanota.com tuta.com comcast.net att.net sbcglobal.net verizon.net bellsouth.net cox.net ' +
+  'charter.net spectrum.net roadrunner.com rr.com frontier.com windstream.net earthlink.net qq.com 163.com').split(' ');
+// Addresses made to be thrown away after a few minutes.
+const THROWAWAY_MAIL = ('mailinator.com yopmail.com guerrillamail.com guerrillamail.net sharklasers.com grr.la 10minutemail.com ' +
+  'tempmail.com temp-mail.org tempmailo.com tmpmail.org tempr.email tempinbox.com trashmail.com getnada.com maildrop.cc dispostable.com ' +
+  'throwawaymail.com fakeinbox.com mailnesia.com mohmal.com emailondeck.com moakt.com mintemail.com spamgourmet.com discard.email ' +
+  'burnermail.io mailcatch.com inboxkitten.com').split(' ');
+const inList = (domain, list) => list.some((d) => domain === d || domain.endsWith('.' + d));
+
+// Does the domain look like a school's? (.edu, k12, school.nz, austinisd.org, hudsonschools.org ...)
+function schoolStyle(domain) {
+  const labels = domain.split('.'), last = labels.at(-1), second = labels.at(-2) || '';
+  if (['edu', 'school', 'schools', 'academy', 'college', 'university', 'education'].includes(last)) return true;
+  if (last.length === 2 && ['edu', 'ac', 'sch', 'school'].includes(second)) return true;
+  return labels.slice(0, -1).some((l) => /k12|school|academy|college|univ|district/.test(l) || /(isd|usd|csd)\d*$/.test(l));
+}
+
+// Is the domain named after the school the sender typed? Either a word of the name is in it
+// ("Hudson Montessori" and hudsonmontessori.org) or its initials are ("Western Reserve Academy"
+// and wra.net). Words that are in thousands of school names don't count.
+const COMMON_SCHOOL_WORDS = new Set(('school schools middle high elementary primary secondary intermediate junior senior academy college ' +
+  'university institute center centre district public charter magnet community county city township area regional central north south ' +
+  'east west northern southern eastern western saint christian catholic lutheran preparatory country learning education science arts ' +
+  'technology international memorial').split(' '));
+function namedAfter(domain, school) {
+  const labels = domain.split('.').slice(0, -1).map((l) => l.replace(/[^a-z0-9]/g, ''));
+  const words = school.normalize('NFKD').toLowerCase().replace(/[^a-z0-9\s-]/g, '').split(/[\s-]+/).filter(Boolean);
+  const initials = words.filter((w) => !['of', 'the', 'and', 'for', 'at'].includes(w)).map((w) => w[0]).join('');
+  if (initials.length >= 3 && labels.includes(initials)) return true;
+  return words.some((w) => w.length >= 4 && !COMMON_SCHOOL_WORDS.has(w) && labels.some((l) => l.includes(w)));
+}
+
+// Does the email's domain have a mail server? Asked of Cloudflare's public DNS (free). Only the
+// domain is sent, never the address. 'yes', 'no' (none listed, or one that refuses all mail),
+// 'none' (no such domain) or 'unknown' (the lookup failed; that never holds up a request).
+async function receivesMail(domain) {
+  try {
+    const r = await fetch('https://cloudflare-dns.com/dns-query?type=MX&name=' + encodeURIComponent(domain),
+      { headers: { Accept: 'application/dns-json' }, signal: AbortSignal.timeout(2500) });
+    if (!r.ok) return 'unknown';
+    const d = await r.json();
+    if (d.Status === 3) return 'none';
+    if (d.Status !== 0) return 'unknown';
+    const servers = (d.Answer || []).filter((a) => a.type === 15).map((a) => String(a.data).trim().split(/\s+/).pop());
+    return servers.some((s) => s && s !== '.') ? 'yes' : 'no';
+  } catch { return 'unknown'; }
+}
+
+// Whose network the request came over, by the owner's name.
+const SCHOOL_NETWORK = /\b(schools?|k-?12|education|educational|academy|university|college|isd|usd)\b/i;
+const HIDING_NETWORK = /\b(amazon|aws|digitalocean|linode|akamai|ovh|hetzner|vultr|choopa|constant company|m247|datacamp|leaseweb|contabo|oracle|alibaba|tencent|scaleway|hostinger|cloudflare|fastly|microsoft|google cloud|vpn|proxy|hosting|data ?cent(er|re))\b/i;
+
+// What Cloudflare knows about where a request came from.
+function sender(request) {
+  const cf = request.cf || {};
+  const s = (v, max = 80) => clean(String(v ?? '').replace(/\s+/g, ' '), max);
+  const code = s(cf.country, 2).toUpperCase();
+  let country = code;
+  if (code === 'T1') country = 'Tor network';
+  else if (code) { try { country = new Intl.DisplayNames(['en'], { type: 'region' }).of(code) || code; } catch { /* keep the code */ } }
+  const has = (v) => v !== undefined && v !== null && v !== '';
+  const lat = Number(cf.latitude), lon = Number(cf.longitude);
+  const mapped = has(cf.latitude) && has(cf.longitude) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180;
+  return {
+    ip: s(request.headers.get('cf-connecting-ip'), 45), city: s(cf.city), region: s(cf.region), country,
+    postal: s(cf.postalCode, 12), timezone: s(cf.timezone, 40), asn: Number.isInteger(cf.asn) ? cf.asn : 0, network: s(cf.asOrganization, 100),
+    tor: code === 'T1',
+    map: mapped ? `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=10/${lat}/${lon}` : '',
+  };
+}
+
+// The verdict the kit maker sees, and the reasons for it in plain words.
+const VERDICTS = { looks_real: 'Looks like a real school', cant_tell: 'Can’t tell', check: 'Check this one' };
+async function checkSender(email, school, from) {
+  const domain = email.slice(email.lastIndexOf('@') + 1).toLowerCase();
+  const why = [];
+  let bad = false, good = false;
+  if (inList(domain, THROWAWAY_MAIL)) {
+    bad = true; why.push(`The email is a throwaway address (${domain}).`);
+  } else if (inList(domain, PERSONAL_MAIL)) {
+    why.push(`The email is a personal address (${domain}), so it doesn’t show which school they are at.`);
+  } else {
+    const style = schoolStyle(domain), named = namedAfter(domain, school);
+    why.push(style ? `The email is at a school-style address (${domain})${named ? ' that matches the school\u2019s name' : ''}.`
+      : named ? `The email is at ${domain}, which matches the school\u2019s name.`
+      : `The email is at ${domain}, which isn\u2019t a school-style address and doesn\u2019t match the school\u2019s name.`);
+    const mail = await receivesMail(domain);
+    if (mail === 'yes') { good = style || named; why.push('That address can receive email.'); }
+    else if (mail === 'unknown') why.push('I couldn\u2019t check whether that address can receive email.');
+    else { bad = true; why.push(mail === 'none' ? `But ${domain} doesn\u2019t exist on the internet, so a reply won\u2019t arrive.` : `But ${domain} has no mail server, so a reply won\u2019t arrive.`); }
+  }
+  let hidden = false;
+  if (from.tor) { bad = true; why.push('It was sent through Tor, which hides where the sender is.'); }
+  else if (HIDING_NETWORK.test(from.network)) { hidden = true; why.push(`It was sent through a data center, VPN or privacy relay (${from.network}), so the location may not be where they are.`); }
+  else if (SCHOOL_NETWORK.test(from.network)) { good = true; why.push(`It was sent from a school network (${from.network}).`); }
+  const verdict = bad ? 'check' : hidden ? (good ? 'cant_tell' : 'check') : good ? 'looks_real' : 'cant_tell';
+  return { verdict, why: why.join(' ') };
+}
+
 async function purchase(request, env) {
   // a few requests a minute per visitor (its own, lower limit; the question limit if it is missing)
   const limiter = env.PURCHASE_LIMITER || env.LIMITER;
@@ -374,15 +483,27 @@ async function purchase(request, env) {
   if (!(sets >= 1 && sets <= 1000)) bad.push('sets');
   if (school.length < 2) bad.push('school');
   if (email.length > 254 || !EMAIL.test(email)) bad.push('email');
+  // the form's "I agree to the Privacy Policy" box must be ticked (wrastem.com/privacy)
+  if (body.agree !== true) bad.push('agree');
   if (bad.length) return json({ error: 'invalid', fields: bad }, 400);
 
   const request_ = { sets, name, school, email, message };
-  const subject = `Kit request: ${sets} set${sets === 1 ? '' : 's'} for ${school}`.slice(0, 200);
+  const from = sender(request), check = await checkSender(email, school, from);
+  const place = [from.city, from.region, from.country].filter(Boolean).join(', ') || 'unknown';
+  const where = place + (from.postal ? ` (postal code ${from.postal})` : '') + (from.timezone ? `, time zone ${from.timezone}` : '');
+  const network = from.network ? from.network + (from.asn ? ` (AS${from.asn})` : '') : 'unknown';
+  const flag = check.verdict === 'check' ? ' (check this one)' : '';
+  const subject = `Kit request: ${sets} set${sets === 1 ? '' : 's'} for ${school}`.slice(0, 180) + flag;
   const rows = [['Sets', String(sets)], ['Name', name || '(not given)'], ['School', school], ['Email', email], ['Message', message || '(none)']];
-  const text = `A teacher requested the plant cell kit on wrastem.com.\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nReply to this email to answer them. They were told you'll get back to them as soon as possible.`;
-  const html = `<p>A teacher requested the plant cell kit on wrastem.com.</p><table cellpadding="6" style="border-collapse:collapse">${
-    rows.map(([k, v]) => `<tr><th align="left" valign="top">${k}</th><td style="white-space:pre-wrap">${esc(v)}</td></tr>`).join('')
-  }</table><p>Reply to this email to answer them. They were told you'll get back to them as soon as possible.</p>`;
+  const who = [['Verdict', VERDICTS[check.verdict]], ['Why', check.why], ['IP address', from.ip || 'unknown'], ['Location', where], ['Network', network]];
+  if (from.map) who.push(['Map', from.map]);
+  const note = 'The location is a city-level guess from the IP address, not a street address, and it can be off by a town or more. An email address is only proven when its owner answers your reply. The sender ticked "I agree to the Privacy Policy" (wrastem.com/privacy) before sending.';
+  const list = (r) => r.map(([k, v]) => `${k}: ${v}`).join('\n');
+  const table = (r) => `<table cellpadding="6" style="border-collapse:collapse">${
+    r.map(([k, v]) => `<tr><th align="left" valign="top">${k}</th><td style="white-space:pre-wrap">${k === 'Map' ? `<a href="${esc(v)}">Open the map</a>` : esc(v)}</td></tr>`).join('')
+  }</table>`;
+  const text = `A teacher requested the plant cell kit on wrastem.com.\n\n${list(rows)}\n\nReply to this email to answer them. They were told you'll get back to them as soon as possible.\n\nWho sent this\n\n${list(who)}\n\n${note}`;
+  const html = `<p>A teacher requested the plant cell kit on wrastem.com.</p>${table(rows)}<p>Reply to this email to answer them. They were told you'll get back to them as soon as possible.</p><h3>Who sent this</h3>${table(who)}<p>${esc(note)}</p>`;
   let status = 'emailed';
   try {
     if (!env.EMAIL || !env.NOTIFY_TO) throw new Error('email not set up');
@@ -397,7 +518,8 @@ async function purchase(request, env) {
     status = 'email_failed';
     console.log(JSON.stringify({ purchase_email_error: String(err && (err.code || '') + ' ' + (err.message || err)).slice(0, 300) }));
   }
-  console.log(JSON.stringify({ purchase: request_, status }));
+  const { tor, map, ...seen } = from;
+  console.log(JSON.stringify({ purchase: request_, from: seen, check, status }));
   return json({ ok: true });
 }
 
