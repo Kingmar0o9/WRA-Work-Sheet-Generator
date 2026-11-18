@@ -216,7 +216,7 @@ Content sits in a centred column (max 1240px) with a fluid side gutter of clamp(
 
 The hero is a sticky stage: a 260svh leaf section with a 100svh sticky frame. Scroll progress (`--p`, 0 to 1) crossfades the assembled kit into the exploded kit in place, fades the first copy out and the second in, and reveals the part labels. Headline copy sits bottom-left; the model sits centre-right. Below 900px the model moves to the top half and copy holds the bottom.
 
-The spec grid is a fixed-cell ruled grid: 4 columns, 2 at 960px, 1 at 520px. Cells may span 2; the status cell spans the full row. Values always sit inside a cell.
+The spec grid is a fixed-cell ruled grid: 4 columns, 2 at 960px, 1 at 520px. Cells may span 2; the status cell spans the full row. Values always sit inside a cell. One cell holds a photograph of the printed kit: it spans 2 columns and 2 rows on wide screens, bleeds to the rules with square corners, keeps its label above the picture, and opens the photo gallery.
 
 The home page reads as one story: the stage (the kit comes apart), **Take a closer look** (`#explore`: heading, part picker and part details on the left, the sticky viewer on the right; it stacks below 960px with the viewer under the heading), **Tools for teaching with it** (`#tools`, on leaf), **Why I built it** with the kit at a glance (on paper), and **Bring the kit to your classroom** (on leaf) as the closing call. Grounds alternate paper and leaf down the page. The header is 68px tall: fixed on the home page (the stage runs under it), sticky everywhere else.
 
