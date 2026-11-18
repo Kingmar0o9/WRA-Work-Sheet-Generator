@@ -25,6 +25,8 @@
   // Purchase requests are emailed (free) to a verified address in the Cloudflare account.
   // That address is a secret, not written here: npx wrangler secret put NOTIFY_TO
   "send_email": [{ "name": "EMAIL" }],
+  // The teacher's thank-you email goes through Resend (free plan) and stays off until this
+  // secret is set: npx wrangler secret put RESEND_API_KEY  (see README.md)
 
   // The address the website calls. Cloudflare creates this DNS record itself.
   "routes": [{ "pattern": "ai.wrastem.com", "custom_domain": true }],

@@ -26,6 +26,7 @@
 
 import data from '../../standards-ai/ngss.json';
 import sci from '../../standards-ai/science.json';
+import { sendThankYou } from './thank-you.js';
 import { createIndex, search, sourceText, codesIn, interpret, bandsIn, bandOf, tokens, smallTalk, createNotes, findNotes, noteText } from '../../standards-ai/search.js';
 
 const index = createIndex(data);
@@ -462,6 +463,14 @@ async function checkSender(email, school, from) {
   return { verdict, why: why.join(' ') };
 }
 
+// What the kit maker's email says about the teacher's thank-you email.
+const THANK_YOU = {
+  sent: 'sent',
+  skipped_no_key: 'not sent: the server has no Resend key yet',
+  skipped_check: 'not sent: this request is marked "check this one"',
+  failed: 'failed (see the Logs)',
+};
+
 async function purchase(request, env) {
   // a few requests a minute per visitor (its own, lower limit; the question limit if it is missing)
   const limiter = env.PURCHASE_LIMITER || env.LIMITER;
@@ -489,6 +498,9 @@ async function purchase(request, env) {
 
   const request_ = { sets, name, school, email, message };
   const from = sender(request), check = await checkSender(email, school, from);
+  // the teacher's thank-you email (thank-you.js); none for a request that looks fake, so nobody
+  // can use the form to send email to someone else's address
+  const thankYou = check.verdict === 'check' ? 'skipped_check' : await sendThankYou(env, email, { name, sets, school });
   const place = [from.city, from.region, from.country].filter(Boolean).join(', ') || 'unknown';
   const where = place + (from.postal ? ` (postal code ${from.postal})` : '') + (from.timezone ? `, time zone ${from.timezone}` : '');
   const network = from.network ? from.network + (from.asn ? ` (AS${from.asn})` : '') : 'unknown';
@@ -497,6 +509,7 @@ async function purchase(request, env) {
   const rows = [['Sets', String(sets)], ['Name', name || '(not given)'], ['School', school], ['Email', email], ['Message', message || '(none)']];
   const who = [['Verdict', VERDICTS[check.verdict]], ['Why', check.why], ['IP address', from.ip || 'unknown'], ['Location', where], ['Network', network]];
   if (from.map) who.push(['Map', from.map]);
+  who.push(['Thank-you email', THANK_YOU[thankYou]]);
   const note = 'The location is a city-level guess from the IP address, not a street address, and it can be off by a town or more. An email address is only proven when its owner answers your reply. The sender ticked "I agree to the Privacy Policy" (wrastem.com/privacy) before sending.';
   const list = (r) => r.map(([k, v]) => `${k}: ${v}`).join('\n');
   const table = (r) => `<table cellpadding="6" style="border-collapse:collapse">${
@@ -519,8 +532,9 @@ async function purchase(request, env) {
     console.log(JSON.stringify({ purchase_email_error: String(err && (err.code || '') + ' ' + (err.message || err)).slice(0, 300) }));
   }
   const { tor, map, ...seen } = from;
-  console.log(JSON.stringify({ purchase: request_, from: seen, check, status }));
-  return json({ ok: true });
+  console.log(JSON.stringify({ purchase: request_, from: seen, check, status, thank_you: thankYou }));
+  // the page says "check your inbox" only when the thank-you really went out
+  return json(thankYou === 'sent' ? { ok: true, confirmation: true } : { ok: true });
 }
 
 // Questions are cached for a week, so a repeated question costs no AI time.

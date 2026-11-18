@@ -188,7 +188,18 @@ The site has no accounts, passwords or database, so there is nothing to log in t
 | [`DESIGN.md`](DESIGN.md) | The design system |
 | [`sw.js`](sw.js), [`manifest.webmanifest`](manifest.webmanifest) | The offline copy (service worker) and the install details for the whole site |
 | [`.claude/skills/modern-web-guidance/`](.claude/skills/modern-web-guidance) | Modern Web Guidance, a Claude Code skill from the Chrome, Edge, Firefox and MDN teams: 210 guides on current HTML, CSS and JavaScript practice, kept here so any Claude Code session in this repository can use it (type `/modern-web-guidance`) |
+| [`sitemap.xml`](sitemap.xml), [`robots.txt`](robots.txt) | The list of pages and pictures for search engines, and which folders they should skip |
+| `favicon.ico`, `favicon-96x96.png`, `favicon.svg`, `apple-touch-icon.png` | The site icon in the sizes browsers, phones and search results ask for |
 | `9113d54f23e68ee25a1596c5112c4986.txt` | Public IndexNow verification file, so search engines accept page updates from wrastem.com (not a secret) |
+
+## How the site shows up in search
+
+Each page tells search engines what it is in its `<head>`: a title, a description, the site icon, the share picture, and a short block of facts (`application/ld+json`) with the site name, the page's place on the site and, on the home page, a real photo of the printed kit.
+
+- **Site icon in Google.** Google reads the icon from the home page only, and can take days to weeks to show a new one. Until then it shows a grey globe.
+- **Site name.** "WRA STEM Kits" comes from the facts block on the home page. Google shows the bare address until it has read it.
+- **Picture next to a result.** Google chooses this itself. The home page allows a large picture (`max-image-preview:large`) and points to the kit photo in `assets/img/photos/` (4:3 and a square crop).
+- **After changing a page,** update its date in `sitemap.xml`. To ask Google to re-read a page sooner, open [Google Search Console](https://search.google.com/search-console), paste the page's address into the bar at the top and choose "Request indexing".
 
 ## Run it locally
 
