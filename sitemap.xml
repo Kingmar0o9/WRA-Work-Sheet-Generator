@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://wrastem.com/</loc><lastmod>2026-11-15</lastmod></url>
-  <url><loc>https://wrastem.com/purchase/</loc><lastmod>2026-11-17</lastmod></url>
-  <url><loc>https://wrastem.com/standards-ai/</loc><lastmod>2026-11-15</lastmod></url>
-  <url><loc>https://wrastem.com/cell-kit-generator/</loc><lastmod>2026-11-15</lastmod></url>
-  <url><loc>https://wrastem.com/privacy/</loc><lastmod>2026-11-17</lastmod></url>
-  <url><loc>https://wrastem.com/accessibility/</loc><lastmod>2026-11-17</lastmod></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url><loc>https://wrastem.com/</loc><lastmod>2026-11-18</lastmod>
+    <image:image><image:loc>https://wrastem.com/assets/img/photos/kit-assembled-angle.jpg</image:loc></image:image>
+    <image:image><image:loc>https://wrastem.com/assets/img/photos/kit-assembled-angle-square.jpg</image:loc></image:image>
+    <image:image><image:loc>https://wrastem.com/assets/img/photos/kit-assembled.jpg</image:loc></image:image>
+    <image:image><image:loc>https://wrastem.com/assets/img/photos/kit-laid-out.jpg</image:loc></image:image>
+    <image:image><image:loc>https://wrastem.com/assets/img/photos/kit-in-case-assembled.jpg</image:loc></image:image>
+    <image:image><image:loc>https://wrastem.com/assets/img/photos/kit-in-case-front.jpg</image:loc></image:image>
+    <image:image><image:loc>https://wrastem.com/assets/img/cell-assembled.webp</image:loc></image:image>
+    <image:image><image:loc>https://wrastem.com/assets/img/cell-exploded.webp</image:loc></image:image>
+    <image:image><image:loc>https://wrastem.com/assets/img/social-card.jpg</image:loc></image:image>
+  </url>
+  <url><loc>https://wrastem.com/purchase/</loc><lastmod>2026-11-18</lastmod>
+    <image:image><image:loc>https://wrastem.com/assets/img/photos/kit-laid-out.jpg</image:loc></image:image>
+  </url>
+  <url><loc>https://wrastem.com/standards-ai/</loc><lastmod>2026-11-18</lastmod>
+    <image:image><image:loc>https://wrastem.com/assets/img/tools/standards-ai.webp</image:loc></image:image>
+  </url>
+  <url><loc>https://wrastem.com/cell-kit-generator/</loc><lastmod>2026-11-18</lastmod>
+    <image:image><image:loc>https://wrastem.com/assets/img/tools/generator.webp</image:loc></image:image>
+  </url>
+  <url><loc>https://wrastem.com/privacy/</loc><lastmod>2026-11-18</lastmod></url>
+  <url><loc>https://wrastem.com/accessibility/</loc><lastmod>2026-11-18</lastmod></url>
 </urlset>
