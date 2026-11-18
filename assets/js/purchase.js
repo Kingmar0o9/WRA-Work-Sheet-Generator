@@ -66,6 +66,8 @@
           if (data.name) recap.appendChild(row('Name', data.name));
           recap.appendChild(row('School', data.school));
           recap.appendChild(row('Reply to', data.email));
+          // the server says so only when the thank-you email really went out
+          if (res.body.confirmation === true) document.getElementById('confirm').hidden = false;
           document.getElementById('ask').hidden = true;
           var thanks = document.getElementById('thanks');
           thanks.hidden = false;
