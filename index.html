@@ -7,11 +7,13 @@
      the 3D model come only from this site, and the page may not send anything to another site.
      ('unsafe-eval' is there for the 3D model: older browsers need it to run the model's decoder.) -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' data: blob:; worker-src 'self' blob:; manifest-src 'self'; base-uri 'none'; form-action 'self'">
-<title>WRA STEM Kits · A plant cell you can take apart</title>
-<meta name="description" content="WRA STEM Kits makes hands-on, 3D printed science kits for middle school. The first is a 12-piece plant cell that students take apart and rebuild, with a worksheet generator and Standards AI for teachers. Designed and made by a student at Western Reserve Academy (WRA).">
+<title>WRA STEM Kits · Hands-on STEM kits and student engineering</title>
+<meta name="description" content="WRA STEM Kits: affordable, hands-on STEM kits for middle school science. The first is a 3D printed plant cell that students take apart and rebuild, a hands-on activity with worksheets and Standards AI for teachers. Designed and engineered by a student at Western Reserve Academy (WRA).">
 <!-- Search engines may show a large picture and a full-length description for this page. -->
 <meta name="robots" content="max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 <meta name="theme-color" content="#124A2B">
+<meta name="application-name" content="WRA STEM Kits">
+<meta name="apple-mobile-web-app-title" content="WRA STEM Kits">
 <link rel="canonical" href="https://wrastem.com/">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96">
@@ -24,8 +26,8 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="WRA STEM Kits">
 <meta property="og:url" content="https://wrastem.com/">
-<meta property="og:title" content="WRA STEM Kits · A plant cell you can take apart">
-<meta property="og:description" content="Hands-on, 3D printed science kits for middle school. The first is a plant cell that students take apart and rebuild, with a worksheet generator and Standards AI for teachers.">
+<meta property="og:title" content="WRA STEM Kits · Hands-on STEM kits and student engineering">
+<meta property="og:description" content="Affordable, hands-on STEM kits for middle school science, designed and engineered by a student at Western Reserve Academy (WRA). The first is a 3D printed plant cell that students take apart and rebuild.">
 <meta property="og:image" content="https://wrastem.com/assets/img/social-card.jpg?v=20261115b">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -33,13 +35,15 @@
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
- {"@type":"WebSite","@id":"https://wrastem.com/#website","name":"WRA STEM Kits","alternateName":["WRA STEM","wrastem.com"],"url":"https://wrastem.com/","inLanguage":"en","publisher":{"@id":"https://wrastem.com/#org"}},
+ {"@type":"WebSite","@id":"https://wrastem.com/#website","name":"WRA STEM Kits","alternateName":["WRA STEM","wrastem.com"],"url":"https://wrastem.com/","inLanguage":"en","description":"Affordable, hands-on STEM kits for middle school science, designed and engineered by a student at Western Reserve Academy (WRA).","publisher":{"@id":"https://wrastem.com/#org"}},
  {"@type":"Organization","@id":"https://wrastem.com/#org","name":"WRA STEM Kits","alternateName":"WRA STEM","url":"https://wrastem.com/",
   "logo":{"@type":"ImageObject","@id":"https://wrastem.com/#logo","url":"https://wrastem.com/assets/img/icon-512.png","width":512,"height":512,"caption":"WRA STEM Kits"},
   "image":{"@id":"https://wrastem.com/#kit-photo"},
-  "description":"Hands-on, 3D printed science kits for middle school classrooms, with a worksheet generator and Standards AI for teachers. Designed and made by a student at Western Reserve Academy (WRA) as a Compass project.",
-  "knowsAbout":["STEM education","Middle school science","3D printing","Engineering design","Plant cells","Next Generation Science Standards"]},
- {"@type":"WebPage","@id":"https://wrastem.com/#webpage","url":"https://wrastem.com/","name":"WRA STEM Kits · A plant cell you can take apart","inLanguage":"en",
+  "slogan":"A plant cell you can take apart",
+  "description":"Affordable, hands-on STEM kits for middle school science classrooms, 3D printed and reusable, with a worksheet generator and Standards AI for teachers. A student engineering project at Western Reserve Academy (WRA).",
+  "keywords":"WRA STEM, WRA STEM Kits, hands-on STEM kits, hands-on science kits, hands-on activities, hands-on education, student engineering, engineering design, 3D printed plant cell model, middle school science, affordable science kits, Western Reserve Academy",
+  "knowsAbout":["STEM education","Hands-on learning","Hands-on science activities","Middle school science","3D printing","Engineering design","CAD modeling","Plant cells","Next Generation Science Standards"]},
+ {"@type":"WebPage","@id":"https://wrastem.com/#webpage","url":"https://wrastem.com/","name":"WRA STEM Kits · Hands-on STEM kits and student engineering","inLanguage":"en",
   "isPartOf":{"@id":"https://wrastem.com/#website"},"about":{"@id":"https://wrastem.com/#org"},
   "primaryImageOfPage":{"@id":"https://wrastem.com/#kit-photo"},
   "image":["https://wrastem.com/assets/img/photos/kit-assembled-angle-square.jpg","https://wrastem.com/assets/img/photos/kit-assembled-angle.jpg","https://wrastem.com/assets/img/social-card.jpg"]},
@@ -278,6 +282,15 @@
 .who{display:flex;align-items:center;gap:14px;margin-top:28px;font-weight:700}
 .who small{display:block;font-weight:500;color:var(--ink-2);font-size:.92rem}
 .who .mark{width:46px;height:46px;border-radius:50%;background:var(--leaf);color:var(--stock);display:grid;place-items:center;font-weight:800;letter-spacing:-.04em}
+/* what WRA STEM Kits is, in plain words, with a ruled sheet of the topics it covers */
+.about{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(24px,6vw,96px);align-items:start;margin-top:clamp(56px,8vw,96px)}
+.why .about h2{font-size:clamp(2rem,3.4vw,3rem);max-width:14ch}
+.about p{font-size:clamp(1.05rem,.6vw + .85rem,1.2rem);line-height:1.55;max-width:60ch}
+.about p+p{margin-top:14px}
+.topics{display:flex;flex-wrap:wrap;list-style:none;margin:28px 0 0;padding:0;border-top:2px solid var(--rule);border-left:2px solid var(--rule)}
+.topics li{flex:1 0 auto;padding:11px 16px 12px;border-right:2px solid var(--rule);border-bottom:2px solid var(--rule);font-size:.95rem;font-weight:700;letter-spacing:-.01em;line-height:1.25}
+@media (max-width:960px){.about{grid-template-columns:1fr}.why .about h2{max-width:none}}
+@media (max-width:520px){.topics li{padding:9px 12px 10px;font-size:.9rem}}
 .spec{margin-top:clamp(56px,8vw,96px)}
 .spec h2{font-size:clamp(2rem,3.4vw,3rem);margin-bottom:28px}
 .spec dl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:0;border-top:2px solid var(--rule);border-left:2px solid var(--rule)}
@@ -388,7 +401,7 @@
       <div class="stage-copy copy-a">
         <div class="wrap" data-enter>
           <h1>A plant cell you can take apart.</h1>
-          <p class="lede"><span class="long">A 12-piece, 3D printed plant cell for middle school science. Students take it apart, explain what each part does, and rebuild it to show how the parts keep the whole cell alive.</span><span class="short">A 12-piece, 3D printed plant cell that students take apart and rebuild.</span></p>
+          <p class="lede"><span class="long">A hands-on, 12-piece, 3D printed plant cell kit for middle school science. Students take it apart, explain what each part does, and rebuild it to show how the parts keep the whole cell alive.</span><span class="short">A hands-on, 3D printed plant cell kit that students take apart and rebuild.</span></p>
           <div class="actions">
             <a class="btn btn-sun down" href="#stage-b">See it come apart
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
@@ -512,10 +525,38 @@
       <div class="why-grid">
         <div>
           <h2 id="why-h">Why I built it</h2>
-          <div class="who"><span class="mark" aria-hidden="true">M</span><span>Mark<small>A student Compass project at Western Reserve Academy</small></span></div>
+          <div class="who"><span class="mark" aria-hidden="true">M</span><span>Mark<small>A student Compass project at Western Reserve Academy (WRA)</small></span></div>
         </div>
         <div class="story">
           <p>I built WRA STEM Kits because I want students to learn science by holding it in their hands instead of only reading about it in a textbook. I designed the kit to be affordable and reusable so that as many teachers and students as possible, anywhere in the world, can use it in their classrooms.</p>
+        </div>
+      </div>
+
+      <div class="about" id="about">
+        <h2>Hands-on STEM kits, engineered by a student.</h2>
+        <div>
+          <p>WRA STEM Kits makes hands-on STEM kits for middle school science classrooms, designed to be affordable and reusable. Each kit turns a lesson into a hands-on activity: students pick up the parts, take the model apart and rebuild it, instead of only reading about it.</p>
+          <p>The first kit, a 3D printed plant cell, is a student engineering project at Western Reserve Academy (WRA). Every piece was designed, modeled in CAD and 3D printed by a WRA student, and one set supports hands-on science education for class after class.</p>
+          <ul class="topics" aria-label="What WRA STEM Kits covers">
+            <li>Hands-on learning</li>
+            <li>Hands-on activities</li>
+            <li>Hands-on STEM education</li>
+            <li>STEM kits</li>
+            <li>Science kits</li>
+            <li>Student engineering</li>
+            <li>Engineering design</li>
+            <li>3D printing</li>
+            <li>CAD modeling</li>
+            <li>Life science</li>
+            <li>Plant cell model</li>
+            <li>Middle school science</li>
+            <li>Grades 6–8</li>
+            <li>Affordable</li>
+            <li>Reusable</li>
+            <li>Worksheets and answer keys</li>
+            <li>Designed to align with the NGSS</li>
+            <li>Western Reserve Academy (WRA)</li>
+          </ul>
         </div>
       </div>
 
@@ -572,7 +613,7 @@
     <div class="foot-grid">
       <div class="foot-brand">
         <a class="big" href="./"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="14" cy="15" r="4.6" fill="currentColor"/><ellipse cx="21.4" cy="20.2" rx="2.6" ry="1.7" fill="currentColor" transform="rotate(-30 21.4 20.2)"/></svg>WRA STEM Kits</a>
-        <p>Hands-on, 3D printed science kits for middle school classrooms. A student Compass project at Western Reserve Academy.</p>
+        <p>Affordable, hands-on STEM kits for middle school science classrooms, 3D printed and reusable. A student engineering project at Western Reserve Academy (WRA).</p>
       </div>
       <div class="foot-cols">
         <div><h2>The kit</h2><ul><li><a class="draw" href="./#explore">Explore the kit</a></li><li><a class="draw" href="purchase/">Request kits</a></li></ul></div>
