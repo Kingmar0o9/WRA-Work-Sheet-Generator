@@ -73,6 +73,49 @@ for `purchase`), so if an email ever fails you can still find it there for 7 day
 hidden "website" field catches most spam bots, and one visitor can send at most 3
 requests a minute.
 
+### The teacher's thank-you email
+
+Right after a request, the teacher can get one thank-you email from `kits@wrastem.com`:
+"Thank you for requesting a kit!", their request (sets and school), a picture of the kit and
+what it gives them (`src/thank-you.js`; the pictures are in `../assets/img/email/`). Pressing
+Reply reaches your inbox (`NOTIFY_TO`). The form's thank-you page then adds "I've also sent
+you a thank-you email".
+
+It is sent through [Resend](https://resend.com)'s free plan (100 emails a day, 3,000 a
+month), because Cloudflare's free plan can only email addresses in your own account. **It is
+off until you set the key**, so deploying this code changes nothing teachers see.
+
+- No thank-you goes to a request marked **Check this one**, so nobody can use the form to
+  send email to someone else's address.
+- If Resend fails or the day's 100 emails are used up, the teacher still sees "Thank you",
+  you still get the request, and the error goes to the Logs (`thank_you_error`).
+- Your request email has a **Thank-you email** line: `sent`, `not sent` (and why) or `failed`.
+
+To turn it on (about 10 minutes):
+
+1. Merge the pull request first, so the email's pictures are on wrastem.com.
+2. Make a free account at resend.com. Under **Domains**, add `wrastem.com`.
+3. Resend shows a few DNS records (on a `send.` subdomain, so your email routing is not
+   affected). Add each one in Cloudflare under **wrastem.com → DNS → Add record**, then press
+   **Verify** in Resend.
+4. In Resend, under **API Keys**, create a key with "Sending access" and copy it.
+5. In this folder, save it on the server (it asks you to paste it; it never goes in the code):
+
+   ```bash
+   npx wrangler secret put RESEND_API_KEY
+   ```
+
+6. Deploy:
+
+   ```bash
+   npm run deploy
+   ```
+
+7. Send the Request kits form to yourself and check the email on your phone, in light and
+   dark mode.
+
+To turn it off again: `npx wrangler secret delete RESEND_API_KEY`.
+
 ### Who sent this (spotting fake requests)
 
 Every request email ends with a **Who sent this** part. No request is ever blocked by it;

@@ -21,7 +21,14 @@ globalThis.caches = { default: {
 } };
 // the mail-server lookup (DNS). A domain not listed in dns.answers "receives mail".
 const dns = { asked: [], answers: {} };
-globalThis.fetch = async (input) => {
+// the thank-you email service (Resend). `resend.status` is its answer: a number, or 'throw'.
+const resend = { sent: [], status: 200 };
+globalThis.fetch = async (input, init = {}) => {
+  if (String(input && input.url ? input.url : input).startsWith('https://api.resend.com/')) {
+    if (resend.status === 'throw') throw new Error('network down');
+    resend.sent.push({ auth: new Headers(init.headers).get('Authorization'), ...JSON.parse(init.body) });
+    return Response.json(resend.status === 200 ? { id: 'email-1' } : { message: 'limit' }, { status: resend.status });
+  }
   const name = new URL(String(input && input.url ? input.url : input)).searchParams.get('name');
   dns.asked.push(name);
   const answer = dns.answers[name];
@@ -380,4 +387,77 @@ test('other addresses and methods get "not found"', async () => {
   assert.equal((await call(makeEnv(), '/admin', { method: 'GET' })).status, 404);
   assert.equal((await call(makeEnv(), '/health', { body: {} })).status, 404);
   assert.equal((await call(makeEnv(), '/.env', { method: 'GET' })).status, 404);
+});
+
+// ---- The thank-you email to the teacher (Resend)
+async function thankYouCall(over = {}, envOver = {}, status = 200) {
+  resend.sent = []; resend.status = status;
+  const env = makeEnv({ RESEND_API_KEY: 'test-key', ...envOver });
+  const realLog = console.log, lines = [];
+  console.log = (l) => lines.push(l);
+  let res;
+  try { res = await call(env, '/purchase', { body: { ...goodRequest, ...over } }); } finally { console.log = realLog; }
+  return { env, res, reply: await res.json(), mails: resend.sent, lines };
+}
+
+test('with a Resend key, the teacher gets one thank-you email and the page is told', async () => {
+  const { env, reply, mails } = await thankYouCall();
+  assert.deepEqual(reply, { ok: true, confirmation: true });
+  assert.equal(mails.length, 1);
+  const m = mails[0];
+  assert.equal(m.auth, 'Bearer test-key');
+  assert.deepEqual(m.to, ['ada@school.org']);
+  assert.equal(m.reply_to, 'owner@example.org');
+  assert.equal(m.from, 'WRA STEM Kits <kits@wrastem.com>');
+  assert.equal(m.subject, 'Thank you for requesting a kit from WRA STEM Kits');
+  assert.match(m.html, /Hi Ada Lovelace,/);
+  assert.match(m.html, /2 sets/);
+  assert.match(m.html, /Hudson Middle School/);
+  assert.match(m.html, /https:\/\/wrastem\.com\/assets\/img\/email\/kit\.png/);
+  assert.match(m.text, /Thank you for requesting a kit!/);
+  assert.match(m.text, /2 sets of the plant cell kit for Hudson Middle School/);
+  assert.doesNotMatch(m.html + m.text, /tested|teacher review|certified/i);
+  assert.equal(env.sent.length, 1, 'the kit maker still gets the request');
+  assert.match(env.sent[0].html, /Thank-you email<\/th><td[^>]*>sent/);
+});
+
+test('without a Resend key nothing is sent to the teacher and the reply is unchanged', async () => {
+  const { env, reply, mails } = await thankYouCall({}, { RESEND_API_KEY: undefined });
+  assert.deepEqual(reply, { ok: true });
+  assert.equal(mails.length, 0);
+  assert.equal(env.sent.length, 1);
+  assert.match(env.sent[0].text, /Thank-you email: not sent: the server has no Resend key yet/);
+});
+
+test('a request marked "check this one" gets no thank-you email', async () => {
+  const { env, reply, mails } = await thankYouCall({ email: 'someone@mailinator.com' });
+  assert.deepEqual(reply, { ok: true });
+  assert.equal(mails.length, 0);
+  assert.match(env.sent[0].text, /Thank-you email: not sent: this request is marked "check this one"/);
+});
+
+test('a name or school with HTML in it is shown as text in the thank-you', async () => {
+  const { mails } = await thankYouCall({ name: 'Ada <b>Bold</b> & "Co"', school: 'Hudson <i>MS</i>' });
+  const m = mails[0];
+  assert.doesNotMatch(m.html, /<b>Bold|<i>MS/);
+  assert.match(m.html, /Ada &lt;b&gt;Bold&lt;\/b&gt; &amp; &quot;Co&quot;/);
+  assert.match(m.html, /Hudson &lt;i&gt;MS&lt;\/i&gt;/);
+});
+
+test('no name means a plain "Hi,"; one set is "1 set"', async () => {
+  const { mails } = await thankYouCall({ name: '', sets: 1 });
+  assert.match(mails[0].html, /Hi, I got your request/);
+  assert.match(mails[0].html, /1 set<\/b> of/);
+  assert.match(mails[0].text, /^Hi, I got your request for 1 set of/m);
+});
+
+test('when Resend fails or is out of emails, the request still goes through', async () => {
+  for (const status of [429, 500, 'throw']) {
+    const { env, reply, lines } = await thankYouCall({}, {}, status);
+    assert.deepEqual(reply, { ok: true }, String(status));
+    assert.equal(env.sent.length, 1, String(status));
+    assert.match(env.sent[0].text, /Thank-you email: failed \(see the Logs\)/, String(status));
+    assert.ok(lines.some((l) => /thank_you_error/.test(l)), String(status));
+  }
+  resend.status = 200;
 });
