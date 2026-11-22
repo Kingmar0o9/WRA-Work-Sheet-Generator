@@ -100,7 +100,7 @@ A short form (number of sets, school, email). Each request is emailed straight t
 
 ## On a phone
 
-The whole site works on phones. The model fills the top half of the screen and the words sit below it.
+The whole site works on phones. The words sit at the bottom of the screen and the model fills all the room above them.
 
 <table>
   <tr>
