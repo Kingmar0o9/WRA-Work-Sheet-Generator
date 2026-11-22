@@ -214,7 +214,7 @@ The 3D kit model is coloured one distinct flat colour per part so students tell 
 
 Content sits in a centred column (max 1240px) with a fluid side gutter of clamp(16px, 4vw, 56px). Content sections on paper use an asymmetric 5:7 two-column grid (gap clamp(28px, 5vw, 96px)), collapsing to one column at 960px. Section padding runs clamp(64-72px) to clamp(120-140px) vertically.
 
-The hero is a sticky stage: a 260svh leaf section with a 100svh sticky frame. Scroll progress (`--p`, 0 to 1) crossfades the assembled kit into the exploded kit in place, fades the first copy out and the second in, and reveals the part labels. Headline copy sits bottom-left; the model sits centre-right. Below 900px the model moves to the top half and copy holds the bottom.
+The hero is a sticky stage: a 260svh leaf section with a 100svh sticky frame. Scroll progress (`--p`, 0 to 1) crossfades the assembled kit into the exploded kit in place, fades the first copy out and the second in, and reveals the part labels. Headline copy sits bottom-left; the model sits centre-right. Below 900px the copy holds the bottom and the model fills all the room above it, edge to edge (12px clear at the sides); on a phone held sideways the model takes the right side at full height instead, with the part labels off.
 
 The spec grid is a fixed-cell ruled grid: 4 columns, 2 at 960px, 1 at 520px. Cells may span 2; the status cell spans the full row. Values always sit inside a cell. One cell holds a photograph of the printed kit: it spans 2 columns and 2 rows on wide screens, bleeds to the rules with square corners, keeps its label above the picture, and opens the photo gallery.
 
@@ -289,7 +289,7 @@ The back of the packet. A 2px ink-ruled grid of cells (padding 18px 20px 22px, m
 On the leaf field, two cards side by side (one column below 820px): stock ground, 22px corners, the whole card is the link. On top, a real screenshot of the tool in a window (2px ink frame, 12px top corners) on a pale leaf band, ruled off by a 2px ink line; below, the title and status ticket, a soft-ink description and a bold "Open …" line with an arrow. A tool that is not built yet sits under them as one dashed row with a Coming soon ticket, never as an empty card.
 
 ### Model Viewer
-- **Box:** leaf ground, 22px corners, 4:3 (1:1 on mobile), grab cursor. A still image of the model fills it when 3D is off.
+- **Box:** leaf ground, 22px corners, 4:3 (1:1 on mobile, where the model sits closer to fill it), grab cursor. A still image of the model fills it when 3D is off.
 - **Tools:** pill buttons top-right, 2px on-leaf border over a 25% ink wash, on-leaf text; hover inverts to on-leaf fill and ink text; focus ring sunflower.
 - **Hint:** on-leaf, 600 at 0.85rem, top-left with a hand icon.
 - **Info panel:** under the part picker, white, 2px ink rule, 16px corners, padding 20px 22px. Holds the part title (after a small sunflower dot), its role, the piece of the kit it is, and where MS-LS1-2 stands on it. Before anything is picked it says how to pick a part.

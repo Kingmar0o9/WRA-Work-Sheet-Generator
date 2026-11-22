@@ -137,12 +137,19 @@
 @keyframes framein{from{opacity:0;scale:.96}to{opacity:1;scale:1}}
 @media (prefers-reduced-motion:no-preference){.poster-frame{animation:framein 1.2s var(--ease) .1s both}}
 .lede .short{display:none}
-/* Phones and small tablets: the model gets the top half of the screen, the words the bottom half. */
+/* Phones and small tablets: the words sit at the bottom and the model gets all the room above them.
+   Both captions share the bottom row, so the model's box (.stage-art) is whatever height is left over. */
 @media (max-width:900px){
-  .stage{--art-h:calc(52vh - 60px);--art-h:calc(52svh - 60px)}
-  .stage-art{top:60px;bottom:auto;height:var(--art-h)}
-  .poster-frame{right:auto;left:50%;top:50%;transform:translate(-50%,-50%);width:min(116%,calc(var(--art-h) * 4 / 3 * 1.14))}
-  .stage-copy{bottom:max(18px,env(safe-area-inset-bottom))}
+  .stage{--art-h:calc(100vh - 370px);--art-h:calc(100svh - 370px)}
+  .stage-sticky{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
+  .stage-art{position:relative;inset:auto;grid-area:1/1;min-height:0;margin-top:60px}
+  .stage-copy{position:relative;bottom:auto;grid-area:2/1;align-self:end;padding-bottom:max(18px,env(safe-area-inset-bottom))}
+  /* The still pictures are sized so the model in them (57.4% of the picture's width, 71.8% of its
+     height once apart) fills the box like the live model does: 12px clear at the sides, 10px above
+     and below. --art-h is the box's height: measured where the browser can (cqh); older browsers use
+     the estimate above (the screen less the header and the words), which errs on the small side. */
+  .poster-frame{right:auto;left:50%;top:50%;transform:translate(-51.6%,-49.3%);width:min(calc((100% - 24px) * 1.742),calc((var(--art-h) - 20px) * 1.857))}
+  .poster-a{transform:translateY(-6.1%)}
   .stage-copy h1{font-size:clamp(2.2rem,10vw,3.4rem)}
   .stage-copy h2{font-size:clamp(1.9rem,8.4vw,2.9rem)}
   .stage-copy .lede{margin-top:12px;font-size:1.02rem;max-width:30ch}
@@ -151,12 +158,26 @@
   .actions .btn{min-height:44px;padding:0 16px;font-size:.95rem}
   .kitline,.scroll-cue{display:none}
   .copy-b .note{margin-top:14px;font-size:.95rem;line-height:1.35}
+  @supports (height:1cqh){.stage-art{container-type:size}.poster-frame{--art-h:100cqh}}
 }
+/* narrow phones: both buttons stay on one row, which leaves the model one more row of room */
+@media (max-width:374px){.actions{gap:8px}.actions .btn{padding:0 11px;font-size:.9rem}}
 @media (max-width:900px) and (max-height:640px){
-  .stage{--art-h:calc(44vh - 56px);--art-h:calc(44svh - 56px)}
+  .stage{--art-h:calc(100vh - 345px);--art-h:calc(100svh - 345px)}
   .stage-copy h1{font-size:clamp(2rem,9vw,2.6rem)}
   .stage-copy h2{font-size:clamp(1.7rem,7.6vw,2.2rem)}
   .copy-b .note{display:none}
+}
+/* A phone on its side has no room above the words, so the model takes the right side at full height,
+   next to them. The part names would cover it at this size, so they stay off. */
+@media (max-width:900px) and (max-height:540px) and (orientation:landscape){
+  .stage{--art-h:calc(100vh - 60px);--art-h:calc(100svh - 60px)}
+  .stage-sticky{grid-template-rows:minmax(0,1fr)}
+  .stage-art{margin-left:max(356px,52%)}
+  .stage-copy{grid-area:1/1}
+  .stage-copy h1{font-size:clamp(1.8rem,5.6vw,2.6rem)}
+  .stage-copy h2{font-size:clamp(1.6rem,4.8vw,2.2rem)}
+  .stage .label{display:none}
 }
 /* Held upright, the part names crowd the model, so only the animation shows. */
 @media (orientation:portrait){.stage .label{display:none}}
@@ -700,7 +721,7 @@
 
     // Load the 3D model only on capable devices, after the page is already usable.
     if (d.classList.contains('want-3d')) {
-      var go = function () { var s = document.createElement('script'); s.type = 'module'; s.src = 'assets/js/cell-viewer.js?v=20261117b'; document.head.appendChild(s); };
+      var go = function () { var s = document.createElement('script'); s.type = 'module'; s.src = 'assets/js/cell-viewer.js?v=20261122a'; document.head.appendChild(s); };
       if (document.readyState === 'complete') go(); else window.addEventListener('load', function () { (window.requestIdleCallback || setTimeout)(go, { timeout: 1200 }); });
     }
   })();

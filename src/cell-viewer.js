@@ -213,13 +213,19 @@ export async function start() {
       renderer.setSize(w, h, false);
     }
     camera.aspect = w / h;
-    // phones and small tablets (same breakpoint as the page's CSS): the stage canvas is only the
-    // top half of the screen, above the words, so the model is centred and sized to fill it
+    // phones and small tablets (same breakpoint as the page's CSS): the stage canvas is the room
+    // above the words, so the model is centred in it and sized to fill it
     const phone = st.mode === 'stage' && !POSTER && window.innerWidth <= 900;
     // how far apart the model is right now, for framing
     const k = st.mode === 'viewer' ? easeInOut(clamp(st.view)) : easeOut(st.explode);
-    let dist = (st.mode === 'viewer' ? 335 : 372) * (1 + 0.22 * k);
-    if (phone) dist = Math.max(282 * (1 + 0.2 * k), (158 * (1 + 0.06 * k)) / (0.536 * (w / h)));
+    // the viewer's box is square on phones and small tablets (4:3 elsewhere), which leaves room
+    // at the sides for the model to sit closer
+    const snug = st.mode === 'viewer' && !POSTER && w / h < 1.2;
+    let dist = (st.mode === 'viewer' ? (snug ? 300 : 335) : 372) * (1 + (snug ? 0.3 : 0.22) * k);
+    // On screen the model is 132 wide all the way through, and 108 tall closed growing to 158 tall
+    // apart (model units, measured). Back off just far enough that it fits the canvas both ways,
+    // with 12px clear at the sides and 10px above and below.
+    if (phone) dist = Math.max((108 + 50 * k) * h / Math.max(1, h - 20), 132 * h / Math.max(1, w - 24)) / (2 * Math.tan((camera.fov * Math.PI) / 360));
     if (POSTER) dist *= 0.86; // stills are framed tight; the page places them
     camera.position.set(0, 0, dist);
     camera.lookAt(0, 0, 0);
@@ -234,7 +240,10 @@ export async function start() {
       const halfW = Math.tan((camera.fov * Math.PI) / 360) * dist * (w / h);
       offX = col ? ((col.left + (col.right - col.left) * 0.69) - col.canvasLeft - w / 2) / (w / 2) * halfW : Math.min(78, 30 * (w / h));
     }
-    const offY = -(st.mode === 'viewer' ? 16 : LIFT_MID) * k - 2.2 * st.thud;
+    let offY = -(st.mode === 'viewer' ? 16 : LIFT_MID) * k - 2.2 * st.thud;
+    // seen at the stage's tilt the model sits low and a touch right of its own centre; on phones,
+    // where it has to fill the canvas, put it back in the middle
+    if (phone) { offX = -3.8 + 1.4 * k; offY = 10.8 - 4.5 * k; }
     model.position.set(offX, offY, 0);
     model.scale.setScalar(1);
     pose();
