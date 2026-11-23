@@ -221,6 +221,36 @@ test('a good kit request is emailed once, with nothing dangerous in it', async (
   assert.match(m.html, /&lt;script&gt;/);
 });
 
+test('a second inbox (NOTIFY_ALSO, or a list in NOTIFY_TO) gets its own copy of the request', async () => {
+  const setups = [{ NOTIFY_ALSO: 'helper@example.org' }, { NOTIFY_ALSO: ' helper@example.org, owner@example.org ' }, { NOTIFY_TO: 'owner@example.org, helper@example.org' },
+    { NOTIFY_TO: 'owner@example.org,helper@example.org' }, { NOTIFY_TO: ' owner@example.org  helper@example.org owner@example.org ' }];
+  for (const setup of setups) {
+    const env = makeEnv(setup), list = JSON.stringify(setup);
+    const res = await call(env, '/purchase', { body: goodRequest });
+    assert.deepEqual(await res.json(), { ok: true }, list);
+    assert.deepEqual(env.sent.map((m) => m.to), ['owner@example.org', 'helper@example.org'], list);
+    for (const m of env.sent) {
+      assert.equal(m.replyTo.email, 'ada@school.org');
+      assert.match(m.text, /Also sent to: (owner|helper)@example\.org/);
+    }
+    assert.doesNotMatch(env.sent[0].text, /Also sent to: owner@/);
+  }
+});
+
+test('when one of two inboxes cannot be emailed, the other still gets the request', async () => {
+  const env = makeEnv({ NOTIFY_ALSO: 'helper@example.org' });
+  env.EMAIL = { async send(m) { if (m.to === 'helper@example.org') throw Object.assign(new Error('not verified'), { code: 'E_RECIPIENT_NOT_ALLOWED' }); env.sent.push(m); } };
+  const lines = [], realLog = console.log;
+  console.log = (l) => lines.push(l);
+  let res;
+  try { res = await call(env, '/purchase', { body: goodRequest }); } finally { console.log = realLog; }
+  assert.deepEqual(await res.json(), { ok: true });
+  assert.deepEqual(env.sent.map((m) => m.to), ['owner@example.org']);
+  const logs = lines.map((l) => JSON.parse(l));
+  assert.match(logs.find((l) => l.purchase_email_error).purchase_email_error, /inbox 2 of 2.*E_RECIPIENT_NOT_ALLOWED/);
+  assert.equal(logs.find((l) => l.purchase).status, 'emailed_1_of_2');
+});
+
 test('email addresses that could smuggle in other recipients or headers are refused', async () => {
   const bad = ['a@b', 'no-at.example.org', 'a@school.org,evil@x.io', 'a@school.org;evil@x.io', '<a@school.org>', 'Ada <a@school.org>',
     '"a"@school.org', 'a@school.org\r\nBcc: evil@x.io', 'a@school.org%0aBcc:evil@x.io', 'a@@school.org', 'a@school.<x>.org', 'x'.repeat(250) + '@school.org'];
@@ -419,6 +449,12 @@ test('with a Resend key, the teacher gets one thank-you email and the page is to
   assert.doesNotMatch(m.html + m.text, /tested|teacher review|certified/i);
   assert.equal(env.sent.length, 1, 'the kit maker still gets the request');
   assert.match(env.sent[0].html, /Thank-you email<\/th><td[^>]*>sent/);
+});
+
+test('with two inboxes, the teacher\'s reply to the thank-you email reaches both', async () => {
+  const { mails } = await thankYouCall({}, { NOTIFY_ALSO: 'helper@example.org' });
+  assert.equal(mails.length, 1);
+  assert.deepEqual(mails[0].reply_to, ['owner@example.org', 'helper@example.org']);
 });
 
 test('without a Resend key nothing is sent to the teacher and the reply is unchanged', async () => {

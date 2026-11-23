@@ -106,11 +106,17 @@ ${BENEFITS.map(row).join('\n')}
   return { subject: SUBJECT, html, text };
 }
 
+// The inboxes kit requests go to: the NOTIFY_TO secret, plus the NOTIFY_ALSO secret for a second
+// inbox. Either can hold several addresses separated by commas; a repeated address counts once.
+export const inboxes = (env) => [...new Set([env.NOTIFY_TO, env.NOTIFY_ALSO].join(',').split(/[\s,;]+/).filter((a) => a.includes('@')))];
+
 // Sends the thank-you. 'sent', 'skipped_no_key' (not launched yet) or 'failed' (Resend refused it,
 // for example after the day's 100 free emails, or couldn't be reached). Never throws.
 export async function sendThankYou(env, to, request) {
   if (!env.RESEND_API_KEY) return 'skipped_no_key';
   const { subject, html, text } = thankYouEmail(request);
+  // Reply reaches the kit maker: one inbox as plain text, several as a list
+  const replyTo = inboxes(env);
   try {
     const r = await fetch(RESEND_URL, {
       method: 'POST',
@@ -118,7 +124,7 @@ export async function sendThankYou(env, to, request) {
       body: JSON.stringify({
         from: `WRA STEM Kits <${env.FROM_ADDRESS || 'kits@wrastem.com'}>`,
         to: [to],
-        ...(env.NOTIFY_TO ? { reply_to: env.NOTIFY_TO } : {}),
+        ...(replyTo.length ? { reply_to: replyTo.length === 1 ? replyTo[0] : replyTo } : {}),
         subject, html, text,
       }),
       signal: AbortSignal.timeout(8000),

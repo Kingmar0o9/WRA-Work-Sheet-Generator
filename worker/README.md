@@ -68,8 +68,29 @@ One-time setup in the Cloudflare dashboard (about 3 minutes):
 3. That inbox is saved on the server as a secret, not in this code. To change it:
    `npx wrangler secret put NOTIFY_TO`
 
+#### A second inbox
+
+To have every request also go to another address (a second account of yours, or a teammate):
+
+1. **Email Routing → Destination Addresses**: add the second address and click the link in
+   the email Cloudflare sends there. Until that is done, Cloudflare refuses to deliver to it;
+   the first inbox still gets every request.
+2. Save it on the server as its own secret (it asks you to paste the address):
+
+   ```bash
+   npx wrangler secret put NOTIFY_ALSO
+   ```
+
+Each inbox gets its own copy, ending with "Also sent to: ..." so you can see who else has it.
+Pressing Reply answers the teacher from whichever inbox you are in; the other inbox does not
+see that reply, so agree who answers. A teacher's reply to the thank-you email reaches both.
+For more than two, put several addresses in `NOTIFY_ALSO` with commas between them. To stop:
+`npx wrangler secret delete NOTIFY_ALSO`.
+
 Every request is also written to the Logs (Workers & Pages → `standards-ai` → Logs, look
-for `purchase`), so if an email ever fails you can still find it there for 7 days. A
+for `purchase`), so if an email ever fails you can still find it there for 7 days. If one of
+two inboxes could not be emailed, the line says `emailed_1_of_2` and a `purchase_email_error`
+line beside it says why. A
 hidden "website" field catches most spam bots, and one visitor can send at most 3
 requests a minute.
 
@@ -78,7 +99,7 @@ requests a minute.
 Right after a request, the teacher can get one thank-you email from `kits@wrastem.com`:
 "Thank you for requesting a kit!", their request (sets and school), a picture of the kit and
 what it gives them (`src/thank-you.js`; the pictures are in `../assets/img/email/`). Pressing
-Reply reaches your inbox (`NOTIFY_TO`). The form's thank-you page then adds "I've also sent
+Reply reaches your inbox (`NOTIFY_TO`, and `NOTIFY_ALSO` if you set one). The form's thank-you page then adds "I've also sent
 you a thank-you email".
 
 It is sent through [Resend](https://resend.com)'s free plan (100 emails a day, 3,000 a
