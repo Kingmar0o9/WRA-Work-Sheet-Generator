@@ -26,7 +26,7 @@ The worksheets are built around a physical kit: the labeling drawings are render
 
 - Plant Cell Kit: 12 custom-designed, 3D printed pieces (11 cell structures plus the nucleolus), held in their slots by magnets; the small holes are for labels. Reusable for years.
 - Plant Cell Worksheet Generator (`cell-kit-generator/`): one click builds a new 3-page plant cell worksheet plus answer key for middle school (grades 6–8). Designed to align with NGSS MS-LS1-2. Uses only cell wall, cell membrane, nucleus, chloroplast, mitochondrion.
-- Fixed bank of 69 items; every worksheet has the same 6 sections (label, match, how parts work together, think and write, circle the best answer, a second think and write). Nov 23: 26 new items added (new label, match, section 3 and multiple choice types, 6 new think and write prompts); not yet teacher reviewed.
+- Fixed bank of 68 items; every worksheet has the same 6 sections (label, match, how parts work together, think and write, circle the best answer, a second think and write). Nov 23: 25 new items added (new label, match, section 3 and multiple choice types, 6 new think and write prompts); not yet teacher reviewed.
 - Each worksheet has a version number 1000–9999 so it can be rebuilt. Download worksheet PDF, answer key PDF, or print. Works offline.
 - A 27-page Teacher Review Packet lists every question for a science teacher to approve or change.
 
