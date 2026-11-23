@@ -115,12 +115,13 @@ h2{font-size:17pt;margin:0;display:flex;align-items:center;gap:10px}
 .fields span.w{flex:2.2}
 .goal{border:3px solid #111;border-radius:12px;padding:10px 14px;font-size:14pt;margin-bottom:18px;line-height:1.3}
 .goal small{color:#555;font-size:10.5pt;font-weight:400}
-.sec{margin-top:20px}
+.sec{margin-top:17px}
 .sec.first{margin-top:0}
 .bank{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px 42px}
 .bank span{border:2px solid #111;border-radius:8px;padding:2px 9px;font-weight:600;font-size:12pt;white-space:nowrap}
 .drawing{text-align:center;margin-top:8px}
 .drawing img{height:4.3in;width:auto}
+.drawing.sm img{height:3.8in}
 .blanks{display:grid;grid-template-columns:1fr 1fr;gap:16px 36px;margin:14px 0 0 42px;font-weight:700}
 .blanks div{display:flex;align-items:flex-end;gap:8px}
 .line{flex:1;border-bottom:1.5px solid #111;height:24px}
@@ -137,9 +138,18 @@ h2{font-size:17pt;margin:0;display:flex;align-items:center;gap:10px}
 .tf .c{font-weight:700;white-space:nowrap}
 .order{display:flex;gap:12px;align-items:center}
 .order .sq{width:36px;height:30px;border:2px solid #111;border-radius:6px;flex-shrink:0}
+.chart{border-collapse:collapse;margin:12px 0 0 42px;width:calc(100% - 42px)}
+.chart th,.chart td{border:2px solid #111;padding:6px 10px;text-align:left;height:40px;vertical-align:middle}
+.chart th{font-size:12pt;background:#f1f1f1}
+.chart td:first-child{width:34%}
+.odd{display:flex;flex-direction:column;gap:6px}
+.odd .w{display:inline-block;border:1.5px solid #111;border-radius:8px;padding:0 10px;margin:0 6px 0 8px}
+.path{display:grid;grid-template-columns:repeat(3,1fr);gap:34px 40px;margin:16px 0 0 42px}
+.pbox{border:2px solid #111;border-radius:12px;padding:12px 10px;text-align:center;font-weight:600;min-height:62px;display:flex;align-items:center;justify-content:center}
 .q{margin:10px 0 0 42px}
 .q .stem{font-weight:700}
 .q .opts{display:flex;flex-direction:column;gap:1px;margin:3px 0 0 22px}
+.q .opts.row{flex-direction:row;flex-wrap:wrap;gap:2px 34px}
 .write{margin:8px 0 0 42px}
 .starter{color:#333;margin-bottom:2px}
 .wl{border-bottom:1.5px solid #111;height:34px}
@@ -214,7 +224,7 @@ h2{font-size:17pt;margin:0;display:flex;align-items:center;gap:10px}
       <div class="tb-opt">
         <span class="lbl">Print instead of PDF</span>
         <div class="tb-line"><button class="pill" id="pws" type="button">Print worksheets</button><button class="pill" id="pkey" type="button">Print answer keys</button></div>
-        <p class="help">Every worksheet has the same 6 sections, drawn from a fixed bank of 43 questions. Works offline once this page has loaded.</p>
+        <p class="help">Every worksheet has the same 6 sections, drawn from a fixed bank of 69 questions. Works offline once this page has loaded.</p>
       </div>
     </div>
     <p class="help">The PDFs are pictures of the pages, so screen readers can't read them; the worksheet shown on this page can be. <a href="../accessibility/">Accessibility</a></p>
@@ -627,15 +637,17 @@ const cap = s => s.charAt(0).toUpperCase()+s.slice(1);
 
 /* ===================== QUESTION BANK ===================== */
 
-/* Section 1: label the plant cell (4 versions) */
+/* Section 1: label the plant cell (6 versions) */
 const LABEL = [
   {img:"label_A_num", type:"names"},
   {img:"label_B_num", type:"names"},
   {img:"label_A_let", type:"letters"},
-  {img:"label_B_let", type:"letters"}
+  {img:"label_B_let", type:"letters"},
+  {img:"label_A_num", type:"jobs"},
+  {img:"label_B_num", type:"jobs"}
 ];
 
-/* Section 2: match each part (5 versions) */
+/* Section 2: match each part (7 versions) */
 const MATCH = [
   {title:"Match each part to its job", sub:"Draw a line from each part to its job.", type:"lines", pairs:{
     "cell wall":"Holds the cell's shape.",
@@ -666,10 +678,22 @@ const MATCH = [
     "cell membrane":"I let water in and keep harmful things out.",
     "nucleus":"I hold the DNA, the cell's instructions.",
     "chloroplast":"I am green and I make sugar from sunlight.",
-    "mitochondrion":"I break down sugar to give the cell energy."}}
+    "mitochondrion":"I break down sugar to give the cell energy."}},
+  {title:"Which part is broken?", sub:"Each sentence tells about a cell with a problem. Write the letter of the part that is not doing its job.", type:"letters", pairs:{
+    "cell wall":"The plant's stem bends and cannot hold its shape.",
+    "cell membrane":"Harmful things are getting into the cell.",
+    "nucleus":"The cell has no instructions to follow.",
+    "chloroplast":"The leaf cell cannot make sugar, even in bright sunlight.",
+    "mitochondrion":"The cell has plenty of sugar but no energy to grow."}},
+  {title:"Finish the chart", sub:"Some boxes are empty. Write the missing part name or job in each empty box.", type:"chart", pairs:{
+    "cell wall":"Holds the cell's shape and protects it.",
+    "cell membrane":"Controls what goes in and out.",
+    "nucleus":"Holds the DNA and tells the cell what to do.",
+    "chloroplast":"Makes sugar using sunlight.",
+    "mitochondrion":"Turns sugar into energy."}}
 ];
 
-/* Section 3: how the parts work together (6 versions) */
+/* Section 3: how the parts work together (11 versions) */
 const TEAM = [
   {title:"How a plant cell stays alive", sub:"The parts work as a team. Fill in each blank. Use each word once.", type:"fill", bank:true, items:[
     ["Water enters the cell through the","cell membrane","."],
@@ -705,10 +729,30 @@ const TEAM = [
     ["The <u>chloroplast</u> holds the cell's DNA.","nucleus"],
     ["The <u>mitochondrion</u> controls what goes in and out of the cell.","cell membrane"],
     ["The <u>cell membrane</u> is stiff and helps the plant stand tall.","cell wall"],
-    ["The <u>cell wall</u> turns sugar into energy.","mitochondrion"]]}
+    ["The <u>cell wall</u> turns sugar into energy.","mitochondrion"]]},
+  {title:"Key words", sub:"Fill in each blank with a word from the word bank. Use each word once.", type:"fill", bank:["sunlight","sugar","energy","DNA","shape"], items:[
+    ["The chloroplast uses","sunlight","to make food."],
+    ["The mitochondrion breaks down","sugar","."],
+    ["The mitochondrion gives the cell","energy","to live and grow."],
+    ["The nucleus holds the cell's","DNA","."],
+    ["The cell wall gives the cell its","shape","."]]},
+  {title:"Odd one out", sub:"In each row, circle the word that does not belong. Then write why on the line.", type:"odd", items:[
+    [["sunlight","chloroplast","sugar","cell wall"],"cell wall","The others are about making food."],
+    [["DNA","nucleus","instructions","sunlight"],"sunlight","The others are about controlling the cell."],
+    [["stiff","support","cell wall","energy"],"energy","The others describe the cell wall."],
+    [["sugar","energy","mitochondrion","DNA"],"DNA","The others are about getting energy."],
+    [["gatekeeper","in and out","cell membrane","sugar"],"sugar","The others are about what enters and leaves the cell."]]},
+  {title:"Yes or no?", sub:"Circle Yes or No. Then finish the sentence to explain.", type:"yn", items:[
+    ["Can a plant cell make its own food?",true,"Yes. The chloroplasts use sunlight to make sugar."],
+    ["Do plant cells need mitochondria?",true,"Yes. Mitochondria turn sugar into energy the cell can use."],
+    ["Is the cell membrane the outside layer of a plant cell?",false,"No. The cell wall is outside the cell membrane."],
+    ["Can a chloroplast make sugar in total darkness?",false,"No. It needs light to make sugar."],
+    ["Does the nucleus make the cell's energy?",false,"No. The mitochondrion does. The nucleus holds the DNA."]]},
+  {title:"Draw the energy path", sub:"Draw arrows to connect the boxes in order. Start at Sunlight and end where the cell uses the energy.", type:"path", items:[
+    "Sunlight","Chloroplast makes sugar","Sugar","Mitochondrion releases energy","The cell lives and grows"]}
 ];
 
-/* Section 5: circle the best answer (2 types, 16 questions) */
+/* Section 5: circle the best answer (4 types, 27 questions) */
 const MC = {
   emergency:{title:"Cell emergency! What happens next?", sub:"Circle the best answer.", qs:[
     {s:"The chloroplasts stop working.", a:"The cell runs low on sugar and energy.", w:["The cell gets more energy.","Nothing happens."]},
@@ -729,10 +773,25 @@ const MC = {
     {s:"Roots grow underground with no sunlight. What do root cells still need?", a:"Mitochondria, to get energy from sugar", w:["Nothing, roots are not alive","More cell walls"]},
     {s:"Which part tells the other parts what to do?", a:"Nucleus", w:["Chloroplast","Cell membrane"]},
     {s:"Which part helps a tall tree stand up?", a:"Cell wall", w:["Mitochondrion","Chloroplast"]}
+  ]},
+  truth:{title:"Which sentence is true?", sub:"Circle the one sentence that is true.", qs:[
+    {s:"Plants and energy", a:"Plant cells have both chloroplasts and mitochondria.", w:["Plant cells have chloroplasts instead of mitochondria.","Plant cells do not need energy from sugar."]},
+    {s:"The outside of the cell", a:"The cell wall is outside the cell membrane.", w:["The cell membrane is outside the cell wall.","The nucleus is outside the cell wall."]},
+    {s:"The cell's instructions", a:"The nucleus holds the cell's DNA.", w:["The chloroplast holds the cell's DNA.","The cell wall holds the cell's DNA."]},
+    {s:"Making sugar", a:"Chloroplasts need light to make sugar.", w:["Chloroplasts make sugar best in the dark.","Mitochondria make sugar from light."]},
+    {s:"In and out", a:"The cell membrane controls what goes in and out of the cell.", w:["The cell wall decides what goes in and out.","Nothing can go in or out of a plant cell."]},
+    {s:"Working together", a:"The parts work together to keep the cell alive.", w:["Each part can keep the cell alive by itself.","Only the nucleus is needed to keep the cell alive."]}
+  ]},
+  detective:{title:"Science detective", sub:"Read each clue. Circle the best answer.", qs:[
+    {s:"One plant sits by a sunny window. Another sits in a dark closet. Whose cells make more sugar?", a:"The plant by the window", w:["The plant in the closet","They made the same amount"]},
+    {s:"Under a microscope, a leaf cell has many small green ovals. What are they?", a:"Chloroplasts", w:["Nuclei","Cell walls"]},
+    {s:"Leaves are green, but most roots are not. What do root cells have fewer of?", a:"Chloroplasts", w:["Mitochondria","Nuclei"]},
+    {s:"A tree needs energy to grow, even at night. Which part releases that energy from sugar?", a:"Mitochondrion", w:["Chloroplast","Cell wall"]},
+    {s:"One leaf is dark green. One is pale yellow. Which can probably make more sugar?", a:"The dark green leaf", w:["The pale yellow leaf","They make the same amount"]}
   ]}
 };
 
-/* Sections 4 and 6: think and write (12 questions) */
+/* Sections 4 and 6: think and write (18 questions) */
 const WRITE = [
   {q:"Plant cells have chloroplasts. Why do they still need mitochondria?", st:"Plant cells still need mitochondria because ...", key:"The chloroplast only makes sugar. The mitochondria turn that sugar into energy the cell can use. The cell needs both."},
   {q:"Which part of the cell do you think is the most important? Explain what would happen to the whole cell without it.", st:"I think the ________________ is the most important because ...", key:"Any part can be correct. Full credit names a part, says its job, and says what the whole cell would lose without it."},
@@ -745,27 +804,39 @@ const WRITE = [
   {q:"Pretend you are a chloroplast. Describe your job and which part you help.", st:"I am a chloroplast. My job is ...", key:"I use sunlight and water to make sugar. I help the mitochondrion, which turns my sugar into energy."},
   {q:"A tree can stand up tall without any bones. Which cell part helps it do that? Explain.", st:"A tree can stand up because ...", key:"The cell wall. Each cell has a stiff wall, and millions of them together hold the tree up."},
   {q:"If the cell membrane let everything in, what could go wrong for the whole cell?", st:"If the membrane let everything in ...", key:"Harmful things could get in and things the cell needs could leak out, so the cell could get sick or die."},
-  {q:"Pretend you are a mitochondrion. Describe your job and where you get your sugar.", st:"I am a mitochondrion. My job is ...", key:"I break down sugar to give the cell energy. I get the sugar from the chloroplast."}
+  {q:"Pretend you are a mitochondrion. Describe your job and where you get your sugar.", st:"I am a mitochondrion. My job is ...", key:"I break down sugar to give the cell energy. I get the sugar from the chloroplast."},
+  {q:"Explain to a younger student what the cell membrane does. Compare it to something from everyday life.", st:"The cell membrane is like ...", key:"The cell membrane controls what goes in and out of the cell. Full credit gives a fitting comparison, like a door with a guard or a screen door."},
+  {q:"Leaves get lots of sunlight, but roots grow in dark soil. Which part would you expect leaf cells to have more of than root cells? Explain.", st:"Leaf cells have more ...", key:"Chloroplasts. Leaves get sunlight, and chloroplasts use sunlight to make sugar. Roots are in the dark, so chloroplasts would not help them much."},
+  {q:"Look at your model. Name one way it is like a real plant cell and one way it is different.", st:"My model is like a real cell because ... It is different because ...", key:"Like: the cell wall is outside the cell membrane and the nucleus is inside. Different: a real cell is tiny and soft, and has many mitochondria and chloroplasts. Any correct pair gets credit."},
+  {q:"Describe how energy gets from the sun to the cell. Use at least three steps in order.", st:"First, ... Next, ... Last, ...", key:"First, the chloroplast uses sunlight to make sugar. Next, the mitochondrion turns the sugar into energy. Last, the cell uses that energy to live and grow."},
+  {q:"A plant cell is like a city. Pick two parts and tell which city building each one is like and why.", st:"The ________ is like a ________ because ...", key:"Any fitting pair. Examples: the nucleus is like city hall because it gives instructions; the mitochondrion is like a power plant because it makes energy for the city."},
+  {q:"What would happen to a plant cell if its chloroplasts and its mitochondria both stopped working at the same time?", st:"If both stopped working ...", key:"The cell could not make sugar and could not get energy from any sugar it had saved. It would run out of energy and could not live or grow."}
 ];
 
 /* ===================== GENERATOR ===================== */
 function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 function shuffle(arr,r){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 const pick=(arr,r)=>arr[Math.floor(r()*arr.length)];
-const bankHTML=()=>`<div class="bank">${PARTS.map(p=>`<span>${p}</span>`).join("")}</div>`;
+const bankHTML=(words)=>`<div class="bank">${(words||PARTS).map(p=>`<span>${p}</span>`).join("")}</div>`;
 const lines=n=>Array(n).fill('<div class="wl"></div>').join("");
 
 function build(ver){
   const r=rng(ver);
   const label=pick(LABEL,r), match=pick(MATCH,r), team=pick(TEAM,r);
-  const mcType=r()<0.5?"emergency":"which", mc=MC[mcType], mcQs=shuffle(mc.qs,r).slice(0,3);
+  const mcTypes=Object.keys(MC), mcType=mcTypes[Math.floor(r()*mcTypes.length)], mc=MC[mcType], mcQs=shuffle(mc.qs,r).slice(0,3);
   const w=shuffle(WRITE,r), w1=w[0], w2=w[1];
   const key={};
 
   // section 1
   const meta=LABEL_META[label.img], syms=Object.keys(meta);
   let s1=`<div class="sec first"><h2><span class="num">1</span>Label the plant cell</h2>`;
-  if(label.type==="names"){
+  if(label.type==="jobs"){
+    const jobs=shuffle(PARTS,r),inv={};syms.forEach(k=>inv[meta[k]]=k);
+    s1+=`<div class="sub">Read each job. Write the number of the part that does it.</div>
+    <div class="drawing sm"><img src="${IMG[label.img]}" alt="Plant cell drawing with numbered arrows"></div>
+    <div class="rows">${jobs.map((p,i)=>`<div class="tf"><span class="sbox"></span><span>${String.fromCharCode(97+i)}. ${MATCH[0].pairs[p]}</span></div>`).join("")}</div>`;
+    key.s1=jobs.map((p,i)=>`${String.fromCharCode(97+i)}. ${inv[p]} (${p})`).join(" &nbsp; ");
+  } else if(label.type==="names"){
     s1+=`<div class="sub">Write the name of each numbered part on its line.</div>${bankHTML()}
     <div class="drawing"><img src="${IMG[label.img]}" alt="Plant cell drawing with numbered arrows"></div>
     <div class="blanks"><div>1.<span class="line"></span></div><div>4.<span class="line"></span></div><div>2.<span class="line"></span></div><div>5.<span class="line"></span></div><div>3.<span class="line"></span></div><div></div></div>`;
@@ -783,7 +854,11 @@ function build(ver){
   // section 2
   let s2=`<div class="sec first"><h2><span class="num">2</span>${match.title}</h2><div class="sub">${match.sub}</div>`;
   const left=shuffle(PARTS,r), right=shuffle(PARTS,r);
-  if(match.type==="lines"){
+  if(match.type==="chart"){
+    const off=Math.floor(r()*2),rows=left.map((p,i)=>({p,hide:(i+off)%2?"part":"job"}));
+    s2+=`<table class="chart"><tr><th>Part</th><th>Job</th></tr>${rows.map(x=>`<tr><td>${x.hide==="part"?"":"<b>"+cap(x.p)+"</b>"}</td><td>${x.hide==="job"?"":match.pairs[x.p]}</td></tr>`).join("")}</table>`;
+    key.s2=rows.map(x=>x.hide==="part"?`${cap(x.p)} (part)`:`${cap(x.p)}: ${match.pairs[x.p]}`).join("<br>");
+  } else if(match.type==="lines"){
     s2+=`<div class="match">${left.map((p,i)=>`<div class="l">${cap(p)} <span class="dot"></span></div><div></div><div class="r"><span class="dot"></span>${match.pairs[right[i]]}</div>`).join("")}</div>`;
     key.s2=PARTS.map(p=>`${cap(p)}: ${match.pairs[p]}`).join("<br>");
   } else {
@@ -798,7 +873,7 @@ function build(ver){
   let s3=`<div class="sec"><h2><span class="num">3</span>${team.title}</h2><div class="sub">${team.sub}</div>`;
   if(team.type==="fill"){
     const items=shuffle(team.items,r);
-    s3+=(team.bank?bankHTML():"")+`<div class="rows">${items.map((it,i)=>`<div>${i+1}. ${it[0]}<span class="ln"></span>${it[2]}</div>`).join("")}</div>`;
+    s3+=(team.bank?bankHTML(Array.isArray(team.bank)?shuffle(team.bank,r):null):"")+`<div class="rows">${items.map((it,i)=>`<div>${i+1}. ${it[0]}<span class="ln"></span>${it[2]}</div>`).join("")}</div>`;
     key.s3=items.map((it,i)=>`${i+1}. ${it[1]}`).join(" &nbsp; ");
   } else if(team.type==="tf"){
     const items=shuffle(team.items,r);
@@ -808,6 +883,18 @@ function build(ver){
     const items=shuffle(team.items.map((t,i)=>[t,i+1]),r);
     s3+=`<div class="rows">${items.map(it=>`<div class="order"><span class="sq"></span><span>${it[0]}</span></div>`).join("")}</div>`;
     key.s3=items.map((it,i)=>`Box ${i+1}: ${it[1]}`).join(" &nbsp; ");
+  } else if(team.type==="odd"){
+    const items=shuffle(team.items,r);
+    s3+=`<div class="rows">${items.map((it,i)=>`<div class="odd"><div><b>${i+1}.</b> ${shuffle(it[0],r).map(w=>`<span class="w">${w}</span>`).join("")}</div><div>Why? <span class="ln" style="width:72%"></span></div></div>`).join("")}</div>`;
+    key.s3=items.map((it,i)=>`${i+1}. ${it[1]}. ${it[2]}`).join("<br>");
+  } else if(team.type==="yn"){
+    const items=shuffle(team.items,r);
+    s3+=`<div class="rows">${items.map((it,i)=>`<div class="odd"><div class="tf"><span class="c">Yes &nbsp; No</span><span>${i+1}. ${it[0]}</span></div><div>Because <span class="ln" style="width:72%"></span></div></div>`).join("")}</div>`;
+    key.s3=items.map((it,i)=>`${i+1}. ${it[2]}`).join("<br>");
+  } else if(team.type==="path"){
+    const items=shuffle(team.items.map((t,i)=>[t,i+1]),r);
+    s3+=`<div class="path">${items.map(it=>`<div class="pbox">${it[0]}</div>`).join("")}</div>`;
+    key.s3="Arrows go in this order: "+team.items.join(" &rarr; ");
   } else if(team.type==="fix"){
     const items=shuffle(team.items,r);
     s3+=`<div class="rows">${items.map((it,i)=>`<div>${i+1}. ${it[0]} <span class="ln" style="width:150px"></span></div>`).join("")}</div>`;
@@ -824,7 +911,7 @@ function build(ver){
   const mcKey=[];
   mcQs.forEach((q,i)=>{
     const opts=shuffle([q.a,...q.w],r);
-    s5+=`<div class="q"><div class="stem">${"ABC"[i]}. ${q.s}</div><div class="opts">${opts.map((o,j)=>`<span>${ABC[j]}. ${o}</span>`).join("")}</div></div>`;
+    s5+=`<div class="q"><div class="stem">${"ABC"[i]}. ${q.s}</div><div class="opts${opts.every(o=>o.length<=34)?" row":""}">${opts.map((o,j)=>`<span>${ABC[j]}. ${o}</span>`).join("")}</div></div>`;
     mcKey.push(`${"ABC"[i]}: ${ABC[opts.indexOf(q.a)]}`);
   });
   s5+=`</div>`;

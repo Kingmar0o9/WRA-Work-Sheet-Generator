@@ -77,7 +77,7 @@ A teaching assistant for science teachers that talks like a helpful colleague. I
 
 ### Worksheet Generator
 One click prints a new 3-page plant cell worksheet and its answer key.
-- **Fixed question bank:** every question comes from a bank of 43 that a teacher can review, rather than being generated on the spot.
+- **Fixed question bank:** every question comes from a bank of 69 that a teacher can review, rather than being generated on the spot.
 - **Same six sections each time:** labeling, matching, how the parts work together, two short written answers, and multiple choice.
 - **Drawings from the kit:** the labeling drawings are rendered from the kit's own 3D model.
 - **Version numbers:** each worksheet has a number (1000–9999) that rebuilds exactly the same sheet later.
