@@ -30,10 +30,22 @@
     el.setAttribute('aria-invalid', msg ? 'true' : 'false');
     return !msg;
   }
+  // Pressing Send takes focus out of a field. Checking that field straight away
+  // can add or remove an error line, which moves the form under the pointer, and
+  // the click then misses the button. So a check that falls inside a press waits
+  // until the press, and the click it makes, are over.
+  var pressing = false, waiting = [];
+  function leave(id) { if (document.getElementById(id).value) check(id); }
+  function pressOver() { pressing = false; waiting.splice(0).forEach(leave); }
+  window.addEventListener('mousedown', function () { pressing = true; }, true);
+  ['mouseup', 'dragend'].forEach(function (type) {
+    window.addEventListener(type, function () { setTimeout(pressOver, 0); }, true);
+  });
+  window.addEventListener('blur', function (e) { if (e.target === window) pressOver(); });
   Object.keys(rules).forEach(function (id) {
     var el = document.getElementById(id);
     if (el.type === 'checkbox') el.addEventListener('change', function () { check(id); });
-    else el.addEventListener('blur', function () { if (this.value) check(id); });
+    else el.addEventListener('blur', function () { if (pressing) waiting.push(id); else leave(id); });
   });
 
   function row(label, value) {
