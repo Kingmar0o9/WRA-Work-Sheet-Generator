@@ -164,7 +164,7 @@ flowchart LR
 
 The site has no accounts, passwords or database, so there is nothing to log in to and no stored data to steal. What it does have is protected like this:
 
-- **No secrets in the code.** The only secret (the inbox that kit requests go to) is saved in Cloudflare, not in this repository. There are no API keys: the AI runs inside Cloudflare.
+- **No secrets in the code.** The inboxes that kit requests go to are saved in Cloudflare as secrets, not in this repository. There are no API keys: the AI runs inside Cloudflare.
 - **Only wrastem.com may use the server.** The Worker refuses questions and kit requests that don't come from the site's own pages, limits how many one visitor can send a minute, refuses oversized or malformed requests, and never shows a visitor the inside of an error.
 - **Nothing a visitor or the AI writes can run as code.** The pages show it as plain text, and each page carries a Content Security Policy (the `Content-Security-Policy` line near the top of each HTML file) that tells the browser what the page may load and where it may send data.
 - **Checked by tests.** `npm test` in [`worker/`](worker) runs the server's protections against attacks.

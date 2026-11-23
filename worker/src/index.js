@@ -26,7 +26,7 @@
 
 import data from '../../standards-ai/ngss.json';
 import sci from '../../standards-ai/science.json';
-import { sendThankYou } from './thank-you.js';
+import { sendThankYou, inboxes } from './thank-you.js';
 import { createIndex, search, sourceText, codesIn, interpret, bandsIn, bandOf, tokens, smallTalk, createNotes, findNotes, noteText } from '../../standards-ai/search.js';
 
 const index = createIndex(data);
@@ -347,8 +347,9 @@ function visitor(request) {
 // ---- Purchase requests (wrastem.com/purchase) ------------------------------------
 // The form's answers are emailed to the kit maker, who replies to the teacher directly.
 // The address they go to is a secret on this server (NOTIFY_TO), never in the code or on the
-// site. Free: Cloudflare delivers to a verified address in the account at no cost. Every
-// request is also written to the logs, so nothing is lost if an email can't be sent.
+// site. A second inbox goes in another secret (NOTIFY_ALSO); each inbox gets its own copy. Free:
+// Cloudflare delivers to verified addresses in the account at no cost. Every request is also
+// written to the logs, so nothing is lost if an email can't be sent.
 const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const clean = (v, max) => String(v ?? '').replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, '').trim().slice(0, max);
 // An email address made only of the characters real addresses use. Commas, quotes, brackets,
@@ -517,19 +518,34 @@ async function purchase(request, env) {
   }</table>`;
   const text = `A teacher requested the plant cell kit on wrastem.com.\n\n${list(rows)}\n\nReply to this email to answer them. They were told you'll get back to them as soon as possible.\n\nWho sent this\n\n${list(who)}\n\n${note}`;
   const html = `<p>A teacher requested the plant cell kit on wrastem.com.</p>${table(rows)}<p>Reply to this email to answer them. They were told you'll get back to them as soon as possible.</p><h3>Who sent this</h3>${table(who)}<p>${esc(note)}</p>`;
+  // One email per inbox, so a problem with one address (not verified yet, say) never stops the
+  // others. With several inboxes, each email names the others, so everyone knows who else has it.
+  const to = inboxes(env);
+  const problem = (err) => String(err && (err.code || '') + ' ' + (err.message || err)).slice(0, 300);
   let status = 'emailed';
-  try {
-    if (!env.EMAIL || !env.NOTIFY_TO) throw new Error('email not set up');
-    await env.EMAIL.send({
-      to: env.NOTIFY_TO,
-      from: { email: env.FROM_ADDRESS || 'kits@wrastem.com', name: 'WRA STEM Kits' },
-      // the name beside the reply address: letters, numbers and plain punctuation only
-      replyTo: { email, name: name.replace(/[^\p{L}\p{N} .'-]/gu, ' ').replace(/\s+/g, ' ').trim() || undefined },
-      subject, text, html,
-    });
-  } catch (err) {
+  if (!env.EMAIL || !to.length) {
     status = 'email_failed';
-    console.log(JSON.stringify({ purchase_email_error: String(err && (err.code || '') + ' ' + (err.message || err)).slice(0, 300) }));
+    console.log(JSON.stringify({ purchase_email_error: problem(new Error('email not set up')) }));
+  } else {
+    const results = await Promise.allSettled(to.map(async (address) => {
+      const others = to.filter((a) => a !== address).join(', ');
+      return env.EMAIL.send({
+        to: address,
+        from: { email: env.FROM_ADDRESS || 'kits@wrastem.com', name: 'WRA STEM Kits' },
+        // the name beside the reply address: letters, numbers and plain punctuation only
+        replyTo: { email, name: name.replace(/[^\p{L}\p{N} .'-]/gu, ' ').replace(/\s+/g, ' ').trim() || undefined },
+        subject,
+        text: others ? `${text}\n\nAlso sent to: ${others}` : text,
+        html: others ? `${html}<p>Also sent to: ${esc(others)}</p>` : html,
+      });
+    }));
+    let failed = 0;
+    results.forEach((r, n) => {
+      if (r.status !== 'rejected') return;
+      failed++;
+      console.log(JSON.stringify({ purchase_email_error: (to.length > 1 ? `inbox ${n + 1} of ${to.length}: ` : '') + problem(r.reason) }));
+    });
+    if (failed) status = failed === to.length ? 'email_failed' : `emailed_${to.length - failed}_of_${to.length}`;
   }
   const { tor, map, ...seen } = from;
   console.log(JSON.stringify({ purchase: request_, from: seen, check, status, thank_you: thankYou }));
